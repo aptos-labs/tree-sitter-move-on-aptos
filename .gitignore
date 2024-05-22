@@ -1,4 +1,4 @@
-# Copied from https://github.com/tree-sitter/tree-sitter-java/blob/master/.gitignore
+# Adapted from https://github.com/tree-sitter/tree-sitter-java/blob/master/.gitignore
 
 # Rust artifacts
 Cargo.lock
@@ -38,3 +38,6 @@ dist/
 *.wasm
 *.obj
 *.o
+
+# VS Code settings
+.vscode/

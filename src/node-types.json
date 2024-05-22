@@ -683,6 +683,90 @@
     }
   },
   {
+    "type": "type",
+    "named": true,
+    "fields": {
+      "closure": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": ",",
+            "named": false
+          },
+          {
+            "type": "type",
+            "named": true
+          },
+          {
+            "type": "|",
+            "named": false
+          }
+        ]
+      },
+      "mut_ref": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "&mut",
+            "named": false
+          },
+          {
+            "type": "type",
+            "named": true
+          }
+        ]
+      },
+      "ref": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "&",
+            "named": false
+          },
+          {
+            "type": "type",
+            "named": true
+          }
+        ]
+      },
+      "tuple": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "(",
+            "named": false
+          },
+          {
+            "type": ")",
+            "named": false
+          },
+          {
+            "type": ",",
+            "named": false
+          },
+          {
+            "type": "type",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "type_args",
     "named": true,
     "fields": {},
@@ -809,6 +893,14 @@
   },
   {
     "type": "#",
+    "named": false
+  },
+  {
+    "type": "&",
+    "named": false
+  },
+  {
+    "type": "&mut",
     "named": false
   },
   {
@@ -996,10 +1088,6 @@
     "named": false
   },
   {
-    "type": "type",
-    "named": true
-  },
-  {
     "type": "use",
     "named": false
   },
@@ -1009,6 +1097,10 @@
   },
   {
     "type": "{",
+    "named": false
+  },
+  {
+    "type": "|",
     "named": false
   },
   {

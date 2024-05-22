@@ -41,8 +41,22 @@ module.exports = grammar({
         // TODO: byte_string
         byte_string: $ => 'byte string',
 
-        // TODO: type
-        type: $ => 'type',
+        // Parse a Type:
+        //      Type =
+        //          <NameAccessChain> ('<' Comma<Type> ">")?
+        //          | "&" <Type>
+        //          | "&mut" <Type>
+        //          | "|" Comma<Type> "|" Type
+        //          | "(" Comma<Type> ")"
+        type: $ => choice(
+            seq(name_access_chain($, false), optional(seq('<', sepBy(',', $.type), '>'))),
+            field('ref', seq('&', $.type)),
+            field('mut_ref', seq('&mut', $.type)),
+            // `||' is treated as an empty param type list in this context.
+            // TODO: verify the associativity
+            prec.right(1, field('closure', seq('|', sepBy(',', $.type), '|', $.type))),
+            field('tuple', seq('(', sepBy(',', $.type), ')')),
+        ),
 
         // TODO: expression
         expr: $ => 'expr',
