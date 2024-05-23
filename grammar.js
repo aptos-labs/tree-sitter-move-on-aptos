@@ -41,6 +41,9 @@ module.exports = grammar({
         // TODO: byte_string
         byte_string: $ => 'byte string',
 
+        // TODO: numerical address
+        numerical_addr: $ => 'numerical address',
+
         // Parse a Type:
         //      Type =
         //          <NameAccessChain> ('<' Comma<Type> ">")?
@@ -58,11 +61,131 @@ module.exports = grammar({
             field('tuple', seq('(', sepBy(',', $.type), ')')),
         ),
 
-        // TODO: expression
-        expr: $ => 'expr',
+        // Parse an expression:
+        //      Exp =
+        //            <LambdaBindList> <Exp>
+        //          | <Quantifier>                  spec only
+        //          | <BinOpExp>
+        //          | <UnaryExp> "=" <Exp>
+        expr: $ => choice(
+            field('assignment', seq($.unary_expr, '=', $.expr)),
+            $.bin_op_expr,
+            $.quantifier,
+            field('lambda', seq($.lambda_bind_list, $.expr)),
+        ),
 
-        // TODO: numerical address
-        numerical_addr: $ => 'numerical address',
+        // TODO: lambda
+        lambda_bind_list: $ => 'lambda_bind_list',
+
+        // TODO: binary operations
+        bin_op_expr: $ => 'bin_op_expr',
+
+        // TODO: quantifier
+        quantifier: $ => 'quantifier',
+
+        // Parse a unary expression:
+        //      UnaryExp =
+        //          "!" <UnaryExp>
+        //          | "&mut" <UnaryExp>
+        //          | "&" <UnaryExp>
+        //          | "*" <UnaryExp>
+        //          | "move" <Var>
+        //          | "copy" <Var>
+        //          | <DotOrIndexChain>
+        unary_expr: $ => choice(
+            field('not_expr', seq('!', $.unary_expr)),
+            field('ref_expr', seq('&', $.unary_expr)),
+            field('ref_mut_expr', seq('&mut', $.unary_expr)),
+            field('deref_expr', seq('*', $.unary_expr)),
+            field('move_expr', seq('move', $.unary_expr)),
+            field('copy_expr', seq('copy', $.unary_expr)),
+
+            $.dot_or_index_chain,
+        ),
+
+        // Parse an expression term optionally followed by a chain of dot or index accesses:
+        //      DotOrIndexChain =
+        //          <DotOrIndexChain> "." <Identifier> [  "(" Comma<Exp> ")" ]
+        //          | <DotOrIndexChain> "[" <Exp> "]"                      spec only
+        //          | <Term>
+        dot_or_index_chain: $ => choice(
+            field('chain', seq(
+                $.dot_or_index_chain, '.', field('field', $.identifier),
+                optional(seq('(', field('args', sepBy(',', $.expr)), ')'))
+            )),
+            field('access', seq($.dot_or_index_chain, '[', field('index', $.expr), ']')),
+            $.term,
+        ),
+
+        // Parse an expression term:
+        //      Term =
+        //          "break"
+        //          | "continue"
+        //          | "vector" ('<' Comma<Type> ">")? "[" Comma<Exp> "]"
+        //          | <Value>
+        //          | "(" Comma<Exp> ")"
+        //          | "(" <Exp> ":" <Type> ")"
+        //          | "(" <Exp> "as" <Type> ")"
+        //          | "{" <Sequence>
+        //          | "if" "(" <Exp> ")" <Exp> "else" "{" <Exp> "}"
+        //          | "if" "(" <Exp> ")" "{" <Exp> "}"
+        //          | "if" "(" <Exp> ")" <Exp> ("else" <Exp>)?
+        //          | "while" "(" <Exp> ")" "{" <Exp> "}"
+        //          | "while" "(" <Exp> ")" <Exp> (SpecBlock)?
+        //          | "loop" <Exp>
+        //          | "loop" "{" <Exp> "}"
+        //          | "return" "{" <Exp> "}"
+        //          | "return" <Exp>?
+        //          | "abort" "{" <Exp> "}"
+        //          | "abort" <Exp>
+        //          | "for" "(" <Exp> "in" <Exp> ".." <Exp> ")" "{" <Exp> "}"
+        //
+        // The conflict resolution is based on `tree-sitter-javascript`'s approach.
+        // TODO: make sure this behaves the same as the `move-compiler`.
+        term: $ => choice(
+            field('break_expr', 'break'),
+            field('continue_expr', 'continue'),
+            seq('vector', optional(seq('<', sepBy(',', $.type), '>')), '[', sepBy(',', $.expr), ']'),
+            field('value_expr', $.value),
+            field('tuple_expr', seq('(', sepBy(',', $.type), ')')),
+            seq('(', $.expr, ':', $.type, ')'),
+            field('cast_expr', seq('(', $.expr, 'as', $.type, ')')),
+
+            $.expr_block,
+
+            field('spec_block', seq('spec', $.spec_block)),
+
+            // control flow expressions
+            $.if_expr,
+            $.while_expr,
+            $.loop_expr,
+            $.return_expr,
+            $.abort_expr,
+            $.for_loop_expr,
+        ),
+        parenthesized_expr: $ => seq('(', $.expr, ')'),
+        expr_block: $ => prec.right(seq('{', $.expr, '}')),
+
+        if_expr: $ => prec.right(seq(
+            'if', field('cond', $.parenthesized_expr),
+            field('then', $.expr),
+            optional(field('else', seq('else', $.expr)))
+        )),
+        while_expr: $ => seq(
+            'while', field('cond', $.parenthesized_expr),
+            // FIXME: "while" "(" <Exp> ")" <Exp> (SpecBlock)?
+            $.expr
+        ),
+        loop_expr: $ => seq('loop', field('loop_body', $.expr)),
+        return_expr: $ => seq('return', optional(field('return_val', $.expr))),
+        abort_expr: $ => seq('abort', field('abort_cond', $.expr)),
+        for_loop_expr: $ => seq(
+            'for', '(',
+            field('for_var', $.expr), 'in', field('for_range', $.expr), '..', field('for_iter', $.expr),
+            ')',
+            $.expr_block,
+        ),
+
 
         // Parse a value:
         //      Value =
