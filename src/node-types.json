@@ -8,7 +8,7 @@
     "type": "abort_expr",
     "named": true,
     "fields": {
-      "abort_cond": {
+      "condition": {
         "multiple": false,
         "required": true,
         "types": [
@@ -455,7 +455,17 @@
     "type": "for_loop_expr",
     "named": true,
     "fields": {
-      "for_iter": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "expr_block",
+            "named": true
+          }
+        ]
+      },
+      "increment": {
         "multiple": false,
         "required": true,
         "types": [
@@ -465,7 +475,7 @@
           }
         ]
       },
-      "for_range": {
+      "init": {
         "multiple": false,
         "required": true,
         "types": [
@@ -475,7 +485,7 @@
           }
         ]
       },
-      "for_var": {
+      "range": {
         "multiple": false,
         "required": true,
         "types": [
@@ -485,16 +495,6 @@
           }
         ]
       }
-    },
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "expr_block",
-          "named": true
-        }
-      ]
     }
   },
   {
@@ -594,7 +594,7 @@
     "type": "if_expr",
     "named": true,
     "fields": {
-      "cond": {
+      "condition": {
         "multiple": false,
         "required": true,
         "types": [
@@ -631,10 +631,40 @@
     }
   },
   {
+    "type": "lambda_bind_list",
+    "named": true,
+    "fields": {
+      "variable": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "bind_field",
+          "named": true
+        },
+        {
+          "type": "type_args",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "loop_expr",
     "named": true,
     "fields": {
-      "loop_body": {
+      "body": {
         "multiple": false,
         "required": true,
         "types": [
@@ -801,10 +831,118 @@
     }
   },
   {
+    "type": "quantifier",
+    "named": true,
+    "fields": {
+      "assertion": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "expr",
+            "named": true
+          }
+        ]
+      },
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "expr",
+            "named": true
+          }
+        ]
+      },
+      "scope": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "exists",
+            "named": false
+          },
+          {
+            "type": "forall",
+            "named": false
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "expr",
+          "named": true
+        },
+        {
+          "type": "quantifier_bind",
+          "named": true
+        },
+        {
+          "type": "triggers",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "quantifier_bind",
+    "named": true,
+    "fields": {
+      "exist_bind": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "in",
+            "named": false
+          }
+        ]
+      },
+      "scope": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "expr",
+            "named": true
+          }
+        ]
+      },
+      "type_bind": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": ":",
+            "named": false
+          },
+          {
+            "type": "type",
+            "named": true
+          }
+        ]
+      },
+      "var": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "return_expr",
     "named": true,
     "fields": {
-      "return_val": {
+      "value": {
         "multiple": false,
         "required": false,
         "types": [
@@ -1129,6 +1267,22 @@
     }
   },
   {
+    "type": "triggers",
+    "named": true,
+    "fields": {
+      "trigger": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "expr",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "type",
     "named": true,
     "fields": {
@@ -1437,6 +1591,16 @@
     "type": "while_expr",
     "named": true,
     "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "expr",
+            "named": true
+          }
+        ]
+      },
       "cond": {
         "multiple": false,
         "required": true,
@@ -1447,16 +1611,6 @@
           }
         ]
       }
-    },
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "expr",
-          "named": true
-        }
-      ]
     }
   },
   {
@@ -1568,6 +1722,10 @@
     "named": true
   },
   {
+    "type": "choose",
+    "named": false
+  },
+  {
     "type": "const",
     "named": false
   },
@@ -1588,11 +1746,19 @@
     "named": false
   },
   {
+    "type": "exists",
+    "named": false
+  },
+  {
     "type": "false",
     "named": false
   },
   {
     "type": "for",
+    "named": false
+  },
+  {
+    "type": "forall",
     "named": false
   },
   {
@@ -1628,15 +1794,15 @@
     "named": false
   },
   {
-    "type": "lambda_bind_list",
-    "named": true
-  },
-  {
     "type": "let",
     "named": false
   },
   {
     "type": "loop",
+    "named": false
+  },
+  {
+    "type": "min",
     "named": false
   },
   {
@@ -1674,10 +1840,6 @@
   {
     "type": "pure",
     "named": false
-  },
-  {
-    "type": "quantifier",
-    "named": true
   },
   {
     "type": "reads",
@@ -1721,6 +1883,10 @@
   },
   {
     "type": "vector",
+    "named": false
+  },
+  {
+    "type": "where",
     "named": false
   },
   {

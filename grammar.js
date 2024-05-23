@@ -4,6 +4,8 @@
 const sepBy1 = (sep, rule) => seq(rule, repeat(seq(sep, rule)));
 const sepBy = (sep, rule) => optional(sepBy1(sep, rule));
 
+const sepByComma = (rule) => sepBy(',', rule);
+
 const leading_name_access = ($, wildcard) =>
     (wildcard)
         ? choice($.identifier, '*', $.numerical_addr)
@@ -52,13 +54,13 @@ module.exports = grammar({
         //          | "|" Comma<Type> "|" Type
         //          | "(" Comma<Type> ")"
         type: $ => choice(
-            seq(name_access_chain($, false), optional(seq('<', sepBy(',', $.type), '>'))),
+            seq(name_access_chain($, false), optional(seq('<', sepByComma($.type), '>'))),
             field('ref', seq('&', $.type)),
             field('mut_ref', seq('&mut', $.type)),
             // `||' is treated as an empty param type list in this context.
             // TODO: verify the associativity
-            prec.right(1, field('closure', seq('|', sepBy(',', $.type), '|', $.type))),
-            field('tuple', seq('(', sepBy(',', $.type), ')')),
+            prec.right(1, field('closure', seq('|', sepByComma($.type), '|', $.type))),
+            field('tuple', seq('(', sepByComma($.type), ')')),
         ),
 
         // Parse an expression:
@@ -74,14 +76,42 @@ module.exports = grammar({
             field('lambda', seq($.lambda_bind_list, $.expr)),
         ),
 
-        // TODO: lambda
-        lambda_bind_list: $ => 'lambda_bind_list',
+        // Parse a list of bindings for lambda.
+        //      LambdaBindList = "|" Comma<Bind> "|"
+        lambda_bind_list: $ => seq('|', sepByComma($._bind), '|'),
 
         // TODO: binary operations
         bin_op_expr: $ => 'bin_op_expr',
 
-        // TODO: quantifier
-        quantifier: $ => 'quantifier',
+        // Parses a quantifier expressions
+        //
+        //   <Quantifier> =
+        //       ( "forall" | "exists" ) <QuantifierBindings> <Triggers>? ("where" <Exp>)? ":" Exp
+        //     | ( "choose" [ "min" ] ) <QuantifierBind> "where" <Exp>
+        //   <QuantifierBindings>   = <QuantifierBind> ("," <QuantifierBind>)*
+        //   <QuantifierBind>       = <Identifier> ":" <Type> | <Identifier> "in" <Exp>
+        //   <Triggers>             = ("{" Comma<Exp> "}")+
+        quantifier: $ => choice(
+            seq(
+                field('scope', choice('forall', 'exists')),
+                sepByComma($.quantifier_bind),
+                optional($.triggers),
+                optional(seq('where', $.expr)),
+                ':',
+                field('assertion', $.expr),
+            ),
+            seq(
+                choice('choose', 'min'),
+                $.quantifier_bind,
+                'where',
+                field('body', $.expr),
+            )
+        ),
+        quantifier_bind: $ => choice(
+            field('type_bind', seq(field('var', $.identifier), ':', $.type)),
+            field('exist_bind', seq(field('var', $.identifier), 'in', field('scope', $.expr))),
+        ),
+        triggers: $ => repeat1(seq('{', field('trigger', $.expr), '}')),
 
         // Parse a unary expression:
         //      UnaryExp =
@@ -111,7 +141,7 @@ module.exports = grammar({
         dot_or_index_chain: $ => choice(
             field('chain', seq(
                 $.dot_or_index_chain, '.', field('field', $.identifier),
-                optional(seq('(', field('args', sepBy(',', $.expr)), ')'))
+                optional(seq('(', field('args', sepByComma($.expr)), ')'))
             )),
             field('access', seq($.dot_or_index_chain, '[', field('index', $.expr), ']')),
             $.term,
@@ -142,12 +172,13 @@ module.exports = grammar({
         //
         // The conflict resolution is based on `tree-sitter-javascript`'s approach.
         // TODO: make sure this behaves the same as the `move-compiler`.
+        //       `lambda_bind_list` might also be involved.
         term: $ => choice(
             field('break_expr', 'break'),
             field('continue_expr', 'continue'),
-            seq('vector', optional(seq('<', sepBy(',', $.type), '>')), '[', sepBy(',', $.expr), ']'),
+            seq('vector', optional(seq('<', sepByComma($.type), '>')), '[', sepByComma($.expr), ']'),
             field('value_expr', $.value),
-            field('tuple_expr', seq('(', sepBy(',', $.type), ')')),
+            field('tuple_expr', seq('(', sepByComma($.type), ')')),
             seq('(', $.expr, ':', $.type, ')'),
             field('cast_expr', seq('(', $.expr, 'as', $.type, ')')),
 
@@ -167,23 +198,24 @@ module.exports = grammar({
         expr_block: $ => prec.right(seq('{', $.expr, '}')),
 
         if_expr: $ => prec.right(seq(
-            'if', field('cond', $.parenthesized_expr),
+            'if', field('condition', $.parenthesized_expr),
             field('then', $.expr),
             optional(field('else', seq('else', $.expr)))
         )),
         while_expr: $ => seq(
-            'while', field('cond', $.parenthesized_expr),
+            'while',
+            field('cond', $.parenthesized_expr),
+            field('body', $.expr),
             // FIXME: "while" "(" <Exp> ")" <Exp> (SpecBlock)?
-            $.expr
         ),
-        loop_expr: $ => seq('loop', field('loop_body', $.expr)),
-        return_expr: $ => seq('return', optional(field('return_val', $.expr))),
-        abort_expr: $ => seq('abort', field('abort_cond', $.expr)),
+        loop_expr: $ => seq('loop', field('body', $.expr)),
+        return_expr: $ => seq('return', optional(field('value', $.expr))),
+        abort_expr: $ => seq('abort', field('condition', $.expr)),
         for_loop_expr: $ => seq(
             'for', '(',
-            field('for_var', $.expr), 'in', field('for_range', $.expr), '..', field('for_iter', $.expr),
+            field('init', $.expr), 'in', field('range', $.expr), '..', field('increment', $.expr),
             ')',
-            $.expr_block,
+            field('body', $.expr_block),
         ),
 
 
@@ -207,7 +239,7 @@ module.exports = grammar({
         // Attributes = ("#" "[" Comma<Attribute> "]")*
         // However, tree sitter does not allow empty matching. Thus, `attributes` only
         // accepts non-empty attribute list.
-        attributes: $ => repeat1(seq('#', '[', sepBy(',', $.attribute), ']')),
+        attributes: $ => repeat1(seq('#', '[', sepByComma($.attribute), ']')),
 
         // Attribute =
         //     <Identifier>
@@ -216,7 +248,7 @@ module.exports = grammar({
         attribute: $ => choice(
             field('attribute_item', $.identifier),
             seq(field('attribute_item', $.identifier), '=', $.attribute_val),
-            seq(field('attribute_item', $.identifier), '(', sepBy(',', $.attribute), ')')
+            seq(field('attribute_item', $.identifier), '(', sepByComma($.attribute), ')')
         ),
 
         // Parse an attribute value. Either a value literal or a module access
@@ -285,7 +317,7 @@ module.exports = grammar({
         use_decl: $ => seq('use', $.module_ident, choice(
             $._use_alias,
             $._use_member,
-            seq('{', sepBy(',', $._use_member), '}')
+            seq('{', sepByComma($._use_member), '}')
         ), ';'),
 
         // UseAlias = ("as" <Identifier>)?
@@ -312,8 +344,8 @@ module.exports = grammar({
         //      Sequence = <UseDecl>* (<SequenceItem> ";")* <Exp>?
         function_decl: $ => seq(
             optional('inline'), 'fun', field('function_name', $.identifier),
-            optional(seq('<', sepBy(',', $.type_param), '>')),
-            '(', field('parameters', sepBy(',', $.parameter)), ')',
+            optional(seq('<', sepByComma($.type_param), '>')),
+            '(', field('parameters', sepByComma($.parameter)), ')',
             optional(seq(':', $.type)),
             repeat(seq(
                 choice(
@@ -369,7 +401,7 @@ module.exports = grammar({
         struct_decl: $ => seq(
             'struct', field('struct_def_name', $.identifier),
             optional(seq('has', sepBy1(',', $.ability))),
-            choice(field('body', seq('{', sepBy(',', $.field_annot), '}')), ';')
+            choice(field('body', seq('{', sepByComma($.field_annot), '}')), ';')
         ),
 
         // FieldAnnot = <DocComments> <Field> ":" <Type>
@@ -393,17 +425,17 @@ module.exports = grammar({
         ),
 
         // BindList = <Bind> | "(" Comma<Bind> ")"
-        bind_list: $ => choice($._bind, seq('(', sepBy(',', $._bind), ')')),
+        bind_list: $ => choice($._bind, seq('(', sepByComma($._bind), ')')),
 
         // Bind = <Var>
         //      | <NameAccessChain> <OptionalTypeArgs> "{" Comma<BindField> "}"
         _bind: $ => choice(
             field('variable', $.identifier),
-            seq(name_access_chain($, false), optional($.type_args), '{', sepBy(',', $.bind_field), '}'),
+            seq(name_access_chain($, false), optional($.type_args), '{', sepByComma($.bind_field), '}'),
         ),
 
         // OptionalTypeArgs = '<' Comma<Type> ">" | <empty>
-        type_args: $ => seq('<', sepBy(',', $.type), '>'),
+        type_args: $ => seq('<', sepByComma($.type), '>'),
 
         // BindField    = <Field> <":" <Bind>>?
         // Field        = <Identifier>
