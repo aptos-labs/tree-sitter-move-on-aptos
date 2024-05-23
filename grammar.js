@@ -15,6 +15,33 @@ const name_access_chain = ($, wildcard) => {
     return 'name_access_chain';
 };
 
+const binary_operators = [
+    [],                                                                     // 1 (no binary operators have precedence 1)
+    [['==>', 'equal_equal_greater'], ['<==>', 'less_equal_equal_greater']], // 2
+    [['||', 'pipe_pipe']],                                                  // 3
+    [['&&', 'amp_amp']],                                                    // 4
+    [['==', 'equal_equal'], ['!=', 'exclaim_equal'], ['<', 'less'],
+    ['>', 'greater'], ['<=', 'less_equal'], ['>=', 'greater_equal']],       // 5
+    [['..', 'period_period']],  // 6
+    [['|', 'pipe']],            // 7
+    [['^', 'caret']],           // 8
+    [['&', 'amp']],             // 9
+    [['<<', 'less_less'], ['>>', 'greater_greater']],   // 10
+    [['+', 'plus'], ['-', 'minus']],                    // 11
+    [['*', 'star'], ['/', 'slash'], ['%', 'percent']],  // 12
+];
+
+const expr_precedence = {
+    default: 1,
+    last: -1,
+
+    // immediately after the multiplicative operators (*, /, %)
+    unary: 13,
+    field: 14,
+    call: 15,
+    range: 16,
+};
+
 
 module.exports = grammar({
     name: 'move_aptos',
@@ -32,34 +59,34 @@ module.exports = grammar({
         )),
 
         // TODO: identifier
-        identifier: $ => 'identifier',
+        identifier: _ => 'identifier',
 
         // TODO: number
-        number: $ => 'number',
+        number: _ => 'number',
 
         // TODO: number typed
-        number_typed: $ => 'number typed',
+        number_typed: _ => 'number typed',
 
         // TODO: byte_string
-        byte_string: $ => 'byte string',
+        byte_string: _ => 'byte string',
 
         // TODO: numerical address
-        numerical_addr: $ => 'numerical address',
+        numerical_addr: _ => 'numerical address',
 
         // Parse a Type:
         //      Type =
-        //          <NameAccessChain> ('<' Comma<Type> ">")?
+        //          <NameAccessChain> <TypeArgs>?
         //          | "&" <Type>
         //          | "&mut" <Type>
         //          | "|" Comma<Type> "|" Type
         //          | "(" Comma<Type> ")"
         type: $ => choice(
-            seq(name_access_chain($, false), optional(seq('<', sepByComma($.type), '>'))),
+            seq(name_access_chain($, false), optional($.type_args)),
             field('ref', seq('&', $.type)),
             field('mut_ref', seq('&mut', $.type)),
             // `||' is treated as an empty param type list in this context.
             // TODO: verify the associativity
-            prec.right(1, field('closure', seq('|', sepByComma($.type), '|', $.type))),
+            prec.right(expr_precedence.default, field('closure_type', seq('|', sepByComma($.type), '|', $.type))),
             field('tuple', seq('(', sepByComma($.type), ')')),
         ),
 
@@ -70,7 +97,7 @@ module.exports = grammar({
         //          | <BinOpExp>
         //          | <UnaryExp> "=" <Exp>
         expr: $ => choice(
-            field('assignment', seq($.unary_expr, '=', $.expr)),
+            prec.left(field('assignment', seq($.unary_expr, '=', $.expr))),
             $.bin_op_expr,
             $.quantifier,
             field('lambda', seq($.lambda_bind_list, $.expr)),
@@ -79,9 +106,6 @@ module.exports = grammar({
         // Parse a list of bindings for lambda.
         //      LambdaBindList = "|" Comma<Bind> "|"
         lambda_bind_list: $ => seq('|', sepByComma($._bind), '|'),
-
-        // TODO: binary operations
-        bin_op_expr: $ => 'bin_op_expr',
 
         // Parses a quantifier expressions
         //
@@ -113,6 +137,21 @@ module.exports = grammar({
         ),
         triggers: $ => repeat1(seq('{', field('trigger', $.expr), '}')),
 
+        // Parse a binary operator expression:
+        //      BinOpExp = <BinOpExp> <BinOp> <BinOpExp>
+        //               | <UnaryExp>
+        bin_op_expr: $ => choice(
+            prec(expr_precedence.unary, $.unary_expr),
+
+            // binary operators
+            ...binary_operators.flatMap(
+                (level, index) => level.map(([symbol, name]) => prec.left(
+                    index + 2,
+                    field(name, seq($.bin_op_expr, symbol, $.bin_op_expr))
+                ))
+            ),
+        ),
+
         // Parse a unary expression:
         //      UnaryExp =
         //          "!" <UnaryExp>
@@ -130,21 +169,22 @@ module.exports = grammar({
             field('move_expr', seq('move', $.unary_expr)),
             field('copy_expr', seq('copy', $.unary_expr)),
 
-            $.dot_or_index_chain,
+            prec(expr_precedence.field, $.dot_or_index_chain),
         ),
 
         // Parse an expression term optionally followed by a chain of dot or index accesses:
         //      DotOrIndexChain =
-        //          <DotOrIndexChain> "." <Identifier> [  "(" Comma<Exp> ")" ]
+        //          <DotOrIndexChain> "." <Identifier> [ ["::" <TypeArgs>]  <CallArgs> ]
         //          | <DotOrIndexChain> "[" <Exp> "]"                      spec only
         //          | <Term>
         dot_or_index_chain: $ => choice(
-            field('chain', seq(
-                $.dot_or_index_chain, '.', field('field', $.identifier),
-                optional(seq('(', field('args', sepByComma($.expr)), ')'))
+            field('dot', seq($.dot_or_index_chain, '.', field('field', $.identifier))),
+            field('call', seq($.dot_or_index_chain, '.', field('field', $.identifier),
+                optional(field('type_generics', seq('::', $.type_args))),
+                $.call_args,
             )),
-            field('access', seq($.dot_or_index_chain, '[', field('index', $.expr), ']')),
-            $.term,
+            field('mem_access', seq($.dot_or_index_chain, '[', field('index', $.expr), ']')),
+            field('value', $.term),
         ),
 
         // Parse an expression term:
@@ -169,6 +209,7 @@ module.exports = grammar({
         //          | "abort" "{" <Exp> "}"
         //          | "abort" <Exp>
         //          | "for" "(" <Exp> "in" <Exp> ".." <Exp> ")" "{" <Exp> "}"
+        //          | <NameExp>
         //
         // The conflict resolution is based on `tree-sitter-javascript`'s approach.
         // TODO: make sure this behaves the same as the `move-compiler`.
@@ -176,13 +217,14 @@ module.exports = grammar({
         term: $ => choice(
             field('break_expr', 'break'),
             field('continue_expr', 'continue'),
-            seq('vector', optional(seq('<', sepByComma($.type), '>')), '[', sepByComma($.expr), ']'),
+            field('vector_access', seq('vector', optional($.type_args), '[', sepByComma($.expr), ']')),
             field('value_expr', $.value),
             field('tuple_expr', seq('(', sepByComma($.type), ')')),
             seq('(', $.expr, ':', $.type, ')'),
             field('cast_expr', seq('(', $.expr, 'as', $.type, ')')),
 
             $.expr_block,
+            $.name_expr,
 
             field('spec_block', seq('spec', $.spec_block)),
 
@@ -196,26 +238,59 @@ module.exports = grammar({
         ),
         parenthesized_expr: $ => seq('(', $.expr, ')'),
         expr_block: $ => prec.right(seq('{', $.expr, '}')),
-
+        // Control flow expressions:
         if_expr: $ => prec.right(seq(
-            'if', field('condition', $.parenthesized_expr),
+            'if',
+            field('condition', $.parenthesized_expr),
             field('then', $.expr),
             optional(field('else', seq('else', $.expr)))
         )),
         while_expr: $ => seq(
             'while',
-            field('cond', $.parenthesized_expr),
+            field('condition', $.parenthesized_expr),
             field('body', $.expr),
-            // FIXME: "while" "(" <Exp> ")" <Exp> (SpecBlock)?
         ),
         loop_expr: $ => seq('loop', field('body', $.expr)),
-        return_expr: $ => seq('return', optional(field('value', $.expr))),
+        return_expr: $ => choice(
+            prec(expr_precedence.last, 'return'),
+            prec.left(seq('return', field('value', $.expr))),
+        ),
         abort_expr: $ => seq('abort', field('condition', $.expr)),
         for_loop_expr: $ => seq(
             'for', '(',
             field('init', $.expr), 'in', field('range', $.expr), '..', field('increment', $.expr),
             ')',
             field('body', $.expr_block),
+        ),
+
+        // Parse a pack, call, or other reference to a name:
+        //      NameExp =
+        //          <NameAccessChain> <OptionalTypeArgs> "{" Comma<ExpField> "}"
+        //          | <NameAccessChain> <OptionalTypeArgs> <CallArgs>
+        //          | <NameAccessChain> "!" <CallArgs>
+        //          | <NameAccessChain> <OptionalTypeArgs>
+        name_expr: $ => choice(
+            // <NameAccessChain> <TypeArgs>? prefix
+            field('name', seq(name_access_chain($, false), optional(field('generics', $.type_args)))),
+            prec(expr_precedence.call, field('call', seq(
+                name_access_chain($, false), optional(field('generics', $.type_args)), $.call_args
+            ))),
+            prec(expr_precedence.default, field('pack', seq(
+                name_access_chain($, false), optional(field('generics', $.type_args)),
+                '{', sepByComma($.expr_field), '}'
+            ))),
+            // macro call
+            prec(expr_precedence.default, field('macro_call', seq(name_access_chain($, false), '!', $.call_args))),
+        ),
+
+        call_args: $ => seq('(', sepByComma($.expr), ')'),
+        type_args: $ => seq('<', sepByComma($.type), '>'),
+
+        // Parse a field name optionally followed by a colon and an expression argument:
+        //      ExpField = <Field> <":" <Exp>>?
+        expr_field: $ => seq(
+            field('field', $.identifier),
+            optional(field('value', seq(':', $.expr)))
         ),
 
 
@@ -369,7 +444,7 @@ module.exports = grammar({
         //  Constraint      = ":" <Ability> (+ <Ability>)*
         type_param: $ => seq(
             field('type', $.identifier),
-            optional(field('constraints', seq(':', $.ability, repeat(seq('+', $.ability)))))
+            optional(field('constraints', seq(':', sepBy1('+', $.ability))))
         ),
 
         // Parameter = <Var> ":" <Type>
