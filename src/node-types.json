@@ -24,6 +24,26 @@
     "type": "access_specifier",
     "named": true,
     "fields": {
+      "access_three": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "::",
+            "named": false
+          }
+        ]
+      },
+      "access_two": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "::",
+            "named": false
+          }
+        ]
+      },
       "arg": {
         "multiple": false,
         "required": false,
@@ -34,13 +54,13 @@
           }
         ]
       },
-      "func": {
-        "multiple": false,
-        "required": false,
+      "leading_name_access": {
+        "multiple": true,
+        "required": true,
         "types": [
           {
-            "type": "name_access_chain",
-            "named": false
+            "type": "numerical_addr",
+            "named": true
           }
         ]
       },
@@ -51,6 +71,20 @@
           {
             "type": "number",
             "named": true
+          }
+        ]
+      },
+      "path": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "x",
+            "named": false
           }
         ]
       }
@@ -84,25 +118,38 @@
   {
     "type": "address_block",
     "named": true,
-    "fields": {},
+    "fields": {
+      "leading_name_access": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "numerical_addr",
+            "named": true
+          }
+        ]
+      },
+      "path": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
-      "required": true,
+      "required": false,
       "types": [
         {
           "type": "attributes",
           "named": true
         },
         {
-          "type": "identifier",
-          "named": true
-        },
-        {
           "type": "module",
-          "named": true
-        },
-        {
-          "type": "numerical_addr",
           "named": true
         }
       ]
@@ -141,7 +188,48 @@
   {
     "type": "attribute_val",
     "named": true,
-    "fields": {},
+    "fields": {
+      "access_three": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "::",
+            "named": false
+          }
+        ]
+      },
+      "access_two": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "::",
+            "named": false
+          }
+        ]
+      },
+      "leading_name_access": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "numerical_addr",
+            "named": true
+          }
+        ]
+      },
+      "path": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": false,
       "required": false,
@@ -482,9 +570,49 @@
     "type": "bind_field",
     "named": true,
     "fields": {
+      "access_three": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "::",
+            "named": false
+          }
+        ]
+      },
+      "access_two": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "::",
+            "named": false
+          }
+        ]
+      },
       "field": {
         "multiple": false,
         "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "leading_name_access": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "numerical_addr",
+            "named": true
+          }
+        ]
+      },
+      "path": {
+        "multiple": true,
+        "required": false,
         "types": [
           {
             "type": "identifier",
@@ -522,6 +650,46 @@
     "type": "bind_list",
     "named": true,
     "fields": {
+      "access_three": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "::",
+            "named": false
+          }
+        ]
+      },
+      "access_two": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "::",
+            "named": false
+          }
+        ]
+      },
+      "leading_name_access": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "numerical_addr",
+            "named": true
+          }
+        ]
+      },
+      "path": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
       "variable": {
         "multiple": true,
         "required": false,
@@ -547,6 +715,11 @@
         }
       ]
     }
+  },
+  {
+    "type": "byte_string",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "call_args",
@@ -865,7 +1038,48 @@
   {
     "type": "friend_decl",
     "named": true,
-    "fields": {}
+    "fields": {
+      "access_three": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "::",
+            "named": false
+          }
+        ]
+      },
+      "access_two": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "::",
+            "named": false
+          }
+        ]
+      },
+      "leading_name_access": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "numerical_addr",
+            "named": true
+          }
+        ]
+      },
+      "path": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    }
   },
   {
     "type": "function_decl",
@@ -999,6 +1213,46 @@
     "type": "lambda_bind_list",
     "named": true,
     "fields": {
+      "access_three": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "::",
+            "named": false
+          }
+        ]
+      },
+      "access_two": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "::",
+            "named": false
+          }
+        ]
+      },
+      "leading_name_access": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "numerical_addr",
+            "named": true
+          }
+        ]
+      },
+      "path": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
       "variable": {
         "multiple": true,
         "required": false,
@@ -1067,9 +1321,29 @@
           }
         ]
       },
+      "leading_name_access": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "numerical_addr",
+            "named": true
+          }
+        ]
+      },
       "module_name": {
         "multiple": false,
         "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "path": {
+        "multiple": false,
+        "required": false,
         "types": [
           {
             "type": "identifier",
@@ -1091,14 +1365,6 @@
           "named": true
         },
         {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "numerical_addr",
-          "named": true
-        },
-        {
           "type": "spec_block",
           "named": true
         },
@@ -1113,6 +1379,16 @@
     "type": "module_ident",
     "named": true,
     "fields": {
+      "leading_name_access": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "numerical_addr",
+            "named": true
+          }
+        ]
+      },
       "module_name": {
         "multiple": false,
         "required": true,
@@ -1122,21 +1398,17 @@
             "named": true
           }
         ]
+      },
+      "path": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
       }
-    },
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "numerical_addr",
-          "named": true
-        }
-      ]
     }
   },
   {
@@ -1158,17 +1430,33 @@
     "type": "name_expr",
     "named": true,
     "fields": {
+      "access_three": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "::",
+            "named": false
+          }
+        ]
+      },
+      "access_two": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "::",
+            "named": false
+          }
+        ]
+      },
       "call": {
-        "multiple": true,
+        "multiple": false,
         "required": false,
         "types": [
           {
             "type": "call_args",
             "named": true
-          },
-          {
-            "type": "name_access_chain",
-            "named": false
           }
         ]
       },
@@ -1178,6 +1466,16 @@
         "types": [
           {
             "type": "type_args",
+            "named": true
+          }
+        ]
+      },
+      "leading_name_access": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "numerical_addr",
             "named": true
           }
         ]
@@ -1193,20 +1491,6 @@
           {
             "type": "call_args",
             "named": true
-          },
-          {
-            "type": "name_access_chain",
-            "named": false
-          }
-        ]
-      },
-      "name": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "name_access_chain",
-            "named": false
           }
         ]
       },
@@ -1223,10 +1507,6 @@
             "named": true
           },
           {
-            "type": "name_access_chain",
-            "named": false
-          },
-          {
             "type": "{",
             "named": false
           },
@@ -1235,8 +1515,33 @@
             "named": false
           }
         ]
+      },
+      "path": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
       }
     }
+  },
+  {
+    "type": "number",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "number_typed",
+    "named": false,
+    "fields": {}
+  },
+  {
+    "type": "numerical_addr",
+    "named": false,
+    "fields": {}
   },
   {
     "type": "parameter",
@@ -1769,6 +2074,26 @@
     "type": "type",
     "named": true,
     "fields": {
+      "access_three": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "::",
+            "named": false
+          }
+        ]
+      },
+      "access_two": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "::",
+            "named": false
+          }
+        ]
+      },
       "closure_type": {
         "multiple": true,
         "required": false,
@@ -1787,6 +2112,16 @@
           }
         ]
       },
+      "leading_name_access": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "numerical_addr",
+            "named": true
+          }
+        ]
+      },
       "mut_ref": {
         "multiple": true,
         "required": false,
@@ -1797,6 +2132,16 @@
           },
           {
             "type": "type",
+            "named": true
+          }
+        ]
+      },
+      "path": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
             "named": true
           }
         ]
@@ -2037,7 +2382,28 @@
   {
     "type": "value",
     "named": true,
-    "fields": {},
+    "fields": {
+      "leading_name_access": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "numerical_addr",
+            "named": true
+          }
+        ]
+      },
+      "path": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": false,
       "required": false,
@@ -2047,19 +2413,11 @@
           "named": true
         },
         {
-          "type": "identifier",
-          "named": true
-        },
-        {
           "type": "number",
           "named": true
         },
         {
           "type": "number_typed",
-          "named": true
-        },
-        {
-          "type": "numerical_addr",
           "named": true
         }
       ]
@@ -2249,10 +2607,6 @@
     "named": false
   },
   {
-    "type": "byte_string",
-    "named": true
-  },
-  {
     "type": "choose",
     "named": false
   },
@@ -2345,24 +2699,12 @@
     "named": false
   },
   {
-    "type": "name_access_chain",
-    "named": false
-  },
-  {
     "type": "native",
     "named": false
   },
   {
-    "type": "number",
-    "named": true
-  },
-  {
-    "type": "number_typed",
-    "named": true
-  },
-  {
     "type": "numerical_addr",
-    "named": true
+    "named": false
   },
   {
     "type": "public",
@@ -2409,6 +2751,30 @@
     "named": false
   },
   {
+    "type": "u128",
+    "named": false
+  },
+  {
+    "type": "u16",
+    "named": false
+  },
+  {
+    "type": "u256",
+    "named": false
+  },
+  {
+    "type": "u32",
+    "named": false
+  },
+  {
+    "type": "u64",
+    "named": false
+  },
+  {
+    "type": "u8",
+    "named": false
+  },
+  {
     "type": "use",
     "named": false
   },
@@ -2426,6 +2792,10 @@
   },
   {
     "type": "writes",
+    "named": false
+  },
+  {
+    "type": "x",
     "named": false
   },
   {

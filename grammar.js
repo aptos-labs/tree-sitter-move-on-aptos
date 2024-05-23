@@ -3,16 +3,27 @@
 // source: https://github.com/tree-sitter/tree-sitter-javascript/blob/master/grammar.js
 const sepBy1 = (sep, rule) => seq(rule, repeat(seq(sep, rule)));
 const sepBy = (sep, rule) => optional(sepBy1(sep, rule));
-
 const sepByComma = (rule) => sepBy(',', rule);
 
-const leading_name_access = ($, wildcard) =>
-    (wildcard)
-        ? choice($.identifier, '*', $.numerical_addr)
-        : choice($.identifier, $.numerical_addr);
+const chain_ident = ($, wildcard) => field('path', (wildcard) ? choice('x', $.identifier) : $.identifier);
+const leading_name_access = ($, wildcard) => field(
+    'leading_name_access',
+    seq(chain_ident($, wildcard), $.numerical_addr)
+);
+// NameAccessChain = <LeadingNameAccess> ( "::" <Identifier> ( "::" <Identifier> )? )?
+// `Identifier` can be `*` if `wildcard = true`
 const name_access_chain = ($, wildcard) => {
-    // TODO.
-    return 'name_access_chain';
+    const ident = () => chain_ident($, wildcard);
+    return field(
+        'name_access_chain',
+        seq(
+            leading_name_access($, wildcard),
+            optional(field('access_two',
+                seq('::', ident(),
+                    optional(field('access_three', seq('::', ident()))))
+            )),
+        ),
+    );
 };
 
 const binary_operators = [
@@ -58,20 +69,21 @@ module.exports = grammar({
             choice($.module, $.script, $.address_block)
         )),
 
-        // TODO: identifier
-        identifier: _ => 'identifier',
+        number_size: _ => choice(
+            'u8', 'u16', 'u32', 'u64', 'u128', 'u256'
+        ),
 
-        // TODO: number
-        number: _ => 'number',
-
-        // TODO: number typed
-        number_typed: _ => 'number typed',
-
-        // TODO: byte_string
-        byte_string: _ => 'byte string',
-
-        // TODO: numerical address
-        numerical_addr: _ => 'numerical address',
+        identifier: _ => /[a-zA-Z_]\w*/,
+        number: _ => choice(
+            /\d+/,
+            /0[xX][\da-fA-F]+/,
+        ),
+        numerical_addr: $ => alias(seq('@', $.number), 'numerical_addr'),
+        number_typed: $ => alias(seq($.number, $.number_size), 'number_typed'),
+        byte_string: _ => choice(
+            /x\"[\da-fA-F]*\"/,
+            /d\"[\w]*\"/,
+        ),
 
         // Parse a Type:
         //      Type =
@@ -329,9 +341,6 @@ module.exports = grammar({
         // Parse an attribute value. Either a value literal or a module access
         //  AttributeValue = <Value> | <NameAccessChain>
         attribute_val: $ => choice($.value, name_access_chain($, false)),
-
-        // TODO: name_access_chain (treated with special care)
-        _name_access_chain: $ => 'name_access_chain',
 
         // AddressBlock = "address" <LeadingNameAccess> "{" (<Attributes> <Module>)* "}"
         address_block: $ => seq(
