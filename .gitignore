@@ -41,3 +41,6 @@ dist/
 
 # VS Code settings
 .vscode/
+
+# Tree sitter parsing output
+log.html
