@@ -744,6 +744,14 @@
           "named": true
         },
         {
+          "type": "spec_func",
+          "named": true
+        },
+        {
+          "type": "spec_invariant",
+          "named": true
+        },
+        {
           "type": "struct_decl",
           "named": true
         },
@@ -4668,7 +4676,7 @@
           "named": true
         },
         {
-          "type": "type_param",
+          "type": "type_params",
           "named": true
         }
       ]
@@ -5353,6 +5361,132 @@
   {
     "type": "spec_block",
     "named": true,
+    "fields": {
+      "member": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "spec_apply",
+            "named": true
+          },
+          {
+            "type": "spec_axiom",
+            "named": true
+          },
+          {
+            "type": "spec_condition",
+            "named": true
+          },
+          {
+            "type": "spec_func",
+            "named": true
+          },
+          {
+            "type": "spec_include",
+            "named": true
+          },
+          {
+            "type": "spec_invariant",
+            "named": true
+          },
+          {
+            "type": "spec_let",
+            "named": true
+          },
+          {
+            "type": "spec_pragma",
+            "named": true
+          },
+          {
+            "type": "spec_update",
+            "named": true
+          },
+          {
+            "type": "spec_variable",
+            "named": true
+          }
+        ]
+      },
+      "use": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "use_decl",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "spec_block_target",
+          "named": true
+        },
+        {
+          "type": "spec_func",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "spec_block_target",
+    "named": true,
+    "fields": {
+      "func_name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "module": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "module",
+            "named": false
+          }
+        ]
+      },
+      "schema": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "schema",
+            "named": false
+          },
+          {
+            "type": "type_params",
+            "named": true
+          }
+        ]
+      },
+      "schema_name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "spec_func",
+    "named": true,
     "fields": {}
   },
   {
@@ -5915,6 +6049,21 @@
     }
   },
   {
+    "type": "type_params",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "type_param",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "typed_number",
     "named": false,
     "fields": {
@@ -6403,11 +6552,11 @@
     "named": false
   },
   {
-    "type": "regular",
+    "type": "return",
     "named": false
   },
   {
-    "type": "return",
+    "type": "schema",
     "named": false
   },
   {
@@ -6415,12 +6564,44 @@
     "named": false
   },
   {
-    "type": "singleton",
+    "type": "spec",
     "named": false
   },
   {
-    "type": "spec",
-    "named": false
+    "type": "spec_apply",
+    "named": true
+  },
+  {
+    "type": "spec_axiom",
+    "named": true
+  },
+  {
+    "type": "spec_condition",
+    "named": true
+  },
+  {
+    "type": "spec_include",
+    "named": true
+  },
+  {
+    "type": "spec_invariant",
+    "named": true
+  },
+  {
+    "type": "spec_let",
+    "named": true
+  },
+  {
+    "type": "spec_pragma",
+    "named": true
+  },
+  {
+    "type": "spec_update",
+    "named": true
+  },
+  {
+    "type": "spec_variable",
+    "named": true
   },
   {
     "type": "store",

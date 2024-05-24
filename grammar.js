@@ -47,14 +47,14 @@ const binary_operators = [
 ];
 
 const expr_precedence = {
-    default: 1,
-    last: -1,
+    DEFAULT: 1,
+    LAST: -1,
 
     // immediately after the multiplicative operators (*, /, %)
-    unary: 13,
-    field: 14,
-    call: 15,
-    range: 16,
+    UNARY: 13,
+    FIELD: 14,
+    CALL: 15,
+    RANGE: 16,
 };
 
 module.exports = grammar({
@@ -123,7 +123,7 @@ module.exports = grammar({
             field('mut_ref', seq('&mut', $.type)),
             // `||' is treated as an empty param type list in this context.
             // TODO: verify the associativity
-            prec.right(expr_precedence.default, field('closure_type', seq('|', sepByComma($.type), '|', $.type))),
+            prec.right(expr_precedence.DEFAULT, field('closure_type', seq('|', sepByComma($.type), '|', $.type))),
             field('tuple', seq('(', sepByComma($.type), ')')),
         ),
 
@@ -178,7 +178,7 @@ module.exports = grammar({
         //      BinOpExp = <BinOpExp> <BinOp> <BinOpExp>
         //               | <UnaryExp>
         _bin_op_expr: $ => choice(
-            prec(expr_precedence.unary, $._unary_expr),
+            prec(expr_precedence.UNARY, $._unary_expr),
 
             // binary operators
             ...binary_operators.flatMap(
@@ -206,7 +206,7 @@ module.exports = grammar({
             field('move_expr', seq('move', $._unary_expr)),
             field('copy_expr', seq('copy', $._unary_expr)),
 
-            prec(expr_precedence.field, $._dot_or_index_chain),
+            prec(expr_precedence.FIELD, $._dot_or_index_chain),
         ),
 
         // Parse an expression term optionally followed by a chain of dot or index accesses:
@@ -289,7 +289,7 @@ module.exports = grammar({
         ),
         loop_expr: $ => seq('loop', field('body', $.expr)),
         return_expr: $ => choice(
-            prec(expr_precedence.last, 'return'),
+            prec(expr_precedence.LAST, 'return'),
             prec.left(seq('return', field('value', $.expr))),
         ),
         abort_expr: $ => seq('abort', field('condition', $.expr)),
@@ -309,15 +309,15 @@ module.exports = grammar({
         _name_expr: $ => choice(
             // <NameAccessChain> <TypeArgs>? prefix
             field('name', seq(name_access_chain($, false), optional(field('generics', $.type_args)))),
-            prec(expr_precedence.call, field('call', seq(
+            prec(expr_precedence.CALL, field('call', seq(
                 name_access_chain($, false), optional(field('generics', $.type_args)), $.call_args
             ))),
-            prec(expr_precedence.default, field('pack', seq(
+            prec(expr_precedence.DEFAULT, field('pack', seq(
                 name_access_chain($, false), optional(field('generics', $.type_args)),
                 '{', sepByComma($.expr_field), '}'
             ))),
             // macro call
-            prec(expr_precedence.default, field('macro_call', seq(name_access_chain($, false), '!', $.call_args))),
+            prec(expr_precedence.DEFAULT, field('macro_call', seq(name_access_chain($, false), '!', $.call_args))),
         ),
 
         call_args: $ => seq('(', sepByComma($.expr), ')'),
@@ -339,7 +339,7 @@ module.exports = grammar({
         //          | <Number>
         //          | <NumberTyped>
         //          | <ByteString>
-        value: $ => prec(expr_precedence.default, choice(
+        value: $ => prec(expr_precedence.DEFAULT, choice(
             seq('@', leading_name_access($, false)),
             'true',
             'false',
@@ -365,7 +365,7 @@ module.exports = grammar({
 
         // Parse an attribute value. Either a value literal or a module access
         //  AttributeValue = <Value> | <NameAccessChain>
-        attribute_val: $ => choice(prec(expr_precedence.default, $.value), name_access_chain($, false)),
+        attribute_val: $ => choice(prec(expr_precedence.DEFAULT, $.value), name_access_chain($, false)),
 
         // AddressBlock = "address" <LeadingNameAccess> "{" (<Attributes> <Module>)* "}"
         address_block: $ => seq(
@@ -378,7 +378,8 @@ module.exports = grammar({
         //   Module =
         //       <DocComments> ( "spec" | "module") (<LeadingNameAccess>::)?<ModuleName> "{"
         //           ( <Attributes>
-        //               ( <UseDecl> | <FriendDecl> | <SpecBlock> |
+        //               ( <UseDecl> | <FriendDecl> |
+        //                 <SpecFunction> | <SpecBlock> | <Invariant>
         //                 <DocComments> <ModuleMemberModifiers>
         //                     (<ConstantDecl> | <StructDecl> | <FunctionDecl>) )
         //               )
@@ -401,18 +402,103 @@ module.exports = grammar({
             choice(
                 $.use_decl,
                 $.friend_decl,
-                $.spec_block,
 
-                seq(
-                    // TODO: doc comments
-                    repeat($.module_member_modifier),
-                    choice($.constant_decl, $.struct_decl, $.function_decl)
-                ),
+                $.spec_func,
+                $.spec_block,
+                $.spec_invariant,
+
+                // TODO: doc comments
+                seq(repeat($.module_member_modifier), choice($.constant_decl, $.struct_decl, $.function_decl)),
             )
         ),
 
-        // TODO: spec block
-        spec_block: $ => choice('singleton', 'regular'),
+        // Parse an optional specification block:
+        //     SpecBlockTarget =
+        //          <Identifier> <SpecTargetSignatureOpt>?
+        //        |  "fun" <Identifier>  # deprecated
+        //        | "struct <Identifier> # deprecated
+        //        | "module"
+        //        | "schema" <Identifier> <TypeParameters>?
+        //     SpecBlock =
+        //        <DocComments> "spec" ( <SpecFunction> | <SpecBlockTarget>? "{" <UseDecl>* <SpecBlockMember>* "}" )
+        //     TypeParameters = '<' Comma<TypeParameter> ">"
+        spec_block: $ => seq(
+            // TODO(doc): doc comments, might reconsider doc matching
+            'spec',
+            choice(
+                $.spec_func,
+                seq(optional($.spec_block_target),
+                    '{',
+                    field('use', repeat($.use_decl)),
+                    field('member', repeat($._spec_block_member)),
+                    '}'
+                )
+            ),
+        ),
+        spec_block_target: $ => choice(
+            field('signature', seq(field('func_name', $.identifier, optional($._spec_target_signature_opt)))),
+            keyword('module'),
+            field('schema', seq(
+                'schema',
+                field('schema_name', $.identifier),
+                optional($.type_params)
+            ))
+        ),
+
+        // TODO: _spec_target_signature_opt
+        _spec_target_signature_opt: $ => 'spec_target_signature_opt',
+
+        // Parse a spec block member:
+        //    SpecBlockMember = <DocComments> ( <Invariant> | <Condition> | <SpecFunction> | <SpecVariable>
+        //                                   | <SpecInclude> | <SpecApply> | <SpecPragma> | <SpecLet>
+        //                                   | <SpecUpdate> | <SpecAxiom> )
+        // TODO(doc): doc comments
+        _spec_block_member: $ => choice(
+            $.spec_invariant,
+            $.spec_condition,
+            $.spec_func,
+            $.spec_variable,
+            $.spec_include,
+            $.spec_apply,
+            $.spec_pragma,
+            $.spec_let,
+            $.spec_update,
+            $.spec_axiom,
+        ),
+
+        // TODO: spec_invariant
+        spec_invariant: $ => 'spec_invariant',
+
+        // TODO: spec_condition,
+        spec_condition: $ => 'spec_condition',
+
+        // TODO: spec_variable
+        spec_variable: $ => 'spec_variable',
+
+        // TODO: spec function
+        spec_func: $ => seq(
+            'spec', choice('native', 'fun'), // ...
+        ),
+
+        // TODO: spec include
+        spec_include: $ => 'spec_include',
+
+        // TODO: spec apply
+        spec_apply: $ => 'spec_apply',
+
+        // TODO: spec pragma
+        spec_pragma: $ => 'spec_pragma',
+
+        // TODO: spec let
+        spec_let: $ => 'spec_let',
+
+        // TODO: spec update
+        spec_update: $ => 'spec_update',
+
+        // TODO: spec_axion
+        spec_axiom: $ => 'spec_axiom',
+
+
 
         // Visibility = "public" ( "(" "script" | "friend" ")" )?
         visibility: $ => seq(keyword('public'), optional(seq('(', choice(keyword('script'), keyword('friend')), ')'))),
@@ -462,7 +548,7 @@ module.exports = grammar({
         function_decl: $ => seq(
             optional(keyword('inline')),
             'fun', field('function_name', $.identifier),
-            optional(seq('<', sepByComma($.type_param), '>')),
+            optional($.type_params),
             '(', field('parameters', sepByComma($.parameter)), ')',
             optional(seq(':', $.type)),
             repeat(seq(
@@ -484,8 +570,10 @@ module.exports = grammar({
 
         // Parse a type parameter:
         //  TypeParameter   = <Identifier> <Constraint>?
+        //  TypeParameters = '<' Comma<TypeParameter> ">"
         //  Constraint      = ":" <Ability> (+ <Ability>)*
         type_param: $ => seq(field('type', $.identifier), optional($.constraints)),
+        type_params: $ => seq('<', sepByComma($.type_param), '>'),
         constraints: $ => seq(':', sepBy1('+', $._ability)),
 
         // Parameter = <Var> ":" <Type>
