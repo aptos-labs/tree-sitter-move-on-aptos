@@ -34,5 +34,11 @@ module 0x42::example {
     friend 0x42::another_example;
 
     const ONE: u64 = 1;
+    const TRUE: u32 = vector::length(&amounts);
+    const VEC: vector<u64> = tt;
 
+    #[view]
+    public fun exists_at(addr: address): bool {
+        exists<Account>(addr)
+    }
 }

@@ -7,7 +7,7 @@ const sepByComma = (rule) => seq(sepBy(',', rule), optional(','));
 
 const keyword = (word) => field(word, word);
 
-const chain_ident = ($, wildcard) => field('path', (wildcard) ? choice('x', $.identifier) : $.identifier);
+const chain_ident = ($, wildcard) => field('path', (wildcard) ? choice('*', $.identifier) : $.identifier);
 // LeadingNameAccess = <NumericalAddress> | <Identifier>
 // `Identifier` can be `*` if `wildcard = true`
 const leading_name_access = ($, wildcard) => field(
@@ -21,7 +21,7 @@ const name_access_chain = ($, wildcard) => {
     return field(
         'name_access_chain',
         seq(
-            leading_name_access($, wildcard),
+            choice(leading_name_access($, wildcard), $.primitive_type, $._quantifier_directive),
             optional(field('access_two',
                 seq('::', ident(),
                     optional(field('access_three', seq('::', ident()))))
@@ -65,6 +65,7 @@ module.exports = grammar({
     conflicts: $ => [
         [$.type, $._bind],
         [$.primitive_type, $.term],
+        [$.type],
     ],
 
     extras: $ => [
@@ -86,9 +87,13 @@ module.exports = grammar({
             keyword('u8'), keyword('u16'), keyword('u32'), keyword('u64'), keyword('u128'), keyword('u256')
         ),
 
+        /// `signer` is quite special: it is used externally as a type, but internally can be a variable.
+        signer: _ => 'signer',
+        _quantifier_directive: _ => choice('exists', 'forall', 'choose', 'min'),
+
         primitive_type: $ => choice(
             $.number_type,
-            keyword('bool'), keyword('address'), keyword('signer'), keyword('vector')
+            keyword('bool'), keyword('address'), keyword('vector'),
         ),
 
         identifier: _ => /[a-zA-Z_]\w*/,
@@ -142,15 +147,15 @@ module.exports = grammar({
         // Parses a quantifier expressions
         //
         //   <Quantifier> =
-        //       ( "forall" | "exists" ) <QuantifierBindings> <Triggers>? ("where" <Exp>)? ":" Exp
+        //       ( "forall" | "exists" ) <QuantifierBindings>? <Triggers>? ("where" <Exp>)? ":" Exp
         //     | ( "choose" [ "min" ] ) <QuantifierBind> "where" <Exp>
         //   <QuantifierBindings>   = <QuantifierBind> ("," <QuantifierBind>)*
         //   <QuantifierBind>       = <Identifier> ":" <Type> | <Identifier> "in" <Exp>
         //   <Triggers>             = ("{" Comma<Exp> "}")+
         quantifier: $ => choice(
             seq(
-                field('scope', choice(keyword('forall'), keyword('exists'))),
-                sepByComma($.quantifier_bind),
+                field('scope', choice('forall', 'exists')),
+                sepBy1(',', $.quantifier_bind),
                 optional($.triggers),
                 optional(seq('where', $.expr)),
                 ':',
@@ -160,14 +165,14 @@ module.exports = grammar({
                 choice('choose', 'min'),
                 $.quantifier_bind,
                 'where',
-                field('body', $.expr),
+                field('condition', $.expr),
             )
         ),
         quantifier_bind: $ => choice(
             field('type_bind', seq(field('var', $.identifier), ':', $.type)),
-            field('exist_bind', seq(field('var', $.identifier), 'in', field('scope', $.expr))),
+            field('value_bind', seq(field('var', $.identifier), 'in', field('scope', $.expr))),
         ),
-        triggers: $ => repeat1(seq('{', field('trigger', $.expr), '}')),
+        triggers: $ => repeat1(seq('{', sepByComma(field('trigger', $.expr)), '}')),
 
         // Parse a binary operator expression:
         //      BinOpExp = <BinOpExp> <BinOp> <BinOpExp>
@@ -228,7 +233,7 @@ module.exports = grammar({
         //          | "(" Comma<Exp> ")"
         //          | "(" <Exp> ":" <Type> ")"
         //          | "(" <Exp> "as" <Type> ")"
-        //          | "{" <Sequence>
+        //          | <Sequence> 
         //          | "if" "(" <Exp> ")" <Exp> "else" "{" <Exp> "}"
         //          | "if" "(" <Exp> ")" "{" <Exp> "}"
         //          | "if" "(" <Exp> ")" <Exp> ("else" <Exp>)?
@@ -255,7 +260,7 @@ module.exports = grammar({
             seq('(', $.expr, ':', $.type, ')'),
             field('cast_expr', seq('(', $.expr, 'as', $.type, ')')),
 
-            $.expr_block,
+            $.block,
             $._name_expr,
 
             field('spec_block', seq('spec', $.spec_block)),
@@ -269,7 +274,7 @@ module.exports = grammar({
             $.for_loop_expr,
         ),
         parenthesized_expr: $ => seq('(', $.expr, ')'),
-        expr_block: $ => prec.right(seq('{', $.expr, '}')),
+        block: $ => alias($._sequence, $.block),
         // Control flow expressions:
         if_expr: $ => prec.right(seq(
             'if',
@@ -292,7 +297,7 @@ module.exports = grammar({
             'for', '(',
             field('init', $.expr), 'in', field('range', $.expr), '..', field('increment', $.expr),
             ')',
-            field('body', $.expr_block),
+            field('body', $.block),
         ),
 
         // Parse a pack, call, or other reference to a name:
@@ -442,7 +447,7 @@ module.exports = grammar({
         friend_decl: $ => seq('friend', name_access_chain($, false), ';'),
 
         // ConstantDecl = "const" <Identifier> ":" <Type> "=" <Exp> ";"
-        constant_decl: $ => seq('const', field('name', $.identifier), ':', $.type, '=', field('value', $.expr), ';'),
+        constant_decl: $ => seq('const', field('name', $.identifier), ':', field('type', $.type), '=', field('value', $.expr), ';'),
 
         // Parse a function declaration:
         //      FunctionDecl =
@@ -469,13 +474,13 @@ module.exports = grammar({
                 $.access_specifier_list
             )),
             // Sequence
-            choice(field('body', seq('{',
-                seq(
-                    repeat($.use_decl),
-                    repeat(seq($.sequence_item, ';')),
-                    optional($.expr),
-                ), '}')), ';'),
+            choice(field('body', $._sequence), ';'),
         ),
+        _sequence: $ => seq('{', seq(
+            repeat($.use_decl),
+            repeat(seq($.sequence_item, ';')),
+            optional($.expr),
+        ), '}'),
 
         // Parse a type parameter:
         //  TypeParameter   = <Identifier> <Constraint>?
