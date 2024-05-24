@@ -468,6 +468,11 @@
     }
   },
   {
+    "type": "comments",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "constant_decl",
     "named": true,
     "fields": {
@@ -547,6 +552,49 @@
           }
         ]
       }
+    }
+  },
+  {
+    "type": "declaration",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "attributes",
+          "named": true
+        },
+        {
+          "type": "constant_decl",
+          "named": true
+        },
+        {
+          "type": "friend_decl",
+          "named": true
+        },
+        {
+          "type": "function_decl",
+          "named": true
+        },
+        {
+          "type": "module_member_modifier",
+          "named": true
+        },
+        {
+          "type": "spec_block",
+          "named": true
+        },
+        {
+          "type": "struct_decl",
+          "named": true
+        },
+        {
+          "type": "use_decl",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -4641,35 +4689,7 @@
       "required": false,
       "types": [
         {
-          "type": "attributes",
-          "named": true
-        },
-        {
-          "type": "constant_decl",
-          "named": true
-        },
-        {
-          "type": "friend_decl",
-          "named": true
-        },
-        {
-          "type": "function_decl",
-          "named": true
-        },
-        {
-          "type": "module_member_modifier",
-          "named": true
-        },
-        {
-          "type": "spec_block",
-          "named": true
-        },
-        {
-          "type": "struct_decl",
-          "named": true
-        },
-        {
-          "type": "use_decl",
+          "type": "declaration",
           "named": true
         }
       ]
@@ -4715,6 +4735,16 @@
     "type": "module_member_modifier",
     "named": true,
     "fields": {
+      "entry": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "entry",
+            "named": false
+          }
+        ]
+      },
       "native": {
         "multiple": false,
         "required": false,
@@ -5185,11 +5215,19 @@
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": false,
       "types": [
         {
           "type": "abilities",
+          "named": true
+        },
+        {
+          "type": "phantom",
+          "named": true
+        },
+        {
+          "type": "type_param",
           "named": true
         }
       ]
@@ -5591,7 +5629,7 @@
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": false,
       "types": [
         {
@@ -5730,6 +5768,10 @@
         "multiple": true,
         "required": false,
         "types": [
+          {
+            "type": "as",
+            "named": false
+          },
           {
             "type": "identifier",
             "named": true
@@ -5919,6 +5961,10 @@
     "named": false
   },
   {
+    "type": "/*([^*]([^/*]|/*|[^*]/|*[^/])*)?*/",
+    "named": false
+  },
+  {
     "type": ":",
     "named": false
   },
@@ -6035,6 +6081,10 @@
     "named": false
   },
   {
+    "type": "entry",
+    "named": false
+  },
+  {
     "type": "exists",
     "named": false
   },
@@ -6105,6 +6155,10 @@
   {
     "type": "native",
     "named": false
+  },
+  {
+    "type": "phantom",
+    "named": true
   },
   {
     "type": "public",

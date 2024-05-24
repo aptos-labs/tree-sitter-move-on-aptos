@@ -3,7 +3,7 @@
 // source: https://github.com/tree-sitter/tree-sitter-javascript/blob/master/grammar.js
 const sepBy1 = (sep, rule) => seq(rule, repeat(seq(sep, rule)));
 const sepBy = (sep, rule) => optional(sepBy1(sep, rule));
-const sepByComma = (rule) => sepBy(',', rule);
+const sepByComma = (rule) => seq(sepBy(',', rule), optional(','));
 
 const keyword = (word) => field(word, word);
 
@@ -64,6 +64,12 @@ module.exports = grammar({
 
     conflicts: $ => [
         [$.type, $._bind],
+        [$.primitive_type, $.term],
+    ],
+
+    extras: $ => [
+        $.comments,
+        /\s/,
     ],
 
     rules: {
@@ -107,8 +113,7 @@ module.exports = grammar({
         //          | "|" Comma<Type> "|" Type
         //          | "(" Comma<Type> ")"
         type: $ => choice(
-            prec(expr_precedence.default, $.primitive_type),
-            seq(name_access_chain($, false), optional($.type_args)),
+            seq(choice(name_access_chain($, false), $.primitive_type), optional($.type_args)),
             field('ref', seq('&', $.type)),
             field('mut_ref', seq('&mut', $.type)),
             // `||' is treated as an empty param type list in this context.
@@ -383,20 +388,22 @@ module.exports = grammar({
                 optional(seq(field('path', leading_name_access($, false)), '::')),
                 field('module_name', $.identifier)
             ),
-            '{', repeat(seq(
-                optional($.attributes),
-                choice(
-                    $.use_decl,
-                    $.friend_decl,
-                    $.spec_block,
+            '{', repeat($.declaration), '}'
+        ),
 
-                    seq(
-                        // TODO: doc comments
-                        repeat($.module_member_modifier),
-                        choice($.constant_decl, $.struct_decl, $.function_decl)
-                    ),
-                )
-            )), '}'
+        declaration: $ => seq(
+            optional($.attributes),
+            choice(
+                $.use_decl,
+                $.friend_decl,
+                $.spec_block,
+
+                seq(
+                    // TODO: doc comments
+                    repeat($.module_member_modifier),
+                    choice($.constant_decl, $.struct_decl, $.function_decl)
+                ),
+            )
         ),
 
         // TODO: spec block
@@ -406,7 +413,7 @@ module.exports = grammar({
         visibility: $ => seq(keyword('public'), optional(seq('(', choice(keyword('script'), keyword('friend')), ')'))),
 
         // ModuleMemberModifier = <Visibility> | "native"
-        module_member_modifier: $ => choice($.visibility, keyword('native')),
+        module_member_modifier: $ => choice($.visibility, keyword('native'), keyword('entry')),
 
         // ModuleIdent = <LeadingNameAccess>(wildcard = false) "::" <ModuleName>
         module_ident: $ => seq(leading_name_access($, false), '::', field('module_name', $.identifier)),
@@ -421,15 +428,15 @@ module.exports = grammar({
             field('path', $.module_ident),
             choice(
                 optional($._use_alias),
-                $._use_member,
-                seq('{', sepByComma($._use_member), '}')
+                seq('::', $._use_member),
+                seq('::', seq('{', sepByComma($._use_member), '}')),
             ), ';'),
 
         // UseAlias = ("as" <Identifier>)?
         _use_alias: $ => seq('as', field('alias_name', $.identifier)),
 
         // UseMember = <Identifier> <UseAlias>
-        _use_member: $ => seq(field('member', $.identifier), optional($._use_alias)),
+        _use_member: $ => field('member', seq($.identifier, optional($._use_alias))),
 
         // FriendDecl = "friend" <NameAccessChain>(wildcard: false) ";"
         friend_decl: $ => seq('friend', name_access_chain($, false), ';'),
@@ -500,14 +507,22 @@ module.exports = grammar({
         // StructDecl =
         //     "struct" <StructDefName> ("has" <Ability> (, <Ability>)+)?
         //     ("{" Comma<FieldAnnot> "}" | ";")
-        // StructDefName =
-        //     <Identifier> <OptionalTypeParameters>
+        // StructDefName        = <Identifier> <StructTypeParameter>?
+        // StructTypeParameter  = '<' Comma<TypeParameterWithPhantomDecl> '>'
+        // TypeParameterWithPhantomDecl = "phantom"? <TypeParameter>
         struct_decl: $ => seq(
             'struct',
-            field('struct_name', $.identifier),
+            $._struct_def_name,
             optional(seq('has', $.abilities)),
-            choice(field('body', seq('{', sepByComma($.field_annot), '}')), ';')
+            choice(field('body', $._struct_body), ';'),
         ),
+        _struct_body: $ => choice(seq('{', sepByComma($.field_annot), '}')),
+        _struct_def_name: $ => seq(
+            field('struct_name', $.identifier),
+            optional(seq('<', sepByComma($._struct_type_parameter), '>')),
+        ),
+        _struct_type_parameter: $ => seq(optional($.phantom), $.type_param),
+        phantom: _ => 'phantom',
 
         // FieldAnnot = <DocComments> <Field> ":" <Type>
         field_annot: $ => seq(
@@ -573,6 +588,14 @@ module.exports = grammar({
             // spec blocks
             repeat(seq(optional($.attributes), $.spec_block)),
             '}'
+        ),
+
+        // Comments
+        // TODO: doc comments
+        comments: $ => choice(
+            /\/\/.*/,
+            // TODO: properly parse the multi-line comments
+            `\/\*([^*]([^/*]|\/*|[^*]\/|\*[^/])*)?\*\/`,
         ),
     }
 });
