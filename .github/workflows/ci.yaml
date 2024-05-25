@@ -1,0 +1,28 @@
+name: Move (Aptos) Tree Sitter Parser Testing
+
+on: [push, pull_request]
+
+jobs:
+  test-on-aptos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout itself
+        uses: actions/checkout@v4
+      - name: Checkout `aptos-core`
+        uses: actions/checkout@v4
+        with:
+          repository: aptos-labs/aptos-core
+          path: test/repos/aptos-core
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' 
+      - run: apt update && apt install -y gcc
+      - run: npm install tree-sitter-cli
+      - run: tree-sitter init-config
+      - run: tree-sitter generate
+      - run: python batch-test.py test/repos/aptos-core/aptos-move/
