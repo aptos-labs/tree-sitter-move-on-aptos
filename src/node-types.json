@@ -640,8 +640,8 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
+            "type": "name_access_chain",
+            "named": true
           }
         ]
       },
@@ -650,8 +650,8 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
+            "type": "name_access_chain",
+            "named": true
           }
         ]
       },
@@ -670,33 +670,11 @@
         "required": false,
         "types": [
           {
-            "type": "choose",
-            "named": false
-          },
-          {
-            "type": "exists",
-            "named": false
-          },
-          {
-            "type": "forall",
-            "named": false
-          },
-          {
-            "type": "min",
-            "named": false
-          },
-          {
-            "type": "primitive_type",
+            "type": "leading_name_access",
             "named": true
-          }
-        ]
-      },
-      "leading_name_access": {
-        "multiple": true,
-        "required": false,
-        "types": [
+          },
           {
-            "type": "numerical_addr",
+            "type": "name_access_chain",
             "named": true
           }
         ]
@@ -711,51 +689,33 @@
           }
         ]
       },
-      "name_access_chain": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "choose",
-            "named": false
-          },
-          {
-            "type": "exists",
-            "named": false
-          },
-          {
-            "type": "forall",
-            "named": false
-          },
-          {
-            "type": "min",
-            "named": false
-          },
-          {
-            "type": "primitive_type",
-            "named": true
-          }
-        ]
-      },
       "path": {
         "multiple": true,
         "required": false,
         "types": [
           {
-            "type": "*",
-            "named": false
+            "type": "leading_name_access",
+            "named": true
           },
           {
-            "type": "identifier",
+            "type": "name_access_chain",
             "named": true
           }
         ]
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "leading_name_access",
+          "named": true
+        },
+        {
+          "type": "name_access_chain",
+          "named": true
+        },
         {
           "type": "type_args",
           "named": true
@@ -782,22 +742,12 @@
     "type": "address_block",
     "named": true,
     "fields": {
-      "leading_name_access": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "numerical_addr",
-            "named": true
-          }
-        ]
-      },
       "path": {
         "multiple": false,
         "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "leading_name_access",
             "named": true
           }
         ]
@@ -809,6 +759,10 @@
       "types": [
         {
           "type": "attributes",
+          "named": true
+        },
+        {
+          "type": "leading_name_access",
           "named": true
         },
         {
@@ -827,8 +781,8 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
+            "type": "name_access_chain",
+            "named": true
           }
         ]
       },
@@ -837,8 +791,8 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
+            "type": "name_access_chain",
+            "named": true
           }
         ]
       },
@@ -852,48 +806,16 @@
           }
         ]
       },
-      "leading_name_access": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "numerical_addr",
-            "named": true
-          }
-        ]
-      },
-      "name_access_chain": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "choose",
-            "named": false
-          },
-          {
-            "type": "exists",
-            "named": false
-          },
-          {
-            "type": "forall",
-            "named": false
-          },
-          {
-            "type": "min",
-            "named": false
-          },
-          {
-            "type": "primitive_type",
-            "named": true
-          }
-        ]
-      },
       "path": {
         "multiple": true,
         "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "leading_name_access",
+            "named": true
+          },
+          {
+            "type": "name_access_chain",
             "named": true
           }
         ]
@@ -903,35 +825,11 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
-          },
-          {
-            "type": "choose",
-            "named": false
-          },
-          {
-            "type": "exists",
-            "named": false
-          },
-          {
-            "type": "forall",
-            "named": false
-          },
-          {
-            "type": "identifier",
+            "type": "leading_name_access",
             "named": true
           },
           {
-            "type": "min",
-            "named": false
-          },
-          {
-            "type": "numerical_addr",
-            "named": true
-          },
-          {
-            "type": "primitive_type",
+            "type": "name_access_chain",
             "named": true
           },
           {
@@ -971,26 +869,6 @@
     "type": "bin_op_expr",
     "named": true,
     "fields": {
-      "amp": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "&",
-            "named": false
-          }
-        ]
-      },
-      "amp_amp": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "&&",
-            "named": false
-          }
-        ]
-      },
       "assignment": {
         "multiple": true,
         "required": false,
@@ -1147,16 +1025,6 @@
           }
         ]
       },
-      "caret": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "^",
-            "named": false
-          }
-        ]
-      },
       "dot": {
         "multiple": true,
         "required": false,
@@ -1235,36 +1103,6 @@
           }
         ]
       },
-      "equal_equal": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "==",
-            "named": false
-          }
-        ]
-      },
-      "equal_equal_greater": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "==>",
-            "named": false
-          }
-        ]
-      },
-      "exclaim_equal": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "!=",
-            "named": false
-          }
-        ]
-      },
       "expr": {
         "multiple": true,
         "required": false,
@@ -1282,36 +1120,6 @@
           {
             "type": "identifier",
             "named": true
-          }
-        ]
-      },
-      "greater": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": ">",
-            "named": false
-          }
-        ]
-      },
-      "greater_equal": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": ">=",
-            "named": false
-          }
-        ]
-      },
-      "greater_greater": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": ">>",
-            "named": false
           }
         ]
       },
@@ -1471,46 +1279,6 @@
           }
         ]
       },
-      "less": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "<",
-            "named": false
-          }
-        ]
-      },
-      "less_equal": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "<=",
-            "named": false
-          }
-        ]
-      },
-      "less_equal_equal_greater": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "<==>",
-            "named": false
-          }
-        ]
-      },
-      "less_less": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "<<",
-            "named": false
-          }
-        ]
-      },
       "lhs": {
         "multiple": true,
         "required": true,
@@ -1667,66 +1435,6 @@
           }
         ]
       },
-      "minus": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "-",
-            "named": false
-          }
-        ]
-      },
-      "percent": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "%",
-            "named": false
-          }
-        ]
-      },
-      "period_period": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "..",
-            "named": false
-          }
-        ]
-      },
-      "pipe": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "|",
-            "named": false
-          }
-        ]
-      },
-      "pipe_pipe": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "||",
-            "named": false
-          }
-        ]
-      },
-      "plus": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "+",
-            "named": false
-          }
-        ]
-      },
       "rhs": {
         "multiple": true,
         "required": true,
@@ -1805,26 +1513,6 @@
           }
         ]
       },
-      "slash": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "/",
-            "named": false
-          }
-        ]
-      },
-      "star": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "*",
-            "named": false
-          }
-        ]
-      },
       "type_generics": {
         "multiple": true,
         "required": false,
@@ -1839,6 +1527,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "binary_operator",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -1850,8 +1548,8 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
+            "type": "name_access_chain",
+            "named": true
           }
         ]
       },
@@ -1860,8 +1558,8 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
+            "type": "name_access_chain",
+            "named": true
           }
         ]
       },
@@ -1875,48 +1573,16 @@
           }
         ]
       },
-      "leading_name_access": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "numerical_addr",
-            "named": true
-          }
-        ]
-      },
-      "name_access_chain": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "choose",
-            "named": false
-          },
-          {
-            "type": "exists",
-            "named": false
-          },
-          {
-            "type": "forall",
-            "named": false
-          },
-          {
-            "type": "min",
-            "named": false
-          },
-          {
-            "type": "primitive_type",
-            "named": true
-          }
-        ]
-      },
       "path": {
         "multiple": true,
         "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "leading_name_access",
+            "named": true
+          },
+          {
+            "type": "name_access_chain",
             "named": true
           }
         ]
@@ -1941,6 +1607,14 @@
           "named": true
         },
         {
+          "type": "leading_name_access",
+          "named": true
+        },
+        {
+          "type": "name_access_chain",
+          "named": true
+        },
+        {
           "type": "type_args",
           "named": true
         }
@@ -1956,8 +1630,8 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
+            "type": "name_access_chain",
+            "named": true
           }
         ]
       },
@@ -1966,43 +1640,7 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
-          }
-        ]
-      },
-      "leading_name_access": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "numerical_addr",
-            "named": true
-          }
-        ]
-      },
-      "name_access_chain": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "choose",
-            "named": false
-          },
-          {
-            "type": "exists",
-            "named": false
-          },
-          {
-            "type": "forall",
-            "named": false
-          },
-          {
-            "type": "min",
-            "named": false
-          },
-          {
-            "type": "primitive_type",
+            "type": "name_access_chain",
             "named": true
           }
         ]
@@ -2012,7 +1650,11 @@
         "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "leading_name_access",
+            "named": true
+          },
+          {
+            "type": "name_access_chain",
             "named": true
           }
         ]
@@ -2034,6 +1676,14 @@
       "types": [
         {
           "type": "bind_field",
+          "named": true
+        },
+        {
+          "type": "leading_name_access",
+          "named": true
+        },
+        {
+          "type": "name_access_chain",
           "named": true
         },
         {
@@ -3166,8 +2816,8 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
+            "type": "name_access_chain",
+            "named": true
           }
         ]
       },
@@ -3176,43 +2826,7 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
-          }
-        ]
-      },
-      "leading_name_access": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "numerical_addr",
-            "named": true
-          }
-        ]
-      },
-      "name_access_chain": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "choose",
-            "named": false
-          },
-          {
-            "type": "exists",
-            "named": false
-          },
-          {
-            "type": "forall",
-            "named": false
-          },
-          {
-            "type": "min",
-            "named": false
-          },
-          {
-            "type": "primitive_type",
+            "type": "name_access_chain",
             "named": true
           }
         ]
@@ -3222,7 +2836,11 @@
         "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "leading_name_access",
+            "named": true
+          },
+          {
+            "type": "name_access_chain",
             "named": true
           }
         ]
@@ -3255,6 +2873,20 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "leading_name_access",
+          "named": true
+        },
+        {
+          "type": "name_access_chain",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -5891,8 +5523,8 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
+            "type": "name_access_chain",
+            "named": true
           }
         ]
       },
@@ -5901,43 +5533,7 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
-          }
-        ]
-      },
-      "leading_name_access": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "numerical_addr",
-            "named": true
-          }
-        ]
-      },
-      "name_access_chain": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "choose",
-            "named": false
-          },
-          {
-            "type": "exists",
-            "named": false
-          },
-          {
-            "type": "forall",
-            "named": false
-          },
-          {
-            "type": "min",
-            "named": false
-          },
-          {
-            "type": "primitive_type",
+            "type": "name_access_chain",
             "named": true
           }
         ]
@@ -5947,11 +5543,29 @@
         "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "leading_name_access",
+            "named": true
+          },
+          {
+            "type": "name_access_chain",
             "named": true
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "leading_name_access",
+          "named": true
+        },
+        {
+          "type": "name_access_chain",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -7309,8 +6923,8 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
+            "type": "name_access_chain",
+            "named": true
           }
         ]
       },
@@ -7319,43 +6933,7 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
-          }
-        ]
-      },
-      "leading_name_access": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "numerical_addr",
-            "named": true
-          }
-        ]
-      },
-      "name_access_chain": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "choose",
-            "named": false
-          },
-          {
-            "type": "exists",
-            "named": false
-          },
-          {
-            "type": "forall",
-            "named": false
-          },
-          {
-            "type": "min",
-            "named": false
-          },
-          {
-            "type": "primitive_type",
+            "type": "name_access_chain",
             "named": true
           }
         ]
@@ -7365,7 +6943,11 @@
         "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "leading_name_access",
+            "named": true
+          },
+          {
+            "type": "name_access_chain",
             "named": true
           }
         ]
@@ -7390,7 +6972,30 @@
           "named": true
         },
         {
+          "type": "leading_name_access",
+          "named": true
+        },
+        {
+          "type": "name_access_chain",
+          "named": true
+        },
+        {
           "type": "type_args",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "leading_name_access",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "number",
           "named": true
         }
       ]
@@ -8555,11 +8160,7 @@
         "required": false,
         "types": [
           {
-            "type": "identifier",
-            "named": true
-          },
-          {
-            "type": "numerical_addr",
+            "type": "leading_name_access",
             "named": true
           }
         ]
@@ -8580,16 +8181,6 @@
     "type": "module_ident",
     "named": true,
     "fields": {
-      "leading_name_access": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "numerical_addr",
-            "named": true
-          }
-        ]
-      },
       "module_name": {
         "multiple": false,
         "required": true,
@@ -8605,11 +8196,21 @@
         "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "leading_name_access",
             "named": true
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "leading_name_access",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -8662,6 +8263,52 @@
           }
         ]
       }
+    }
+  },
+  {
+    "type": "name_access_chain",
+    "named": true,
+    "fields": {
+      "address": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "address",
+            "named": false
+          }
+        ]
+      },
+      "bool": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "bool",
+            "named": false
+          }
+        ]
+      },
+      "vector": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "vector",
+            "named": false
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "number_type",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -9271,21 +8918,6 @@
           }
         ]
       }
-    }
-  },
-  {
-    "type": "numerical_addr",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "number",
-          "named": true
-        }
-      ]
     }
   },
   {
@@ -17380,8 +17012,8 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
+            "type": "name_access_chain",
+            "named": true
           }
         ]
       },
@@ -17390,43 +17022,7 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
-          }
-        ]
-      },
-      "leading_name_access": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "numerical_addr",
-            "named": true
-          }
-        ]
-      },
-      "name_access_chain": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "choose",
-            "named": false
-          },
-          {
-            "type": "exists",
-            "named": false
-          },
-          {
-            "type": "forall",
-            "named": false
-          },
-          {
-            "type": "min",
-            "named": false
-          },
-          {
-            "type": "primitive_type",
+            "type": "name_access_chain",
             "named": true
           }
         ]
@@ -17436,7 +17032,11 @@
         "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "leading_name_access",
+            "named": true
+          },
+          {
+            "type": "name_access_chain",
             "named": true
           }
         ]
@@ -17464,23 +17064,7 @@
             "named": false
           },
           {
-            "type": "::",
-            "named": false
-          },
-          {
             "type": "=",
-            "named": false
-          },
-          {
-            "type": "choose",
-            "named": false
-          },
-          {
-            "type": "exists",
-            "named": false
-          },
-          {
-            "type": "forall",
             "named": false
           },
           {
@@ -17492,15 +17076,11 @@
             "named": true
           },
           {
-            "type": "min",
-            "named": false
-          },
-          {
-            "type": "numerical_addr",
+            "type": "leading_name_access",
             "named": true
           },
           {
-            "type": "primitive_type",
+            "type": "name_access_chain",
             "named": true
           },
           {
@@ -18874,8 +18454,8 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
+            "type": "name_access_chain",
+            "named": true
           }
         ]
       },
@@ -18884,8 +18464,8 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
+            "type": "name_access_chain",
+            "named": true
           }
         ]
       },
@@ -19242,7 +18822,75 @@
         "required": false,
         "types": [
           {
+            "type": ".",
+            "named": false
+          },
+          {
+            "type": "::",
+            "named": false
+          },
+          {
+            "type": "=",
+            "named": false
+          },
+          {
+            "type": "[",
+            "named": false
+          },
+          {
+            "type": "]",
+            "named": false
+          },
+          {
+            "type": "bin_op_expr",
+            "named": true
+          },
+          {
+            "type": "call_args",
+            "named": true
+          },
+          {
+            "type": "copy_expr",
+            "named": true
+          },
+          {
+            "type": "deref_expr",
+            "named": true
+          },
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "lambda_bind_list",
+            "named": true
+          },
+          {
+            "type": "move_expr",
+            "named": true
+          },
+          {
+            "type": "not_expr",
+            "named": true
+          },
+          {
+            "type": "quantifier",
+            "named": true
+          },
+          {
+            "type": "ref_expr",
+            "named": true
+          },
+          {
+            "type": "ref_mut_expr",
+            "named": true
+          },
+          {
             "type": "term",
+            "named": true
+          },
+          {
+            "type": "type_args",
             "named": true
           }
         ]
@@ -19253,6 +18901,20 @@
         "types": [
           {
             "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "func_name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "leading_name_access",
+            "named": true
+          },
+          {
+            "type": "name_access_chain",
             "named": true
           }
         ]
@@ -19423,16 +19085,6 @@
           }
         ]
       },
-      "leading_name_access": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "numerical_addr",
-            "named": true
-          }
-        ]
-      },
       "macro_call": {
         "multiple": true,
         "required": false,
@@ -19443,6 +19095,20 @@
           },
           {
             "type": "call_args",
+            "named": true
+          }
+        ]
+      },
+      "macro_name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "leading_name_access",
+            "named": true
+          },
+          {
+            "type": "name_access_chain",
             "named": true
           }
         ]
@@ -19525,28 +19191,16 @@
           }
         ]
       },
-      "name_access_chain": {
+      "name": {
         "multiple": false,
         "required": false,
         "types": [
           {
-            "type": "choose",
-            "named": false
+            "type": "leading_name_access",
+            "named": true
           },
           {
-            "type": "exists",
-            "named": false
-          },
-          {
-            "type": "forall",
-            "named": false
-          },
-          {
-            "type": "min",
-            "named": false
-          },
-          {
-            "type": "primitive_type",
+            "type": "name_access_chain",
             "named": true
           }
         ]
@@ -19578,7 +19232,11 @@
         "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "leading_name_access",
+            "named": true
+          },
+          {
+            "type": "name_access_chain",
             "named": true
           }
         ]
@@ -19589,6 +19247,20 @@
         "types": [
           {
             "type": "spec_block",
+            "named": true
+          }
+        ]
+      },
+      "struct_name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "leading_name_access",
+            "named": true
+          },
+          {
+            "type": "name_access_chain",
             "named": true
           }
         ]
@@ -19697,16 +19369,6 @@
           }
         ]
       },
-      "value_expr": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "value",
-            "named": true
-          }
-        ]
-      },
       "vector_access": {
         "multiple": true,
         "required": false,
@@ -19795,7 +19457,7 @@
       }
     },
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": false,
       "types": [
         {
@@ -19803,19 +19465,7 @@
           "named": true
         },
         {
-          "type": "bin_op_expr",
-          "named": true
-        },
-        {
           "type": "block",
-          "named": true
-        },
-        {
-          "type": "copy_expr",
-          "named": true
-        },
-        {
-          "type": "deref_expr",
           "named": true
         },
         {
@@ -19831,31 +19481,15 @@
           "named": true
         },
         {
-          "type": "move_expr",
-          "named": true
-        },
-        {
-          "type": "not_expr",
-          "named": true
-        },
-        {
-          "type": "quantifier",
-          "named": true
-        },
-        {
-          "type": "ref_expr",
-          "named": true
-        },
-        {
-          "type": "ref_mut_expr",
-          "named": true
-        },
-        {
           "type": "return_expr",
           "named": true
         },
         {
           "type": "type",
+          "named": true
+        },
+        {
+          "type": "value",
           "named": true
         },
         {
@@ -20460,8 +20094,8 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
+            "type": "name_access_chain",
+            "named": true
           }
         ]
       },
@@ -20470,8 +20104,8 @@
         "required": false,
         "types": [
           {
-            "type": "::",
-            "named": false
+            "type": "name_access_chain",
+            "named": true
           }
         ]
       },
@@ -20493,16 +20127,6 @@
           }
         ]
       },
-      "leading_name_access": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "numerical_addr",
-            "named": true
-          }
-        ]
-      },
       "mut_ref": {
         "multiple": true,
         "required": false,
@@ -20517,38 +20141,16 @@
           }
         ]
       },
-      "name_access_chain": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "choose",
-            "named": false
-          },
-          {
-            "type": "exists",
-            "named": false
-          },
-          {
-            "type": "forall",
-            "named": false
-          },
-          {
-            "type": "min",
-            "named": false
-          },
-          {
-            "type": "primitive_type",
-            "named": true
-          }
-        ]
-      },
       "path": {
         "multiple": true,
         "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "leading_name_access",
+            "named": true
+          },
+          {
+            "type": "name_access_chain",
             "named": true
           }
         ]
@@ -20594,6 +20196,14 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "leading_name_access",
+          "named": true
+        },
+        {
+          "type": "name_access_chain",
+          "named": true
+        },
         {
           "type": "primitive_type",
           "named": true
@@ -20771,22 +20381,12 @@
     "type": "value",
     "named": true,
     "fields": {
-      "leading_name_access": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "numerical_addr",
-            "named": true
-          }
-        ]
-      },
       "path": {
         "multiple": false,
         "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "leading_name_access",
             "named": true
           }
         ]
@@ -20798,6 +20398,10 @@
       "types": [
         {
           "type": "byte_string",
+          "named": true
+        },
+        {
+          "type": "leading_name_access",
           "named": true
         },
         {
@@ -21448,23 +21052,11 @@
     "named": false
   },
   {
-    "type": "!=",
-    "named": false
-  },
-  {
     "type": "#",
     "named": false
   },
   {
-    "type": "%",
-    "named": false
-  },
-  {
     "type": "&",
-    "named": false
-  },
-  {
-    "type": "&&",
     "named": false
   },
   {
@@ -21492,19 +21084,11 @@
     "named": false
   },
   {
-    "type": "-",
-    "named": false
-  },
-  {
     "type": ".",
     "named": false
   },
   {
     "type": "..",
-    "named": false
-  },
-  {
-    "type": "/",
     "named": false
   },
   {
@@ -21528,39 +21112,11 @@
     "named": false
   },
   {
-    "type": "<<",
-    "named": false
-  },
-  {
-    "type": "<=",
-    "named": false
-  },
-  {
-    "type": "<==>",
-    "named": false
-  },
-  {
     "type": "=",
     "named": false
   },
   {
-    "type": "==",
-    "named": false
-  },
-  {
-    "type": "==>",
-    "named": false
-  },
-  {
     "type": ">",
-    "named": false
-  },
-  {
-    "type": ">=",
-    "named": false
-  },
-  {
-    "type": ">>",
     "named": false
   },
   {
@@ -21573,10 +21129,6 @@
   },
   {
     "type": "]",
-    "named": false
-  },
-  {
-    "type": "^",
     "named": false
   },
   {
@@ -21618,6 +21170,10 @@
   {
     "type": "axiom",
     "named": false
+  },
+  {
+    "type": "binary_operator",
+    "named": true
   },
   {
     "type": "bool",
@@ -21885,10 +21441,6 @@
   },
   {
     "type": "|",
-    "named": false
-  },
-  {
-    "type": "||",
     "named": false
   },
   {

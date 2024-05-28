@@ -10,16 +10,15 @@ const keyword = (word) => field(word, word);
 const chain_ident = ($, wildcard) => field('path', (wildcard) ? choice('*', $.identifier) : $.identifier);
 // LeadingNameAccess = <NumericalAddress> | <Identifier>
 // `Identifier` can be `*` if `wildcard = true`
-const leading_name_access = ($, wildcard) => field(
-    'leading_name_access',
-    choice(chain_ident($, wildcard), $.numerical_addr)
+const leading_name_access = ($, wildcard) => alias(
+    choice(chain_ident($, wildcard), $.numerical_addr),
+    $.leading_name_access
 );
 // NameAccessChain = <LeadingNameAccess> ( "::" <Identifier> ( "::" <Identifier> )? )?
 // `Identifier` can be `*` if `wildcard = true`
 const name_access_chain = ($, wildcard) => {
     const ident = () => chain_ident($, wildcard);
-    return field(
-        'name_access_chain',
+    return alias(
         seq(
             choice(leading_name_access($, wildcard), $.primitive_type, $._quantifier_directive),
             optional(field('access_two',
@@ -27,6 +26,7 @@ const name_access_chain = ($, wildcard) => {
                     optional(field('access_three', seq('::', ident()))))
             )),
         ),
+        $.name_access_chain,
     );
 };
 
@@ -66,7 +66,7 @@ module.exports = grammar({
         [$.primitive_type, $.term],
         [$.type],
         [$._quantifier_directive, $.quantifier],
-        [$._dot_or_index_chain],
+        [$._name_expr]
     ],
 
     extras: $ => [
@@ -135,7 +135,7 @@ module.exports = grammar({
         //          | <BinOpExp>
         //          | <UnaryExp> "=" <Exp>
         _expr: $ => choice(
-            prec.left(field('assignment', seq($._unary_expr, '=', $._expr))),
+            prec.left(expr_precedence.DEFAULT, field('assignment', seq($._unary_expr, '=', $._expr))),
             $._op_expr,
             $.quantifier,
             field('lambda', seq($.lambda_bind_list, $._expr)),
@@ -183,7 +183,7 @@ module.exports = grammar({
         //            | <UnaryExp>
         //      BinOpExp = <OpExp> <BinOp> <OpExp>
         _op_expr: $ => choice(
-            prec(expr_precedence.UNARY, $._unary_expr),
+            $._unary_expr,
             $.bin_op_expr,
         ),
         bin_op_expr: $ => choice(
@@ -191,11 +191,11 @@ module.exports = grammar({
             ...binary_operators.flatMap(
                 (level, index) => level.map(([symbol, name]) => prec.left(
                     index + 2,
-                    field(name, seq(
+                    seq(
                         field('lhs', $._op_expr),
-                        symbol,
+                        alias(symbol, $.binary_operator),
                         field('rhs', $._op_expr)
-                    ))
+                    )
                 ))
             ),
         ),
@@ -217,14 +217,14 @@ module.exports = grammar({
             $.move_expr,
             $.copy_expr,
 
-            prec(expr_precedence.FIELD, $._dot_or_index_chain),
+            $._dot_or_index_chain,
         ),
-        not_expr: $ => seq('!', $._unary_expr),
-        ref_expr: $ => seq('&', $._unary_expr),
-        ref_mut_expr: $ => seq('&mut', $._unary_expr),
-        deref_expr: $ => seq('*', $._unary_expr),
-        move_expr: $ => seq('move', field('variable', $.identifier)),
-        copy_expr: $ => seq('copy', field('variable', $.identifier)),
+        not_expr: $ => prec(expr_precedence.UNARY, seq('!', $._unary_expr)),
+        ref_expr: $ => prec(expr_precedence.UNARY, seq('&', $._unary_expr)),
+        ref_mut_expr: $ => prec(expr_precedence.UNARY, seq('&mut', $._unary_expr)),
+        deref_expr: $ => prec(expr_precedence.UNARY, seq('*', $._unary_expr)),
+        move_expr: $ => prec(expr_precedence.UNARY, seq('move', field('variable', $.identifier))),
+        copy_expr: $ => prec(expr_precedence.UNARY, seq('copy', field('variable', $.identifier))),
 
         // Parse an expression term optionally followed by a chain of dot or index accesses:
         //      DotOrIndexChain =
@@ -232,12 +232,12 @@ module.exports = grammar({
         //          | <DotOrIndexChain> "[" <Exp> "]"                      spec only
         //          | <Term>
         _dot_or_index_chain: $ => choice(
-            field('dot', seq($._dot_or_index_chain, '.', field('field', $.identifier))),
-            field('call', seq($._dot_or_index_chain, '.', field('field', $.identifier),
+            prec.left(expr_precedence.FIELD, field('dot', seq($._dot_or_index_chain, '.', field('field', $.identifier)))),
+            prec.left(expr_precedence.CALL, field('call', seq($._dot_or_index_chain, '.', field('field', $.identifier),
                 optional(field('type_generics', seq('::', $.type_args))),
                 $.call_args,
-            )),
-            field('mem_access', seq($._dot_or_index_chain, '[', field('index', $._expr), ']')),
+            ))),
+            prec.left(expr_precedence.CALL, field('mem_access', seq($._dot_or_index_chain, '[', field('index', $._expr), ']'))),
             field('expr', $.term),
         ),
 
@@ -273,9 +273,9 @@ module.exports = grammar({
             field('break_expr', 'break'),
             field('continue_expr', 'continue'),
             field('vector_access', seq('vector', optional($.type_args), '[', sepByComma($._expr), ']')),
-            field('value_expr', $.value),
+            $.value,
             field('tuple_expr', seq('(', sepByComma($._expr), ')')),
-            seq('(', $._expr, ':', $.type, ')'),
+            seq('(', field('expr', $._expr), ':', $.type, ')'),
             field('cast_expr', seq('(', $._expr, 'as', $.type, ')')),
 
             $.block,
@@ -325,17 +325,18 @@ module.exports = grammar({
         //          | <NameAccessChain> "!" <CallArgs>
         //          | <NameAccessChain> <OptionalTypeArgs>
         _name_expr: $ => choice(
-            // <NameAccessChain> <TypeArgs>? prefix
-            field('name', seq(name_access_chain($, false), optional(field('generics', $.type_args)))),
-            prec(expr_precedence.CALL, field('call', seq(
-                name_access_chain($, false), optional(field('generics', $.type_args)), $.call_args
-            ))),
-            prec(expr_precedence.DEFAULT, field('pack', seq(
-                name_access_chain($, false), optional(field('generics', $.type_args)),
+            seq(field('name', name_access_chain($, false)), optional(field('generics', $.type_args))),
+            field('call', seq(
+                field('func_name', name_access_chain($, false)), optional(field('generics', $.type_args)), $.call_args
+            )),
+            field('pack', seq(
+                field('struct_name', name_access_chain($, false)), optional(field('generics', $.type_args)),
                 '{', sepByComma($.expr_field), '}'
-            ))),
+            )),
             // macro call
-            prec(expr_precedence.DEFAULT, field('macro_call', seq(name_access_chain($, false), '!', $.call_args))),
+            field('macro_call', seq(
+                field('macro_name', name_access_chain($, false)), '!', $.call_args
+            )),
         ),
 
         call_args: $ => seq('(', sepByComma($._expr), ')'),
