@@ -33,13 +33,14 @@ def visit_file(file: str) -> TestResult:
     return TestResult(file, False, last_line.decode("utf-8"))
 
 
-SPEC_WORDS = re.compile(r'\b(invariant)|(spec)|(schema)\b')
+exclude = [
+    'aptos-move/writeset-transaction-generator/templates'
+]
 def retain_file(file: str) -> bool:
-    # with open(file) as f:
-    #     for line in f:
-    #         if SPEC_WORDS.match(line) is not None:
-    #             print(f'[IGNORE] {file}')
-    #             return False
+    for excl in exclude:
+        if file.find(excl) != -1:
+            print(f'[IGNORE] {file}')
+            return False
     return True
     
 

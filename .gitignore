@@ -44,3 +44,6 @@ dist/
 
 # Tree sitter parsing output
 log.html
+
+# testing repos
+test/repos/

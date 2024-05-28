@@ -455,7 +455,10 @@ module.exports = grammar({
             ),
         ),
         spec_block_target: $ => choice(
-            field('signature', seq(field('func_name', $.identifier, optional($._spec_target_signature_opt)))),
+            field('signature', seq(
+                field('func_name', $.identifier),
+                optional($._spec_target_signature_opt),
+            )),
             keyword('module'),
             field('schema', seq(
                 'schema',
@@ -573,7 +576,7 @@ module.exports = grammar({
         _spec_func_signatures: $ => seq(
             field('func_name', $.identifier),
             optional($.type_params),
-            field('parameters', '(', sepByComma($.parameter), ')'),
+            field('parameters', seq('(', sepByComma($.parameter), ')')),
             ':', field('return_type', $.type),
         ),
 
@@ -624,7 +627,7 @@ module.exports = grammar({
             field('post_state', optional('post')),
             field('variable', $.identifier),
             '=',
-            field('value', $.value),
+            field('value', $._expr),
             ';',
         ),
 
