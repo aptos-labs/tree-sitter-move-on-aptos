@@ -105,14 +105,15 @@ module.exports = grammar({
             /0o[0-7_]+/,
         ),
         numerical_addr: $ => $.number,
+        bool_literal: $ => choice('true', 'false'),
         typed_number: $ => alias(seq($.number, $.number_type), 'typed_number'),
         byte_string: _ => choice(
             /x\"[\da-fA-F]*\"/,
-            /b\"[\w/]*\"/,
+            /b"(\\.|[^\\"])*"/,
         ),
 
         // Parse a Type:
-        //      Type =
+        //         T ype =        
         //          <NameAccessChain> <TypeArgs>?
         //          | "&" <Type>
         //          | "&mut" <Type>
@@ -360,8 +361,7 @@ module.exports = grammar({
         //          | <ByteString>
         value: $ => prec(expr_precedence.DEFAULT, choice(
             seq('@', leading_name_access($, false)),
-            'true',
-            'false',
+            $.bool_literal,
             $.number,
             $.typed_number,
             $.byte_string,
@@ -836,7 +836,7 @@ module.exports = grammar({
         comments: $ => choice(
             /\/\/.*/,
             // TODO: properly parse the multi-line comments
-            `\/\*([^*]([^/*]|\/*|[^*]\/|\*[^/])*)?\*\/`,
+            seq('/*', /[^*]*\*+([^/*][^*]*\*+)*/, '/'),
         ),
     }
 });

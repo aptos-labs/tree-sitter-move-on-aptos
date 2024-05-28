@@ -179,6 +179,19 @@
       "type": "SYMBOL",
       "name": "number"
     },
+    "bool_literal": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "true"
+        },
+        {
+          "type": "STRING",
+          "value": "false"
+        }
+      ]
+    },
     "typed_number": {
       "type": "ALIAS",
       "content": {
@@ -206,7 +219,7 @@
         },
         {
           "type": "PATTERN",
-          "value": "b\\\"[\\w/]*\\\""
+          "value": "b\"(\\\\.|[^\\\\\"])*\""
         }
       ]
     },
@@ -3198,12 +3211,8 @@
             ]
           },
           {
-            "type": "STRING",
-            "value": "true"
-          },
-          {
-            "type": "STRING",
-            "value": "false"
+            "type": "SYMBOL",
+            "name": "bool_literal"
           },
           {
             "type": "SYMBOL",
@@ -7154,8 +7163,21 @@
           "value": "\\/\\/.*"
         },
         {
-          "type": "STRING",
-          "value": "/*([^*]([^/*]|/*|[^*]/|*[^/])*)?*/"
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "/*"
+            },
+            {
+              "type": "PATTERN",
+              "value": "[^*]*\\*+([^/*][^*]*\\*+)*"
+            },
+            {
+              "type": "STRING",
+              "value": "/"
+            }
+          ]
         }
       ]
     }
