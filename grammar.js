@@ -117,7 +117,7 @@ module.exports = grammar({
         //          <NameAccessChain> <TypeArgs>?
         //          | "&" <Type>
         //          | "&mut" <Type>
-        //          | "|" Comma<Type> "|" Type
+        //          | "|" Comma<Type> "|" <Type>?
         //          | "(" Comma<Type> ")"
         type: $ => choice(
             seq(choice(name_access_chain($, false), $.primitive_type), optional($.type_args)),
@@ -125,7 +125,9 @@ module.exports = grammar({
             field('mut_ref', seq('&mut', $.type)),
             // `||' is treated as an empty param type list in this context.
             // TODO: verify the associativity
-            prec.right(expr_precedence.DEFAULT, field('closure_type', seq('|', sepByComma($.type), '|', $.type))),
+            prec.right(expr_precedence.DEFAULT,
+                field('closure_type', seq('|', field('param_types', sepByComma($.type)), '|', field('return_type', optional($.type))))
+            ),
             field('tuple', seq('(', sepByComma($.type), ')')),
         ),
 
@@ -583,8 +585,8 @@ module.exports = grammar({
         ),
 
         // Parse a specification schema include.
-        //    SpecInclude = "include" <Exp>
-        spec_include: $ => seq('include', $._expr),
+        //    SpecInclude = "include" <Exp> ";"
+        spec_include: $ => seq('include', $._expr, ';'),
 
         // Parse a specification schema apply.
         //    SpecApply = "apply" <Exp> "to" Comma<SpecApplyPattern>

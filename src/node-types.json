@@ -20861,14 +20861,6 @@
         "required": false,
         "types": [
           {
-            "type": ",",
-            "named": false
-          },
-          {
-            "type": "type",
-            "named": true
-          },
-          {
             "type": "|",
             "named": false
           }
@@ -20880,6 +20872,20 @@
         "types": [
           {
             "type": "&mut",
+            "named": false
+          },
+          {
+            "type": "type",
+            "named": true
+          }
+        ]
+      },
+      "param_types": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": ",",
             "named": false
           },
           {
@@ -20910,6 +20916,16 @@
             "type": "&",
             "named": false
           },
+          {
+            "type": "type",
+            "named": true
+          }
+        ]
+      },
+      "return_type": {
+        "multiple": false,
+        "required": false,
+        "types": [
           {
             "type": "type",
             "named": true
