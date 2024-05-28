@@ -35,11 +35,11 @@ def visit_file(file: str) -> TestResult:
 
 SPEC_WORDS = re.compile(r'\b(invariant)|(spec)|(schema)\b')
 def retain_file(file: str) -> bool:
-    with open(file) as f:
-        for line in f:
-            if SPEC_WORDS.match(line) is not None:
-                print(f'[IGNORE] {file}')
-                return False
+    # with open(file) as f:
+    #     for line in f:
+    #         if SPEC_WORDS.match(line) is not None:
+    #             print(f'[IGNORE] {file}')
+    #             return False
     return True
     
 

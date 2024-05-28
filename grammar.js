@@ -63,9 +63,10 @@ module.exports = grammar({
     word: $ => $.identifier,
 
     conflicts: $ => [
-        [$.type, $._bind],
         [$.primitive_type, $.term],
         [$.type],
+        [$._quantifier_directive, $.quantifier],
+        [$._dot_or_index_chain],
     ],
 
     extras: $ => [
@@ -184,7 +185,11 @@ module.exports = grammar({
             ...binary_operators.flatMap(
                 (level, index) => level.map(([symbol, name]) => prec.left(
                     index + 2,
-                    field(name, seq($._bin_op_expr, symbol, $._bin_op_expr))
+                    field(name, seq(
+                        field('lhs', $._bin_op_expr),
+                        symbol,
+                        field('rhs', $._bin_op_expr)
+                    ))
                 ))
             ),
         ),
@@ -246,6 +251,7 @@ module.exports = grammar({
         //          | "abort" "{" <Exp> "}"
         //          | "abort" <Exp>
         //          | "for" "(" <Exp> "in" <Exp> ".." <Exp> ")" "{" <Exp> "}"
+        //          | <SpecBlock>
         //          | <NameExp>
         //
         // The conflict resolution is based on `tree-sitter-javascript`'s approach.
@@ -256,14 +262,14 @@ module.exports = grammar({
             field('continue_expr', 'continue'),
             field('vector_access', seq('vector', optional($.type_args), '[', sepByComma($.expr), ']')),
             field('value_expr', $.value),
-            field('tuple_expr', seq('(', sepByComma($.type), ')')),
+            field('tuple_expr', seq('(', sepByComma($.expr), ')')),
             seq('(', $.expr, ':', $.type, ')'),
             field('cast_expr', seq('(', $.expr, 'as', $.type, ')')),
 
             $.block,
             $._name_expr,
 
-            field('spec_block', seq('spec', $.spec_block)),
+            field('spec_block', $.spec_block),
 
             // control flow expressions
             $.if_expr,
@@ -358,14 +364,14 @@ module.exports = grammar({
         //     | <Identifier> "=" <AttributeValue>
         //     | <Identifier> "(" Comma<Attribute> ")"
         attribute: $ => choice(
-            field('attribute_item', $.identifier),
-            seq(field('attribute_item', $.identifier), '=', $.attribute_val),
-            seq(field('attribute_item', $.identifier), '(', sepByComma($.attribute), ')')
+            field('item', $.identifier),
+            seq(field('item', $.identifier), '=', field('value', $._attribute_val)),
+            seq(field('item', $.identifier), '(', sepByComma($.attribute), ')')
         ),
 
         // Parse an attribute value. Either a value literal or a module access
         //  AttributeValue = <Value> | <NameAccessChain>
-        attribute_val: $ => choice(prec(expr_precedence.DEFAULT, $.value), name_access_chain($, false)),
+        _attribute_val: $ => choice(prec(expr_precedence.DEFAULT, $.value), name_access_chain($, false)),
 
         // AddressBlock = "address" <LeadingNameAccess> "{" (<Attributes> <Module>)* "}"
         address_block: $ => seq(
@@ -387,7 +393,7 @@ module.exports = grammar({
         //       "}"
         //   ModuleMemberModifiers = <ModuleMemberModifier>*
         module: $ => seq(
-            // TODO: doc comments are not supported by now.
+            // TODO(doc): doc comments are not supported by now.
             choice('spec', 'module'),
             // (<LeadingNameAccess>::)?<ModuleName>
             seq(
@@ -403,11 +409,11 @@ module.exports = grammar({
                 $.use_decl,
                 $.friend_decl,
 
-                $.spec_func,
+                prec(expr_precedence.DEFAULT, seq('spec', $.spec_func)),
                 $.spec_block,
                 $.spec_invariant,
 
-                // TODO: doc comments
+                // TODO(doc): doc comments
                 seq(repeat($.module_member_modifier), choice($.constant_decl, $.struct_decl, $.function_decl)),
             )
         ),
@@ -445,8 +451,12 @@ module.exports = grammar({
             ))
         ),
 
-        // TODO: _spec_target_signature_opt
-        _spec_target_signature_opt: $ => 'spec_target_signature_opt',
+        // SpecTargetSignatureOpt = (TypeParameters)? "(" Comma<Parameter> ")" (":" <Type>)?
+        _spec_target_signature_opt: $ => seq(
+            optional($.type_params),
+            field('parameters', seq('(', sepByComma($.parameter), ')')),
+            field('return_type', optional(seq(':', $.type))),
+        ),
 
         // Parse a spec block member:
         //    SpecBlockMember = <DocComments> ( <Invariant> | <Condition> | <SpecFunction> | <SpecVariable>
@@ -466,39 +476,164 @@ module.exports = grammar({
             $.spec_axiom,
         ),
 
-        // TODO: spec_invariant
-        spec_invariant: $ => 'spec_invariant',
-
-        // TODO: spec_condition,
-        spec_condition: $ => 'spec_condition',
-
-        // TODO: spec_variable
-        spec_variable: $ => 'spec_variable',
-
-        // TODO: spec function
-        spec_func: $ => seq(
-            'spec', choice('native', 'fun'), // ...
+        // Invariant = "invariant" <OptionalTypeParameters> [ "update" ] <ConditionProperties> <Exp> ";"
+        spec_invariant: $ => seq(
+            'invariant',
+            field('type_params', optional($.type_params)),
+            field('update', optional('update')),
+            optional($.condition_props),
+            $.expr,
+            ';'
         ),
 
-        // TODO: spec include
-        spec_include: $ => 'spec_include',
+        // Parse a specification condition:
+        //    SpecCondition =
+        //        ("assert" | "assume" | "ensures" | "requires" ) <ConditionProperties> <Exp> ";"
+        //      | "aborts_if" <ConditionProperties> <Exp> ["with" <Exp>] ";"
+        //      | ("aborts_with" | "modifies") <ConditionProperties> <Exp> [Comma <Exp>]* ";"
+        //      | "decreases" <ConditionProperties> <Exp> ";"
+        //      | "emits" <ConditionProperties> <Exp> "to" <Exp> [If <Exp>] ";"
+        //    ConditionProperties = ( "[" Comma<SpecPragmaProperty> "]" )?
+        spec_condition: $ => choice(
+            seq(
+                field('kind', choice('assert', 'assume', 'ensures', 'requires')),
+                optional($.condition_props),
+                $.expr,
+                ';'
+            ),
 
-        // TODO: spec apply
-        spec_apply: $ => 'spec_apply',
+            // aborts_if
+            seq(
+                field('kind', 'aborts_if'),
+                optional($.condition_props), $.expr,
+                field('with', optional(seq('with', $.expr))),
+                ';'
+            ),
 
-        // TODO: spec pragma
-        spec_pragma: $ => 'spec_pragma',
+            // ("aborts_with" | "modifies")
+            seq(
+                field('kind', choice('aborts_with', 'modifies')),
+                optional($.condition_props), $.expr,
+                sepBy1(',', $.expr),
+                ';'
+            ),
 
-        // TODO: spec let
-        spec_let: $ => 'spec_let',
+            // emits
+            seq(
+                field('kind', 'emits'),
+                optional($.condition_props), $.expr,
+                'to', $.expr,
+                field('condition', seq('if', $.expr)),
+                ';'
+            ),
+        ),
+        condition_props: $ => seq('[', sepByComma($._spec_pragma_prop), ']'),
 
-        // TODO: spec update
-        spec_update: $ => 'spec_update',
 
-        // TODO: spec_axion
-        spec_axiom: $ => 'spec_axiom',
+        // Parse a specification variable.
+        //     SpecVariable = ( "global" | "local" )?
+        //                    <Identifier> <OptionalTypeParameters>
+        //                    ":" <Type>
+        //                    [ "=" Exp ]  // global only
+        //                    ";"
+        spec_variable: $ => seq(
+            optional(field('scope', choice('global'))),
+            field('variable', $.identifier),
+            optional($.type_params),
+            ':', $.type,
+            optional(field('value', seq('=', $.expr))),
+            ';'
+        ),
 
+        // Parse a specification function.
+        //     SpecFunction = "define" <SpecFunctionSignature> ( "{" <Sequence> "}" | ";" )
+        //                  | "native" "define" <SpecFunctionSignature> ";"
+        //     SpecFunctionSignature =
+        //         <Identifier> <OptionalTypeParameters> "(" Comma<Parameter> ")" ":" <Type>
+        spec_func: $ => choice(
+            seq('define',
+                field('signature', $._spec_func_signatures),
+                choice(seq('{', $._sequence, '}'), ';')
+            ),
+            seq('native', 'define', field('signature', $._spec_func_signatures), ';'),
+        ),
+        _spec_func_signatures: $ => seq(
+            field('func_name', $.identifier),
+            optional($.type_params),
+            field('parameters', '(', sepByComma($.parameter), ')'),
+            ':', field('return_type', $.type),
+        ),
 
+        // Parse a specification schema include.
+        //    SpecInclude = "include" <Exp>
+        spec_include: $ => seq('include', $.expr),
+
+        // Parse a specification schema apply.
+        //    SpecApply = "apply" <Exp> "to" Comma<SpecApplyPattern>
+        //                                   ( "except" Comma<SpecApplyPattern> )? ";"
+        spec_apply: $ => seq(
+            'apply', $.expr, 'to',
+            field('targets', sepByComma($._spec_apply_pattern)),
+            field('exclusions', seq('except', sepByComma($._spec_apply_pattern))),
+            ';',
+        ),
+        // Parse a function pattern:
+        //     SpecApplyPattern = <Visibility>? <SpecApplyFragment>+ <OptionalTypeArgs>
+        //     SpecApplyFragment = <Identifier> | "*"
+        _spec_apply_pattern: $ => seq(
+            optional(field('visibility', choice('public', 'internal'))),
+            // TODO: weird pattern: name fragments followed by each other without space
+            field('name_pattern', 'name_pattern'),
+            field('type_params', optional($.type_params)),
+        ),
+
+        // Parse a specification pragma:
+        //    SpecPragma = "pragma" Comma<SpecPragmaProperty> ";"
+        //    SpecPragmaProperty = (<Identifier> | 'friend') ( "=" <Value> | <NameAccessChain> )?
+        // NOTICE: `friend` here is not a keyword but an identifier name.
+        spec_pragma: $ => seq(
+            'pragma',
+            field('properties', sepByComma($._spec_pragma_prop)),
+            ';'
+        ),
+        _spec_pragma_prop: $ => seq(
+            field('prop_name', choice($.identifier, 'friend')),
+            optional(choice(
+                field('value', seq('=', $.value)),
+                name_access_chain($, false),
+            )),
+        ),
+
+        // Parse a specification let.
+        //     SpecLet =  "let" [ "post" ] <Identifier> "=" <Exp> ";"
+        spec_let: $ => seq(
+            'let',
+            field('post_state', optional('post')),
+            field('variable', $.identifier),
+            '=',
+            field('value', $.value),
+            ';',
+        ),
+
+        // Parse a specification update.
+        //     SpecUpdate = "update" <Exp> = <Exp> ";"
+        spec_update: $ => seq(
+            'update',
+            field('lhs', $.expr),
+            '=',
+            field('rhs', $.expr),
+            ';'
+        ),
+
+        // Parse an axiom:
+        //     a = "axiom" <OptionalTypeParameters> <ConditionProperties> <Exp> ";"
+        spec_axiom: $ => seq(
+            'axiom',
+            field('kind', optional($.type_params)),
+            optional($.condition_props),
+            $.expr,
+            ';'
+        ),
 
         // Visibility = "public" ( "(" "script" | "friend" ")" )?
         visibility: $ => seq(keyword('public'), optional(seq('(', choice(keyword('script'), keyword('friend')), ')'))),
@@ -592,7 +727,7 @@ module.exports = grammar({
             seq(
                 field('func', name_access_chain($, false)),
                 optional($.type_args),
-                // TODO: can be optional when NameAccessChain_::One(name) = chain.value.
+                // FIXME: can be optional when NameAccessChain_::One(name) = chain.value.
                 '(', field('arg', $.identifier), ')'
             ),
         ),
@@ -619,7 +754,7 @@ module.exports = grammar({
 
         // FieldAnnot = <DocComments> <Field> ":" <Type>
         field_annot: $ => seq(
-            // TODO: doc comments,
+            // TODO(doc): doc comments,
             field('field', $.identifier), ':', $.type
         ),
 
@@ -674,7 +809,7 @@ module.exports = grammar({
             // function
             field('function', seq(
                 optional($.attributes),
-                // TODO: doc comments
+                // TODO(doc): doc comments
                 repeat($.module_member_modifier),
                 $.function_decl,
             )),
@@ -684,7 +819,7 @@ module.exports = grammar({
         ),
 
         // Comments
-        // TODO: doc comments
+        // TODO(doc): doc comments
         comments: $ => choice(
             /\/\/.*/,
             // TODO: properly parse the multi-line comments
