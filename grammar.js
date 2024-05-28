@@ -108,7 +108,7 @@ module.exports = grammar({
         typed_number: $ => alias(seq($.number, $.number_type), 'typed_number'),
         byte_string: _ => choice(
             /x\"[\da-fA-F]*\"/,
-            /b\"[\w]*\"/,
+            /b\"[\w/]*\"/,
         ),
 
         // Parse a Type:
@@ -134,11 +134,11 @@ module.exports = grammar({
         //          | <Quantifier>                  spec only
         //          | <BinOpExp>
         //          | <UnaryExp> "=" <Exp>
-        expr: $ => choice(
-            prec.left(field('assignment', seq($._unary_expr, '=', $.expr))),
-            $._bin_op_expr,
+        _expr: $ => choice(
+            prec.left(field('assignment', seq($._unary_expr, '=', $._expr))),
+            $._op_expr,
             $.quantifier,
-            field('lambda', seq($.lambda_bind_list, $.expr)),
+            field('lambda', seq($.lambda_bind_list, $._expr)),
         ),
 
         // Parse a list of bindings for lambda.
@@ -158,37 +158,43 @@ module.exports = grammar({
                 field('scope', choice('forall', 'exists')),
                 sepBy1(',', $.quantifier_bind),
                 optional($.triggers),
-                optional(seq('where', $.expr)),
+                optional(seq('where', $._expr)),
                 ':',
-                field('assertion', $.expr),
+                field('assertion', $._expr),
             ),
             seq(
                 choice('choose', 'min'),
                 $.quantifier_bind,
                 'where',
-                field('condition', $.expr),
+                field('condition', $._expr),
             )
         ),
         quantifier_bind: $ => choice(
             field('type_bind', seq(field('var', $.identifier), ':', $.type)),
-            field('value_bind', seq(field('var', $.identifier), 'in', field('scope', $.expr))),
+            field('value_bind', seq(field('var', $.identifier), 'in', field('scope', $._expr))),
         ),
-        triggers: $ => repeat1(seq('{', sepByComma(field('trigger', $.expr)), '}')),
+        triggers: $ => repeat1(seq('{', sepByComma(field('trigger', $._expr)), '}')),
 
-        // Parse a binary operator expression:
+        // Old grammar:
         //      BinOpExp = <BinOpExp> <BinOp> <BinOpExp>
         //               | <UnaryExp>
-        _bin_op_expr: $ => choice(
+        // Now grammar:
+        //      OpExp = <BinOpExp>      # anonymous
+        //            | <UnaryExp>
+        //      BinOpExp = <OpExp> <BinOp> <OpExp>
+        _op_expr: $ => choice(
             prec(expr_precedence.UNARY, $._unary_expr),
-
+            $.bin_op_expr,
+        ),
+        bin_op_expr: $ => choice(
             // binary operators
             ...binary_operators.flatMap(
                 (level, index) => level.map(([symbol, name]) => prec.left(
                     index + 2,
                     field(name, seq(
-                        field('lhs', $._bin_op_expr),
+                        field('lhs', $._op_expr),
                         symbol,
-                        field('rhs', $._bin_op_expr)
+                        field('rhs', $._op_expr)
                     ))
                 ))
             ),
@@ -204,15 +210,21 @@ module.exports = grammar({
         //          | "copy" <Var>
         //          | <DotOrIndexChain>
         _unary_expr: $ => choice(
-            field('not_expr', seq('!', $._unary_expr)),
-            field('ref_expr', seq('&', $._unary_expr)),
-            field('ref_mut_expr', seq('&mut', $._unary_expr)),
-            field('deref_expr', seq('*', $._unary_expr)),
-            field('move_expr', seq('move', $._unary_expr)),
-            field('copy_expr', seq('copy', $._unary_expr)),
+            $.not_expr,
+            $.ref_expr,
+            $.ref_mut_expr,
+            $.deref_expr,
+            $.move_expr,
+            $.copy_expr,
 
             prec(expr_precedence.FIELD, $._dot_or_index_chain),
         ),
+        not_expr: $ => seq('!', $._unary_expr),
+        ref_expr: $ => seq('&', $._unary_expr),
+        ref_mut_expr: $ => seq('&mut', $._unary_expr),
+        deref_expr: $ => seq('*', $._unary_expr),
+        move_expr: $ => seq('move', field('variable', $.identifier)),
+        copy_expr: $ => seq('copy', field('variable', $.identifier)),
 
         // Parse an expression term optionally followed by a chain of dot or index accesses:
         //      DotOrIndexChain =
@@ -225,8 +237,8 @@ module.exports = grammar({
                 optional(field('type_generics', seq('::', $.type_args))),
                 $.call_args,
             )),
-            field('mem_access', seq($._dot_or_index_chain, '[', field('index', $.expr), ']')),
-            field('value', $.term),
+            field('mem_access', seq($._dot_or_index_chain, '[', field('index', $._expr), ']')),
+            field('expr', $.term),
         ),
 
         // Parse an expression term:
@@ -260,11 +272,11 @@ module.exports = grammar({
         term: $ => choice(
             field('break_expr', 'break'),
             field('continue_expr', 'continue'),
-            field('vector_access', seq('vector', optional($.type_args), '[', sepByComma($.expr), ']')),
+            field('vector_access', seq('vector', optional($.type_args), '[', sepByComma($._expr), ']')),
             field('value_expr', $.value),
-            field('tuple_expr', seq('(', sepByComma($.expr), ')')),
-            seq('(', $.expr, ':', $.type, ')'),
-            field('cast_expr', seq('(', $.expr, 'as', $.type, ')')),
+            field('tuple_expr', seq('(', sepByComma($._expr), ')')),
+            seq('(', $._expr, ':', $.type, ')'),
+            field('cast_expr', seq('(', $._expr, 'as', $.type, ')')),
 
             $.block,
             $._name_expr,
@@ -279,29 +291,29 @@ module.exports = grammar({
             $.abort_expr,
             $.for_loop_expr,
         ),
-        parenthesized_expr: $ => seq('(', $.expr, ')'),
+        parenthesized_expr: $ => seq('(', $._expr, ')'),
         block: $ => alias($._sequence, $.block),
         // Control flow expressions:
         if_expr: $ => prec.right(seq(
             'if',
             field('condition', $.parenthesized_expr),
-            field('then', $.expr),
-            optional(field('else', seq('else', $.expr)))
+            field('then', $._expr),
+            optional(field('else', seq('else', $._expr)))
         )),
         while_expr: $ => seq(
             'while',
             field('condition', $.parenthesized_expr),
-            field('body', $.expr),
+            field('body', $._expr),
         ),
-        loop_expr: $ => seq('loop', field('body', $.expr)),
+        loop_expr: $ => seq('loop', field('body', $._expr)),
         return_expr: $ => choice(
             prec(expr_precedence.LAST, 'return'),
-            prec.left(seq('return', field('value', $.expr))),
+            prec.left(seq('return', field('value', $._expr))),
         ),
-        abort_expr: $ => seq('abort', field('condition', $.expr)),
+        abort_expr: $ => seq('abort', field('condition', $._expr)),
         for_loop_expr: $ => seq(
             'for', '(',
-            field('init', $.expr), 'in', field('range', $.expr), '..', field('increment', $.expr),
+            field('init', $._expr), 'in', field('range', $._expr), '..', field('increment', $._expr),
             ')',
             field('body', $.block),
         ),
@@ -326,14 +338,14 @@ module.exports = grammar({
             prec(expr_precedence.DEFAULT, field('macro_call', seq(name_access_chain($, false), '!', $.call_args))),
         ),
 
-        call_args: $ => seq('(', sepByComma($.expr), ')'),
+        call_args: $ => seq('(', sepByComma($._expr), ')'),
         type_args: $ => seq('<', sepByComma($.type), '>'),
 
         // Parse a field name optionally followed by a colon and an expression argument:
         //      ExpField = <Field> <":" <Exp>>?
         expr_field: $ => seq(
             field('field', $.identifier),
-            optional(field('value', seq(':', $.expr)))
+            optional(field('value', seq(':', $._expr)))
         ),
 
 
@@ -482,7 +494,7 @@ module.exports = grammar({
             field('type_params', optional($.type_params)),
             field('update', optional('update')),
             optional($.condition_props),
-            $.expr,
+            $._expr,
             ';'
         ),
 
@@ -498,32 +510,32 @@ module.exports = grammar({
             seq(
                 field('kind', choice('assert', 'assume', 'ensures', 'requires')),
                 optional($.condition_props),
-                $.expr,
+                $._expr,
                 ';'
             ),
 
             // aborts_if
             seq(
                 field('kind', 'aborts_if'),
-                optional($.condition_props), $.expr,
-                field('with', optional(seq('with', $.expr))),
+                optional($.condition_props), $._expr,
+                field('with', optional(seq('with', $._expr))),
                 ';'
             ),
 
             // ("aborts_with" | "modifies")
             seq(
                 field('kind', choice('aborts_with', 'modifies')),
-                optional($.condition_props), $.expr,
-                sepBy1(',', $.expr),
+                optional($.condition_props), $._expr,
+                sepBy1(',', $._expr),
                 ';'
             ),
 
             // emits
             seq(
                 field('kind', 'emits'),
-                optional($.condition_props), $.expr,
-                'to', $.expr,
-                field('condition', seq('if', $.expr)),
+                optional($.condition_props), $._expr,
+                'to', $._expr,
+                field('condition', seq('if', $._expr)),
                 ';'
             ),
         ),
@@ -541,7 +553,7 @@ module.exports = grammar({
             field('variable', $.identifier),
             optional($.type_params),
             ':', $.type,
-            optional(field('value', seq('=', $.expr))),
+            optional(field('value', seq('=', $._expr))),
             ';'
         ),
 
@@ -566,13 +578,13 @@ module.exports = grammar({
 
         // Parse a specification schema include.
         //    SpecInclude = "include" <Exp>
-        spec_include: $ => seq('include', $.expr),
+        spec_include: $ => seq('include', $._expr),
 
         // Parse a specification schema apply.
         //    SpecApply = "apply" <Exp> "to" Comma<SpecApplyPattern>
         //                                   ( "except" Comma<SpecApplyPattern> )? ";"
         spec_apply: $ => seq(
-            'apply', $.expr, 'to',
+            'apply', $._expr, 'to',
             field('targets', sepByComma($._spec_apply_pattern)),
             field('exclusions', seq('except', sepByComma($._spec_apply_pattern))),
             ';',
@@ -619,9 +631,9 @@ module.exports = grammar({
         //     SpecUpdate = "update" <Exp> = <Exp> ";"
         spec_update: $ => seq(
             'update',
-            field('lhs', $.expr),
+            field('lhs', $._expr),
             '=',
-            field('rhs', $.expr),
+            field('rhs', $._expr),
             ';'
         ),
 
@@ -631,7 +643,7 @@ module.exports = grammar({
             'axiom',
             field('kind', optional($.type_params)),
             optional($.condition_props),
-            $.expr,
+            $._expr,
             ';'
         ),
 
@@ -668,7 +680,7 @@ module.exports = grammar({
         friend_decl: $ => seq('friend', name_access_chain($, false), ';'),
 
         // ConstantDecl = "const" <Identifier> ":" <Type> "=" <Exp> ";"
-        constant_decl: $ => seq('const', field('name', $.identifier), ':', field('type', $.type), '=', field('value', $.expr), ';'),
+        constant_decl: $ => seq('const', field('name', $.identifier), ':', field('type', $.type), '=', field('value', $._expr), ';'),
 
         // Parse a function declaration:
         //      FunctionDecl =
@@ -700,7 +712,7 @@ module.exports = grammar({
         _sequence: $ => seq('{', seq(
             repeat($.use_decl),
             repeat(seq($.sequence_item, ';')),
-            optional($.expr),
+            optional($._expr),
         ), '}'),
 
         // Parse a type parameter:
@@ -770,11 +782,11 @@ module.exports = grammar({
 
         // SequenceItem = <Exp> | "let" <BindList> (":" <Type>)? ("=" <Exp>)?
         sequence_item: $ => choice(
-            $.expr,
+            $._expr,
             $.let_expr,
         ),
 
-        let_expr: $ => seq('let', $.bind_list, optional(seq(':', $.type)), optional(seq('=', $.expr))),
+        let_expr: $ => seq('let', $.bind_list, optional(seq(':', $.type)), optional(seq('=', $._expr))),
 
         // BindList = <Bind> | "(" Comma<Bind> ")"
         bind_list: $ => choice($._bind, seq('(', sepByComma($._bind), ')')),
