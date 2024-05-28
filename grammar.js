@@ -447,10 +447,12 @@ module.exports = grammar({
             choice(
                 $.spec_func,
                 seq(optional($.spec_block_target),
-                    '{',
-                    field('use', repeat($.use_decl)),
-                    field('member', repeat($._spec_block_member)),
-                    '}'
+                    field('body', seq(
+                        '{',
+                        field('use', repeat($.use_decl)),
+                        field('member', repeat($._spec_block_member)),
+                        '}'
+                    )),
                 )
             ),
         ),
@@ -562,21 +564,21 @@ module.exports = grammar({
         ),
 
         // Parse a specification function.
-        //     SpecFunction = "define" <SpecFunctionSignature> ( "{" <Sequence> "}" | ";" )
-        //                  | "native" "define" <SpecFunctionSignature> ";"
+        //     SpecFunction = "fun" <SpecFunctionSignature> ( "{" <Sequence> "}" | ";" )
+        //                  | "native" "fun" <SpecFunctionSignature> ";"
         //     SpecFunctionSignature =
         //         <Identifier> <OptionalTypeParameters> "(" Comma<Parameter> ")" ":" <Type>
         spec_func: $ => choice(
-            seq('define',
+            seq('fun',
                 field('signature', $._spec_func_signatures),
-                choice(seq('{', $._sequence, '}'), ';')
+                choice(field('body', $._sequence), ';')
             ),
-            seq('native', 'define', field('signature', $._spec_func_signatures), ';'),
+            seq('native', 'fun', field('signature', $._spec_func_signatures), ';'),
         ),
         _spec_func_signatures: $ => seq(
-            field('func_name', $.identifier),
+            field('spec_func_name', $.identifier),
             optional($.type_params),
-            field('parameters', seq('(', sepByComma($.parameter), ')')),
+            field('params', seq('(', sepByComma($.parameter), ')')),
             ':', field('return_type', $.type),
         ),
 
@@ -599,8 +601,11 @@ module.exports = grammar({
         _spec_apply_pattern: $ => seq(
             optional(field('visibility', choice('public', 'internal'))),
             // TODO: weird pattern: name fragments followed by each other without space
-            field('name_pattern', 'name_pattern'),
+            field('name_pattern', repeat1($._spec_apply_fragment)),
             field('type_params', optional($.type_params)),
+        ),
+        _spec_apply_fragment: $ => choice(
+            '*', $.identifier
         ),
 
         // Parse a specification pragma:

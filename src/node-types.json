@@ -13415,6 +13415,10 @@
         "required": true,
         "types": [
           {
+            "type": "*",
+            "named": false
+          },
+          {
             "type": ",",
             "named": false
           },
@@ -13423,11 +13427,11 @@
             "named": false
           },
           {
-            "type": "internal",
-            "named": false
+            "type": "identifier",
+            "named": true
           },
           {
-            "type": "name_pattern",
+            "type": "internal",
             "named": false
           },
           {
@@ -13699,8 +13703,12 @@
         "required": false,
         "types": [
           {
-            "type": "name_pattern",
+            "type": "*",
             "named": false
+          },
+          {
+            "type": "identifier",
+            "named": true
           }
         ]
       },
@@ -13709,15 +13717,19 @@
         "required": false,
         "types": [
           {
+            "type": "*",
+            "named": false
+          },
+          {
             "type": ",",
             "named": false
           },
           {
-            "type": "internal",
-            "named": false
+            "type": "identifier",
+            "named": true
           },
           {
-            "type": "name_pattern",
+            "type": "internal",
             "named": false
           },
           {
@@ -14372,6 +14384,20 @@
     "type": "spec_block",
     "named": true,
     "fields": {
+      "body": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "{",
+            "named": false
+          },
+          {
+            "type": "}",
+            "named": false
+          }
+        ]
+      },
       "member": {
         "multiple": true,
         "required": false,
@@ -15398,6 +15424,104 @@
           }
         ]
       },
+      "body": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": ".",
+            "named": false
+          },
+          {
+            "type": "::",
+            "named": false
+          },
+          {
+            "type": ";",
+            "named": false
+          },
+          {
+            "type": "=",
+            "named": false
+          },
+          {
+            "type": "[",
+            "named": false
+          },
+          {
+            "type": "]",
+            "named": false
+          },
+          {
+            "type": "bin_op_expr",
+            "named": true
+          },
+          {
+            "type": "call_args",
+            "named": true
+          },
+          {
+            "type": "copy_expr",
+            "named": true
+          },
+          {
+            "type": "deref_expr",
+            "named": true
+          },
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "lambda_bind_list",
+            "named": true
+          },
+          {
+            "type": "move_expr",
+            "named": true
+          },
+          {
+            "type": "not_expr",
+            "named": true
+          },
+          {
+            "type": "quantifier",
+            "named": true
+          },
+          {
+            "type": "ref_expr",
+            "named": true
+          },
+          {
+            "type": "ref_mut_expr",
+            "named": true
+          },
+          {
+            "type": "sequence_item",
+            "named": true
+          },
+          {
+            "type": "term",
+            "named": true
+          },
+          {
+            "type": "type_args",
+            "named": true
+          },
+          {
+            "type": "use_decl",
+            "named": true
+          },
+          {
+            "type": "{",
+            "named": false
+          },
+          {
+            "type": "}",
+            "named": false
+          }
+        ]
+      },
       "call": {
         "multiple": true,
         "required": false,
@@ -15567,16 +15691,6 @@
       "field": {
         "multiple": true,
         "required": false,
-        "types": [
-          {
-            "type": "identifier",
-            "named": true
-          }
-        ]
-      },
-      "func_name": {
-        "multiple": false,
-        "required": true,
         "types": [
           {
             "type": "identifier",
@@ -15818,7 +15932,7 @@
           }
         ]
       },
-      "parameters": {
+      "params": {
         "multiple": true,
         "required": true,
         "types": [
@@ -15888,6 +16002,16 @@
           }
         ]
       },
+      "spec_func_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
       "type_generics": {
         "multiple": true,
         "required": false,
@@ -15902,52 +16026,6 @@
           }
         ]
       }
-    },
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "bin_op_expr",
-          "named": true
-        },
-        {
-          "type": "copy_expr",
-          "named": true
-        },
-        {
-          "type": "deref_expr",
-          "named": true
-        },
-        {
-          "type": "move_expr",
-          "named": true
-        },
-        {
-          "type": "not_expr",
-          "named": true
-        },
-        {
-          "type": "quantifier",
-          "named": true
-        },
-        {
-          "type": "ref_expr",
-          "named": true
-        },
-        {
-          "type": "ref_mut_expr",
-          "named": true
-        },
-        {
-          "type": "sequence_item",
-          "named": true
-        },
-        {
-          "type": "use_decl",
-          "named": true
-        }
-      ]
     }
   },
   {
@@ -21877,10 +21955,6 @@
     "named": false
   },
   {
-    "type": "define",
-    "named": false
-  },
-  {
     "type": "drop",
     "named": false
   },
@@ -21990,10 +22064,6 @@
   },
   {
     "type": "move",
-    "named": false
-  },
-  {
-    "type": "name_pattern",
     "named": false
   },
   {
