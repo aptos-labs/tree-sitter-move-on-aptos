@@ -18528,6 +18528,10 @@
           {
             "type": "global",
             "named": false
+          },
+          {
+            "type": "local",
+            "named": false
           }
         ]
       },
@@ -21602,6 +21606,10 @@
   },
   {
     "type": "let",
+    "named": false
+  },
+  {
+    "type": "local",
     "named": false
   },
   {

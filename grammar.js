@@ -574,7 +574,7 @@ module.exports = grammar({
         //                    [ "=" Exp ]  // global only
         //                    ";"
         spec_variable: $ => seq(
-            optional(field('scope', choice('global'))),
+            optional(field('scope', choice('global', 'local'))),
             field('variable', $.identifier),
             optional($.type_params),
             ':', $.type,
