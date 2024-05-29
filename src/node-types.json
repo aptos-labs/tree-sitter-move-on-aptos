@@ -17874,7 +17874,7 @@
     "fields": {
       "assignment": {
         "multiple": true,
-        "required": false,
+        "required": true,
         "types": [
           {
             "type": ".",
@@ -18282,165 +18282,9 @@
           }
         ]
       },
-      "lhs": {
-        "multiple": true,
-        "required": true,
-        "types": [
-          {
-            "type": ".",
-            "named": false
-          },
-          {
-            "type": "::",
-            "named": false
-          },
-          {
-            "type": "=",
-            "named": false
-          },
-          {
-            "type": "[",
-            "named": false
-          },
-          {
-            "type": "]",
-            "named": false
-          },
-          {
-            "type": "bin_op_expr",
-            "named": true
-          },
-          {
-            "type": "call_args",
-            "named": true
-          },
-          {
-            "type": "copy_expr",
-            "named": true
-          },
-          {
-            "type": "deref_expr",
-            "named": true
-          },
-          {
-            "type": "identifier",
-            "named": true
-          },
-          {
-            "type": "lambda_bind_list",
-            "named": true
-          },
-          {
-            "type": "move_expr",
-            "named": true
-          },
-          {
-            "type": "not_expr",
-            "named": true
-          },
-          {
-            "type": "quantifier",
-            "named": true
-          },
-          {
-            "type": "ref_expr",
-            "named": true
-          },
-          {
-            "type": "ref_mut_expr",
-            "named": true
-          },
-          {
-            "type": "term",
-            "named": true
-          },
-          {
-            "type": "type_args",
-            "named": true
-          }
-        ]
-      },
       "mem_access": {
         "multiple": true,
         "required": false,
-        "types": [
-          {
-            "type": ".",
-            "named": false
-          },
-          {
-            "type": "::",
-            "named": false
-          },
-          {
-            "type": "=",
-            "named": false
-          },
-          {
-            "type": "[",
-            "named": false
-          },
-          {
-            "type": "]",
-            "named": false
-          },
-          {
-            "type": "bin_op_expr",
-            "named": true
-          },
-          {
-            "type": "call_args",
-            "named": true
-          },
-          {
-            "type": "copy_expr",
-            "named": true
-          },
-          {
-            "type": "deref_expr",
-            "named": true
-          },
-          {
-            "type": "identifier",
-            "named": true
-          },
-          {
-            "type": "lambda_bind_list",
-            "named": true
-          },
-          {
-            "type": "move_expr",
-            "named": true
-          },
-          {
-            "type": "not_expr",
-            "named": true
-          },
-          {
-            "type": "quantifier",
-            "named": true
-          },
-          {
-            "type": "ref_expr",
-            "named": true
-          },
-          {
-            "type": "ref_mut_expr",
-            "named": true
-          },
-          {
-            "type": "term",
-            "named": true
-          },
-          {
-            "type": "type_args",
-            "named": true
-          }
-        ]
-      },
-      "rhs": {
-        "multiple": true,
-        "required": true,
         "types": [
           {
             "type": ".",

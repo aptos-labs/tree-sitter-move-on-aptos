@@ -553,29 +553,8 @@
       "type": "CHOICE",
       "members": [
         {
-          "type": "PREC_LEFT",
-          "value": 1,
-          "content": {
-            "type": "FIELD",
-            "name": "assignment",
-            "content": {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "SYMBOL",
-                  "name": "_unary_expr"
-                },
-                {
-                  "type": "STRING",
-                  "value": "="
-                },
-                {
-                  "type": "SYMBOL",
-                  "name": "_expr"
-                }
-              ]
-            }
-          }
+          "type": "SYMBOL",
+          "name": "_assign"
         },
         {
           "type": "SYMBOL",
@@ -603,6 +582,31 @@
           }
         }
       ]
+    },
+    "_assign": {
+      "type": "PREC_LEFT",
+      "value": 1,
+      "content": {
+        "type": "FIELD",
+        "name": "assignment",
+        "content": {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_unary_expr"
+            },
+            {
+              "type": "STRING",
+              "value": "="
+            },
+            {
+              "type": "SYMBOL",
+              "name": "_expr"
+            }
+          ]
+        }
+      }
     },
     "lambda_bind_list": {
       "type": "SEQ",
@@ -5229,24 +5233,8 @@
           "value": "update"
         },
         {
-          "type": "FIELD",
-          "name": "lhs",
-          "content": {
-            "type": "SYMBOL",
-            "name": "_expr"
-          }
-        },
-        {
-          "type": "STRING",
-          "value": "="
-        },
-        {
-          "type": "FIELD",
-          "name": "rhs",
-          "content": {
-            "type": "SYMBOL",
-            "name": "_expr"
-          }
+          "type": "SYMBOL",
+          "name": "_assign"
         },
         {
           "type": "STRING",

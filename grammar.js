@@ -138,11 +138,12 @@ module.exports = grammar({
         //          | <BinOpExp>
         //          | <UnaryExp> "=" <Exp>
         _expr: $ => choice(
-            prec.left(expr_precedence.DEFAULT, field('assignment', seq($._unary_expr, '=', $._expr))),
+            $._assign,
             $._op_expr,
             $.quantifier,
             field('lambda', seq($.lambda_bind_list, $._expr)),
         ),
+        _assign: $ => prec.left(expr_precedence.DEFAULT, field('assignment', seq($._unary_expr, '=', $._expr))),
 
         // Parse a list of bindings for lambda.
         //      LambdaBindList = "|" Comma<Bind> "|"
@@ -639,14 +640,8 @@ module.exports = grammar({
         ),
 
         // Parse a specification update.
-        //     SpecUpdate = "update" <Exp> = <Exp> ";"
-        spec_update: $ => seq(
-            'update',
-            field('lhs', $._expr),
-            '=',
-            field('rhs', $._expr),
-            ';'
-        ),
+        //     SpecUpdate = "update" <UnaryExp> "=" <Exp> ";"
+        spec_update: $ => seq('update', $._assign, ';'),
 
         // Parse an axiom:
         //     a = "axiom" <OptionalTypeParameters> <ConditionProperties> <Exp> ";"
