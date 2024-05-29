@@ -707,7 +707,7 @@ module.exports = grammar({
         //          <OptionalTypeParameters>
         //          "(" Comma<Parameter> ")"
         //          (":" <Type>)?
-        //          ( (( "!" )? ("acquires" | "reads" | "writes" ) | "pure") <AccessSpecifierList> )*
+        //          "pure" | ( ( "!" )? ("acquires" | "reads" | "writes" ) <AccessSpecifierList> )*
         //          ("{" <Sequence> "}" | ";")
         //      OptionalTypeParameters = '<' Comma<TypeParameter> ">" | <empty>
         //      Sequence = <UseDecl>* (<SequenceItem> ";")* <Exp>?
@@ -717,14 +717,13 @@ module.exports = grammar({
             optional($.type_params),
             '(', field('parameters', sepByComma($.parameter)), ')',
             optional(seq(':', $.type)),
-            repeat(seq(
-                choice(
-                    // Only `acquires`, `reads` and `writes` can be negated.
-                    seq(optional(field('negated', '!')), choice('acquires', 'reads', 'writes')),
-                    'pure'
-                ),
-                $.access_specifier_list
-            )),
+            choice(
+                field('pure', 'pure'),
+                repeat(seq(
+                    optional(field('negated', '!')), choice('acquires', 'reads', 'writes'),
+                    $.access_specifier_list
+                ))
+            ),
             // Sequence
             choice(field('body', $._sequence), ';'),
         ),

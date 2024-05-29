@@ -5941,63 +5941,62 @@
           ]
         },
         {
-          "type": "REPEAT",
-          "content": {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "CHOICE",
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "pure",
+              "content": {
+                "type": "STRING",
+                "value": "pure"
+              }
+            },
+            {
+              "type": "REPEAT",
+              "content": {
+                "type": "SEQ",
                 "members": [
                   {
-                    "type": "SEQ",
+                    "type": "CHOICE",
                     "members": [
                       {
-                        "type": "CHOICE",
-                        "members": [
-                          {
-                            "type": "FIELD",
-                            "name": "negated",
-                            "content": {
-                              "type": "STRING",
-                              "value": "!"
-                            }
-                          },
-                          {
-                            "type": "BLANK"
-                          }
-                        ]
+                        "type": "FIELD",
+                        "name": "negated",
+                        "content": {
+                          "type": "STRING",
+                          "value": "!"
+                        }
                       },
                       {
-                        "type": "CHOICE",
-                        "members": [
-                          {
-                            "type": "STRING",
-                            "value": "acquires"
-                          },
-                          {
-                            "type": "STRING",
-                            "value": "reads"
-                          },
-                          {
-                            "type": "STRING",
-                            "value": "writes"
-                          }
-                        ]
+                        "type": "BLANK"
                       }
                     ]
                   },
                   {
-                    "type": "STRING",
-                    "value": "pure"
+                    "type": "CHOICE",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": "acquires"
+                      },
+                      {
+                        "type": "STRING",
+                        "value": "reads"
+                      },
+                      {
+                        "type": "STRING",
+                        "value": "writes"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "access_specifier_list"
                   }
                 ]
-              },
-              {
-                "type": "SYMBOL",
-                "name": "access_specifier_list"
               }
-            ]
-          }
+            }
+          ]
         },
         {
           "type": "CHOICE",

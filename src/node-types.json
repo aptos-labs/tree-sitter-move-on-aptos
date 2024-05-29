@@ -6168,6 +6168,16 @@
           }
         ]
       },
+      "pure": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "pure",
+            "named": false
+          }
+        ]
+      },
       "type_generics": {
         "multiple": true,
         "required": false,
