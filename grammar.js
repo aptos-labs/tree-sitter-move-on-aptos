@@ -317,7 +317,7 @@ module.exports = grammar({
         abort_expr: $ => seq('abort', field('condition', $._expr)),
         for_loop_expr: $ => seq(
             'for', '(',
-            field('var', $._expr), 'in', field('begin', $._expr), '..', field('end', $._expr),
+            field('var', $.identifier), 'in', field('begin', $._unary_expr), '..', field('end', $._unary_expr),
             ')',
             field('body', $.block),
         ),
@@ -598,7 +598,7 @@ module.exports = grammar({
         spec_apply: $ => seq(
             'apply', $._expr, 'to',
             field('targets', sepByComma($._spec_apply_pattern)),
-            field('exclusions', seq('except', sepByComma($._spec_apply_pattern))),
+            optional(field('exclusions', seq('except', sepByComma($._spec_apply_pattern)))),
             ';',
         ),
         // Parse a function pattern:

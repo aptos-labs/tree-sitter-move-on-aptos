@@ -34,7 +34,7 @@ def visit_file(file: str) -> TestResult:
 
 
 exclude = [
-    'aptos-move/writeset-transaction-generator/templates'
+    'aptos-move/writeset-transaction-generator/templates',
     'test/repos/aptos-core/aptos-move/move-examples/move-tutorial/step_3/basic_coin.move'
 ]
 def retain_file(file: str) -> bool:
