@@ -316,7 +316,7 @@ module.exports = grammar({
         abort_expr: $ => seq('abort', field('condition', $._expr)),
         for_loop_expr: $ => seq(
             'for', '(',
-            field('init', $._expr), 'in', field('range', $._expr), '..', field('increment', $._expr),
+            field('var', $._expr), 'in', field('begin', $._expr), '..', field('end', $._expr),
             ')',
             field('body', $.block),
         ),
@@ -374,15 +374,18 @@ module.exports = grammar({
         // accepts non-empty attribute list.
         attributes: $ => repeat1(seq('#', '[', sepByComma($.attribute), ']')),
 
-        // Attribute =
-        //     <Identifier>
-        //     | <Identifier> "=" <AttributeValue>
-        //     | <Identifier> "(" Comma<Attribute> ")"
+        // Parse a single attribute
+        //      Attribute =
+        //          <AttributeName>
+        //          | <AttributeName> "=" <AttributeValue>
+        //          | <AttributeName> "(" Comma<Attribute> ")"
+        //      AttributeName = <Identifier> ( "::" Identifier )* // merged into one identifier
         attribute: $ => choice(
-            field('item', $.identifier),
-            seq(field('item', $.identifier), '=', field('value', $._attribute_val)),
-            seq(field('item', $.identifier), '(', sepByComma($.attribute), ')')
+            field('attribute', $._attribute_name),
+            seq(field('attribute', $._attribute_name), '=', field('value', $._attribute_val)),
+            seq(field('attribute', $._attribute_name), '(', sepByComma($.attribute), ')')
         ),
+        _attribute_name: $ => sepBy1('::', field('attr_path', $.identifier)),
 
         // Parse an attribute value. Either a value literal or a module access
         //  AttributeValue = <Value> | <NameAccessChain>

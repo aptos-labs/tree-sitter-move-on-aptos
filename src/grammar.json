@@ -2398,7 +2398,7 @@
         },
         {
           "type": "FIELD",
-          "name": "init",
+          "name": "var",
           "content": {
             "type": "SYMBOL",
             "name": "_expr"
@@ -2410,7 +2410,7 @@
         },
         {
           "type": "FIELD",
-          "name": "range",
+          "name": "begin",
           "content": {
             "type": "SYMBOL",
             "name": "_expr"
@@ -2422,7 +2422,7 @@
         },
         {
           "type": "FIELD",
-          "name": "increment",
+          "name": "end",
           "content": {
             "type": "SYMBOL",
             "name": "_expr"
@@ -3320,10 +3320,10 @@
       "members": [
         {
           "type": "FIELD",
-          "name": "item",
+          "name": "attribute",
           "content": {
             "type": "SYMBOL",
-            "name": "identifier"
+            "name": "_attribute_name"
           }
         },
         {
@@ -3331,10 +3331,10 @@
           "members": [
             {
               "type": "FIELD",
-              "name": "item",
+              "name": "attribute",
               "content": {
                 "type": "SYMBOL",
-                "name": "identifier"
+                "name": "_attribute_name"
               }
             },
             {
@@ -3356,10 +3356,10 @@
           "members": [
             {
               "type": "FIELD",
-              "name": "item",
+              "name": "attribute",
               "content": {
                 "type": "SYMBOL",
-                "name": "identifier"
+                "name": "_attribute_name"
               }
             },
             {
@@ -3421,6 +3421,39 @@
               "value": ")"
             }
           ]
+        }
+      ]
+    },
+    "_attribute_name": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "attr_path",
+          "content": {
+            "type": "SYMBOL",
+            "name": "identifier"
+          }
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "::"
+              },
+              {
+                "type": "FIELD",
+                "name": "attr_path",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "identifier"
+                }
+              }
+            ]
+          }
         }
       ]
     },
