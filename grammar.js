@@ -64,11 +64,10 @@ module.exports = grammar({
 
     conflicts: $ => [
         [$.primitive_type, $.term],
-        [$._quantifier_directive, $.quantifier],
         [$._name_expr],
         [$._reuseable_keywords, $.for_loop_expr],
-        [$._reuseable_keywords, $.while_expr],
         [$.discouraged_name, $.type],
+        [$._address_specifier],
     ],
 
     extras: $ => [
@@ -122,7 +121,7 @@ module.exports = grammar({
         ),
 
         // Parse a Type:
-        //         T ype =        
+        //         Type =        
         //          <NameAccessChain> <TypeArgs>?
         //          | "&" <Type>
         //          | "&mut" <Type>
@@ -176,7 +175,8 @@ module.exports = grammar({
                 field('assertion', $._expr),
             ),
             seq(
-                choice('choose', 'min'),
+                'choose',
+                optional(field('min', 'min')),
                 $.quantifier_bind,
                 'where',
                 field('condition', $._expr),
@@ -263,19 +263,19 @@ module.exports = grammar({
         //          | "(" Comma<Exp> ")"
         //          | "(" <Exp> ":" <Type> ")"
         //          | "(" <Exp> "as" <Type> ")"
-        //          | <Sequence> 
+        //          | <Sequence>
         //          | "if" "(" <Exp> ")" <Exp> "else" "{" <Exp> "}"
         //          | "if" "(" <Exp> ")" "{" <Exp> "}"
         //          | "if" "(" <Exp> ")" <Exp> ("else" <Exp>)?
         //          | "while" "(" <Exp> ")" "{" <Exp> "}"
-        //          | "while" "(" <Exp> ")" <Exp> (SpecBlock)?
+        //          | "while" "(" <Exp> ")" <Exp> <SpecLoopInvariant>?
         //          | "loop" <Exp>
         //          | "loop" "{" <Exp> "}"
         //          | "return" "{" <Exp> "}"
         //          | "return" <Exp>?
         //          | "abort" "{" <Exp> "}"
         //          | "abort" <Exp>
-        //          | "for" "(" <Exp> "in" <Exp> ".." <Exp> ")" "{" <Exp> "}"
+        //          | "for" "(" <Exp> "in" <Exp> ".." <Exp> <SpecLoopInvariant>? ")" "{" <Exp> "}"
         //          | <SpecBlock>
         //          | <NameExp>
         //
@@ -313,11 +313,12 @@ module.exports = grammar({
             field('then', $._expr),
             optional(field('else', seq('else', $._expr)))
         )),
-        while_expr: $ => seq(
+        while_expr: $ => prec.left(expr_precedence.DEFAULT, seq(
             'while',
             field('condition', $.parenthesized_expr),
             field('body', $._expr),
-        ),
+            optional($.spec_loop_invariant),
+        )),
         loop_expr: $ => seq('loop', field('body', $._expr)),
         return_expr: $ => choice(
             prec(expr_precedence.LAST, 'return'),
@@ -327,6 +328,7 @@ module.exports = grammar({
         for_loop_expr: $ => seq(
             'for', '(',
             field('var', $.var_name), 'in', field('begin', $._unary_expr), '..', field('end', $._unary_expr),
+            optional($.spec_loop_invariant),
             ')',
             field('body', $.block),
         ),
@@ -491,6 +493,9 @@ module.exports = grammar({
             field('return_type', optional(seq(':', $.type))),
         ),
 
+        // FIXME: It's too complicated to enforce invariant-only rule.
+        spec_loop_invariant: $ => alias($.spec_block, $.spec_loop_invariant),
+
         // Parse a spec block member:
         //    SpecBlockMember = <DocComments> ( <Invariant> | <Condition> | <SpecFunction> | <SpecVariable>
         //                                   | <SpecInclude> | <SpecApply> | <SpecPragma> | <SpecLet>
@@ -546,17 +551,16 @@ module.exports = grammar({
             // ("aborts_with" | "modifies")
             seq(
                 field('kind', choice('aborts_with', 'modifies')),
-                optional($.condition_props), $._expr,
-                sepBy1(',', $._expr),
+                optional($.condition_props), sepBy1(',', $._expr),
                 ';'
             ),
 
             // emits
             seq(
                 field('kind', 'emits'),
-                optional($.condition_props), $._expr,
-                'to', $._expr,
-                field('condition', seq('if', $._expr)),
+                optional($.condition_props), field('emission', $._expr),
+                'to', field('target', $._expr),
+                optional(field('condition', seq('if', $._expr))),
                 ';'
             ),
         ),
@@ -599,7 +603,7 @@ module.exports = grammar({
 
         // Parse a specification schema include.
         //    SpecInclude = "include" <Exp> ";"
-        spec_include: $ => seq('include', $._expr, ';'),
+        spec_include: $ => seq('include', optional($.condition_props), $._expr, ';'),
 
         // Parse a specification schema apply.
         //    SpecApply = "apply" <Exp> "to" Comma<SpecApplyPattern>
@@ -726,7 +730,7 @@ module.exports = grammar({
         ),
         _sequence: $ => seq('{', seq(
             repeat($.use_decl),
-            repeat(seq($.sequence_item, ';')),
+            repeat(seq($._sequence_item, ';')),
             optional($._expr),
         ), '}'),
 
@@ -742,20 +746,22 @@ module.exports = grammar({
         parameter: $ => seq(field('variable', $.identifier), ':', $.type),
 
         // AccessSpecifierList  = <AccessSpecifier> ( "," <AccessSpecifier> )* ","?
-        // AccessSpecifier      = <NameAccessChainWithWildcard> <AddressSpecifier>
+        // AccessSpecifier      = <NameAccessChainWithWildcard> <TypeArgs>? <AddressSpecifier>
         // AddressSpecifier     = <empty> | "(" <AddressSpecifierArg> ")"
-        // AddressSpecifierArg  = "*" | <AddressBytes> | <NameAccessChain> <TypeArgs>? "(" <Identifier> ")"
-        access_specifier_list: $ => seq($.access_specifier, repeat(seq(',', $.access_specifier)), optional(',')),
-        access_specifier: $ => seq(name_access_chain($, true), optional(seq('(', $._address_specifier, ')'))),
+        // AddressSpecifierArg  = "*" | <AddressBytes> | <NameAccessChain> [ <TypeArgs>? "(" <Identifier> ")" ]?
+        access_specifier_list: $ => seq(sepBy1(',', $.access_specifier), optional(',')),
+        access_specifier: $ => seq(name_access_chain($, true), optional($.type_args), optional(seq('(', $._address_specifier, ')'))),
         _address_specifier: $ => choice(
             '*',
             // NumericalAddress = <Number>
-            field('literal_address', $.number),
+            field('literal_address', $.numerical_addr),
             seq(
                 field('func', name_access_chain($, false)),
-                optional($.type_args),
-                // FIXME: can be optional when NameAccessChain_::One(name) = chain.value.
-                '(', field('arg', $.identifier), ')'
+                optional(seq(
+                    optional($.type_args),
+                    // FIXME: only optional when NameAccessChain_::One(name) = chain.value.
+                    seq('(', field('arg', $.identifier), ')')
+                )),
             ),
         ),
 
@@ -796,7 +802,7 @@ module.exports = grammar({
         abilities: $ => sepBy1(',', $._ability),
 
         // SequenceItem = <Exp> | "let" <BindList> (":" <Type>)? ("=" <Exp>)?
-        sequence_item: $ => choice(
+        _sequence_item: $ => choice(
             $._expr,
             $.let_expr,
         ),
