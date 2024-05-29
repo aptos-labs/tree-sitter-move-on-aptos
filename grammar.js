@@ -14,17 +14,21 @@ const leading_name_access = ($, wildcard) => alias(
     choice(chain_ident($, wildcard), $.numerical_addr),
     $.leading_name_access
 );
-// NameAccessChain = <LeadingNameAccess> ( "::" <Identifier> ( "::" <Identifier> )? )?
+
+// New rule:
+// NameAccessChain = <Identifier>
+//                 | <LeadingNameAccess> "::" <Identifier> ( "::" <Identifier> )?
 // `Identifier` can be `*` if `wildcard = true`
 const name_access_chain = ($, wildcard) => {
     const ident = () => chain_ident($, wildcard);
     return alias(
-        seq(
-            choice(leading_name_access($, wildcard), $.discouraged_name),
-            optional(field('access_two',
-                seq('::', ident(),
-                    optional(field('access_three', seq('::', ident()))))
-            )),
+        choice(
+            field('name', choice(ident(), $.discouraged_name)),
+            seq(
+                choice(leading_name_access($, wildcard), $.discouraged_name),
+                field('access_two', seq('::', ident())),
+                optional(field('access_three', seq('::', ident())))
+            ),
         ),
         $.name_access_chain,
     );
@@ -67,7 +71,6 @@ module.exports = grammar({
         [$._name_expr],
         [$._reuseable_keywords, $.for_loop_expr],
         [$.discouraged_name, $.type],
-        [$._address_specifier],
     ],
 
     extras: $ => [

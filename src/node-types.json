@@ -689,6 +689,16 @@
           }
         ]
       },
+      "name": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "name_access_chain",
+            "named": true
+          }
+        ]
+      },
       "path": {
         "multiple": true,
         "required": false,
@@ -816,6 +826,16 @@
           },
           {
             "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "name_access_chain",
             "named": true
           }
         ]
@@ -1587,6 +1607,16 @@
           }
         ]
       },
+      "name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "name_access_chain",
+            "named": true
+          }
+        ]
+      },
       "path": {
         "multiple": true,
         "required": false,
@@ -1650,6 +1680,16 @@
         ]
       },
       "access_two": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "name_access_chain",
+            "named": true
+          }
+        ]
+      },
+      "name": {
         "multiple": true,
         "required": false,
         "types": [
@@ -2841,6 +2881,16 @@
         ]
       },
       "access_two": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "name_access_chain",
+            "named": true
+          }
+        ]
+      },
+      "name": {
         "multiple": true,
         "required": false,
         "types": [
@@ -5504,6 +5554,16 @@
           }
         ]
       },
+      "name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "name_access_chain",
+            "named": true
+          }
+        ]
+      },
       "path": {
         "multiple": true,
         "required": false,
@@ -6905,6 +6965,16 @@
         ]
       },
       "access_two": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "name_access_chain",
+            "named": true
+          }
+        ]
+      },
+      "name": {
         "multiple": true,
         "required": false,
         "types": [
@@ -17443,6 +17513,16 @@
           }
         ]
       },
+      "name": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "name_access_chain",
+            "named": true
+          }
+        ]
+      },
       "path": {
         "multiple": true,
         "required": false,
@@ -20393,6 +20473,16 @@
           },
           {
             "type": "type",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "name_access_chain",
             "named": true
           }
         ]
