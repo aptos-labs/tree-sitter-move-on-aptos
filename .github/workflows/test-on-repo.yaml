@@ -11,7 +11,7 @@ on:
         type: string
 
 jobs:
-  test-on-aptos:
+  test-repo:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout itself
@@ -34,5 +34,3 @@ jobs:
       - run: tree-sitter init-config
       - run: tree-sitter generate
       - run: python batch-test.py test/repos/${{ inputs.repo }}/${{ inputs.search-path-in-repo }}
-  test-on-chain:
-    runs-on: ubuntu-latest
