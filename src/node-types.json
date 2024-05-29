@@ -1582,7 +1582,7 @@
         "required": true,
         "types": [
           {
-            "type": "identifier",
+            "type": "var_name",
             "named": true
           }
         ]
@@ -1606,7 +1606,7 @@
         "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "var_name",
             "named": true
           }
         ]
@@ -1678,7 +1678,7 @@
         "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "var_name",
             "named": true
           }
         ]
@@ -2869,11 +2869,7 @@
         "required": false,
         "types": [
           {
-            "type": "friend",
-            "named": false
-          },
-          {
-            "type": "identifier",
+            "type": "var_name",
             "named": true
           }
         ]
@@ -4154,6 +4150,21 @@
         },
         {
           "type": "ref_mut_expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "discouraged_name",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "primitive_type",
           "named": true
         }
       ]
@@ -5452,7 +5463,7 @@
         "required": true,
         "types": [
           {
-            "type": "identifier",
+            "type": "var_name",
             "named": true
           }
         ]
@@ -6902,7 +6913,7 @@
         "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "var_name",
             "named": true
           }
         ]
@@ -8213,44 +8224,13 @@
   {
     "type": "name_access_chain",
     "named": true,
-    "fields": {
-      "address": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "address",
-            "named": false
-          }
-        ]
-      },
-      "bool": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "bool",
-            "named": false
-          }
-        ]
-      },
-      "vector": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "vector",
-            "named": false
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": false,
       "required": false,
       "types": [
         {
-          "type": "number_type",
+          "type": "primitive_type",
           "named": true
         }
       ]
@@ -17683,7 +17663,7 @@
         "required": true,
         "types": [
           {
-            "type": "identifier",
+            "type": "var_name",
             "named": true
           }
         ]
@@ -17733,11 +17713,7 @@
         "required": false,
         "types": [
           {
-            "type": "friend",
-            "named": false
-          },
-          {
-            "type": "identifier",
+            "type": "var_name",
             "named": true
           }
         ]
@@ -17755,14 +17731,6 @@
             "named": false
           },
           {
-            "type": "friend",
-            "named": false
-          },
-          {
-            "type": "identifier",
-            "named": true
-          },
-          {
             "type": "leading_name_access",
             "named": true
           },
@@ -17772,6 +17740,10 @@
           },
           {
             "type": "value",
+            "named": true
+          },
+          {
+            "type": "var_name",
             "named": true
           }
         ]
@@ -20969,6 +20941,25 @@
         },
         {
           "type": "typed_number",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "var_name",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "discouraged_name",
+          "named": true
+        },
+        {
+          "type": "identifier",
           "named": true
         }
       ]

@@ -20,7 +20,7 @@ const name_access_chain = ($, wildcard) => {
     const ident = () => chain_ident($, wildcard);
     return alias(
         seq(
-            choice(leading_name_access($, wildcard), $.primitive_type, $._quantifier_directive),
+            choice(leading_name_access($, wildcard), $.discouraged_name),
             optional(field('access_two',
                 seq('::', ident(),
                     optional(field('access_three', seq('::', ident()))))
@@ -64,9 +64,11 @@ module.exports = grammar({
 
     conflicts: $ => [
         [$.primitive_type, $.term],
-        [$.type],
         [$._quantifier_directive, $.quantifier],
-        [$._name_expr]
+        [$._name_expr],
+        [$._reuseable_keywords, $.for_loop_expr],
+        [$._reuseable_keywords, $.while_expr],
+        [$.discouraged_name, $.type],
     ],
 
     extras: $ => [
@@ -98,6 +100,13 @@ module.exports = grammar({
         ),
 
         identifier: _ => /[a-zA-Z_]\w*/,
+        var_name: $ => choice($.identifier, $.discouraged_name),
+        // FIXME: this is a workaround for the existing chaotic naming scheme. Keywords are not supposed to be identifiers.
+        discouraged_name: $ => choice($.primitive_type, $._quantifier_directive, $._reuseable_keywords),
+        _reuseable_keywords: _ => choice(
+            'for', 'while', 'friend',
+        ),
+
         number: _ => choice(
             /\d[\d_]*/,
             /0[xX][\da-fA-F_]+/,
@@ -317,7 +326,7 @@ module.exports = grammar({
         abort_expr: $ => seq('abort', field('condition', $._expr)),
         for_loop_expr: $ => seq(
             'for', '(',
-            field('var', $.identifier), 'in', field('begin', $._unary_expr), '..', field('end', $._unary_expr),
+            field('var', $.var_name), 'in', field('begin', $._unary_expr), '..', field('end', $._unary_expr),
             ')',
             field('body', $.block),
         ),
@@ -624,7 +633,7 @@ module.exports = grammar({
             ';'
         ),
         _spec_pragma_prop: $ => seq(
-            field('prop_name', choice($.identifier, 'friend')),
+            field('prop_name', $.var_name),
             optional(field('value', seq('=', choice($.value, name_access_chain($, false))))),
         ),
 
@@ -633,7 +642,7 @@ module.exports = grammar({
         spec_let: $ => seq(
             'let',
             field('post_state', optional('post')),
-            field('variable', $.identifier),
+            field('variable', $.var_name),
             '=',
             field('value', $._expr),
             ';',
@@ -800,7 +809,7 @@ module.exports = grammar({
         // Bind = <Var>
         //      | <NameAccessChain> <OptionalTypeArgs> "{" Comma<BindField> "}"
         _bind: $ => choice(
-            field('variable', $.identifier),
+            field('variable', $.var_name),
             seq(name_access_chain($, false), optional($.type_args), '{', sepByComma($.bind_field), '}'),
         ),
 
@@ -809,7 +818,7 @@ module.exports = grammar({
 
         // BindField    = <Field> <":" <Bind>>?
         // Field        = <Identifier>
-        bind_field: $ => seq(field('field', $.identifier), optional(seq(':', $._bind))),
+        bind_field: $ => seq(field('field', $.var_name), optional(seq(':', $._bind))),
 
         // Parse a script:
         //      Script = "script" "{"
