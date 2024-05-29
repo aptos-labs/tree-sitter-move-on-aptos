@@ -2873,25 +2873,19 @@
             "named": false
           },
           {
+            "type": "leading_name_access",
+            "named": true
+          },
+          {
+            "type": "name_access_chain",
+            "named": true
+          },
+          {
             "type": "value",
             "named": true
           }
         ]
       }
-    },
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "leading_name_access",
-          "named": true
-        },
-        {
-          "type": "name_access_chain",
-          "named": true
-        }
-      ]
     }
   },
   {
@@ -17843,6 +17837,14 @@
           {
             "type": "=",
             "named": false
+          },
+          {
+            "type": "leading_name_access",
+            "named": true
+          },
+          {
+            "type": "name_access_chain",
+            "named": true
           },
           {
             "type": "value",

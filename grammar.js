@@ -621,10 +621,7 @@ module.exports = grammar({
         ),
         _spec_pragma_prop: $ => seq(
             field('prop_name', choice($.identifier, 'friend')),
-            optional(choice(
-                field('value', seq('=', $.value)),
-                name_access_chain($, false),
-            )),
+            optional(field('value', seq('=', choice($.value, name_access_chain($, false))))),
         ),
 
         // Parse a specification let.

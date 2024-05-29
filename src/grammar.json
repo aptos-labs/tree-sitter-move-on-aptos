@@ -5008,129 +5008,129 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "CHOICE",
-              "members": [
-                {
-                  "type": "FIELD",
-                  "name": "value",
-                  "content": {
-                    "type": "SEQ",
+              "type": "FIELD",
+              "name": "value",
+              "content": {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": "="
+                  },
+                  {
+                    "type": "CHOICE",
                     "members": [
-                      {
-                        "type": "STRING",
-                        "value": "="
-                      },
                       {
                         "type": "SYMBOL",
                         "name": "value"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "type": "ALIAS",
-                  "content": {
-                    "type": "SEQ",
-                    "members": [
+                      },
                       {
-                        "type": "CHOICE",
-                        "members": [
-                          {
-                            "type": "ALIAS",
-                            "content": {
+                        "type": "ALIAS",
+                        "content": {
+                          "type": "SEQ",
+                          "members": [
+                            {
+                              "type": "CHOICE",
+                              "members": [
+                                {
+                                  "type": "ALIAS",
+                                  "content": {
+                                    "type": "CHOICE",
+                                    "members": [
+                                      {
+                                        "type": "FIELD",
+                                        "name": "path",
+                                        "content": {
+                                          "type": "SYMBOL",
+                                          "name": "identifier"
+                                        }
+                                      },
+                                      {
+                                        "type": "SYMBOL",
+                                        "name": "numerical_addr"
+                                      }
+                                    ]
+                                  },
+                                  "named": true,
+                                  "value": "leading_name_access"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "primitive_type"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_quantifier_directive"
+                                }
+                              ]
+                            },
+                            {
                               "type": "CHOICE",
                               "members": [
                                 {
                                   "type": "FIELD",
-                                  "name": "path",
+                                  "name": "access_two",
                                   "content": {
-                                    "type": "SYMBOL",
-                                    "name": "identifier"
-                                  }
-                                },
-                                {
-                                  "type": "SYMBOL",
-                                  "name": "numerical_addr"
-                                }
-                              ]
-                            },
-                            "named": true,
-                            "value": "leading_name_access"
-                          },
-                          {
-                            "type": "SYMBOL",
-                            "name": "primitive_type"
-                          },
-                          {
-                            "type": "SYMBOL",
-                            "name": "_quantifier_directive"
-                          }
-                        ]
-                      },
-                      {
-                        "type": "CHOICE",
-                        "members": [
-                          {
-                            "type": "FIELD",
-                            "name": "access_two",
-                            "content": {
-                              "type": "SEQ",
-                              "members": [
-                                {
-                                  "type": "STRING",
-                                  "value": "::"
-                                },
-                                {
-                                  "type": "FIELD",
-                                  "name": "path",
-                                  "content": {
-                                    "type": "SYMBOL",
-                                    "name": "identifier"
-                                  }
-                                },
-                                {
-                                  "type": "CHOICE",
-                                  "members": [
-                                    {
-                                      "type": "FIELD",
-                                      "name": "access_three",
-                                      "content": {
-                                        "type": "SEQ",
+                                    "type": "SEQ",
+                                    "members": [
+                                      {
+                                        "type": "STRING",
+                                        "value": "::"
+                                      },
+                                      {
+                                        "type": "FIELD",
+                                        "name": "path",
+                                        "content": {
+                                          "type": "SYMBOL",
+                                          "name": "identifier"
+                                        }
+                                      },
+                                      {
+                                        "type": "CHOICE",
                                         "members": [
                                           {
-                                            "type": "STRING",
-                                            "value": "::"
+                                            "type": "FIELD",
+                                            "name": "access_three",
+                                            "content": {
+                                              "type": "SEQ",
+                                              "members": [
+                                                {
+                                                  "type": "STRING",
+                                                  "value": "::"
+                                                },
+                                                {
+                                                  "type": "FIELD",
+                                                  "name": "path",
+                                                  "content": {
+                                                    "type": "SYMBOL",
+                                                    "name": "identifier"
+                                                  }
+                                                }
+                                              ]
+                                            }
                                           },
                                           {
-                                            "type": "FIELD",
-                                            "name": "path",
-                                            "content": {
-                                              "type": "SYMBOL",
-                                              "name": "identifier"
-                                            }
+                                            "type": "BLANK"
                                           }
                                         ]
                                       }
-                                    },
-                                    {
-                                      "type": "BLANK"
-                                    }
-                                  ]
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "BLANK"
                                 }
                               ]
                             }
-                          },
-                          {
-                            "type": "BLANK"
-                          }
-                        ]
+                          ]
+                        },
+                        "named": true,
+                        "value": "name_access_chain"
                       }
                     ]
-                  },
-                  "named": true,
-                  "value": "name_access_chain"
-                }
-              ]
+                  }
+                ]
+              }
             },
             {
               "type": "BLANK"
