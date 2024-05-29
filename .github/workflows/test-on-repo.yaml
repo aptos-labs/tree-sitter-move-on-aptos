@@ -1,10 +1,14 @@
-name: Move (Aptos) Tree Sitter Parser Testing
+name: Move (Aptos) Tree Sitter Parser Test
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
+  workflow_call:
+    inputs:
+      repo:
+        required: true
+        type: string
+      search-path-in-repo:
+        required: false
+        type: string
 
 jobs:
   test-on-aptos:
@@ -12,11 +16,11 @@ jobs:
     steps:
       - name: Checkout itself
         uses: actions/checkout@v4
-      - name: Checkout `aptos-core`
+      - name: Checkout `${{ inputs.repo }}`
         uses: actions/checkout@v4
         with:
-          repository: aptos-labs/aptos-core
-          path: test/repos/aptos-core
+          repository: ${{ inputs.repo }}
+          path: test/repos/${{ inputs.repo }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22.x'
@@ -29,4 +33,6 @@ jobs:
       - run: npm install -g tree-sitter-cli
       - run: tree-sitter init-config
       - run: tree-sitter generate
-      - run: python batch-test.py test/repos/aptos-core/aptos-move/
+      - run: python batch-test.py test/repos/${{ inputs.repo }}/${{ inputs.search-path-in-repo }}
+  test-on-chain:
+    runs-on: ubuntu-latest

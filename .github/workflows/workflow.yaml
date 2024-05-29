@@ -1,0 +1,19 @@
+on:
+    push:
+      branches:
+        - main
+    pull_request:
+
+jobs:
+    test-on-aptos:
+        uses: ./.github/workflows/test-on-repo.yaml
+        with:
+            repo: aptos-labs/aptos-core
+            search-path-in-repo: aptos-move
+
+    test-on-chain:
+        needs: [test-on-aptos]
+        uses: ./.github/workflows/test-on-repo.yaml
+        with:
+            repo: aptos-labs/move-modules
+            search-path-in-repo: mainnet
