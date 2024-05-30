@@ -34,6 +34,17 @@ const name_access_chain = ($, wildcard) => {
     );
 };
 
+// Escaped sequence like \n, \", \xab, ...
+// It is used within a `token` rule, so it cannot be a rule identifier. Tree-sitter forbids
+// usage of `$.xxx` with in `token(..)` and `token.immediate(..)`.
+const escaped_sequence = token.immediate(seq(
+    '\\',
+    choice(
+        /x[0-9a-fA-F]{2}/,
+        /[ntr0\\"]/,
+    ),
+));
+
 const binary_operators = [
     [],                                                                     // 1 (no binary operators have precedence 1)
     [['==>', 'equal_equal_greater'], ['<==>', 'less_equal_equal_greater']], // 2
@@ -111,16 +122,16 @@ module.exports = grammar({
 
         number: _ => choice(
             /\d[\d_]*/,
-            /0[xX][\da-fA-F_]+/,
-            /0b[01_]+/,
-            /0o[0-7_]+/,
+            /0[xX][\da-fA-F][\da-fA-F_]*/,
+            /0b[01][01_]*/,
+            /0o[07][0-7_]*/,
         ),
         numerical_addr: $ => $.number,
         bool_literal: $ => choice('true', 'false'),
         typed_number: $ => alias(seq($.number, $.number_type), 'typed_number'),
         byte_string: _ => choice(
             /x\"[\da-fA-F]*\"/,
-            /b"(\\.|[^\\"])*"/,
+            token(seq('b"', repeat(choice(escaped_sequence, /[^\\"]/)), '"')),
         ),
 
         // Parse a Type:
@@ -149,12 +160,12 @@ module.exports = grammar({
         //          | <BinOpExp>
         //          | <UnaryExp> "=" <Exp>
         _expr: $ => choice(
-            $._assign,
+            $.assignment,
             $._op_expr,
             $.quantifier,
             field('lambda', seq($.lambda_bind_list, $._expr)),
         ),
-        _assign: $ => prec.left(expr_precedence.DEFAULT, field('assignment', seq($._unary_expr, '=', $._expr))),
+        assignment: $ => prec.left(expr_precedence.DEFAULT, seq($._unary_expr, '=', $._expr)),
 
         // Parse a list of bindings for lambda.
         //      LambdaBindList = "|" Comma<Bind> "|"
@@ -657,7 +668,7 @@ module.exports = grammar({
 
         // Parse a specification update.
         //     SpecUpdate = "update" <UnaryExp> "=" <Exp> ";"
-        spec_update: $ => seq('update', $._assign, ';'),
+        spec_update: $ => seq('update', $.assignment, ';'),
 
         // Parse an axiom:
         //     a = "axiom" <OptionalTypeParameters> <ConditionProperties> <Exp> ";"
