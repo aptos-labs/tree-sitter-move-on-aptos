@@ -9,6 +9,10 @@ on:
       search-path-in-repo:
         required: false
         type: string
+    secrets:
+      token:
+        description: 'The pulling token for the repo'
+        required: true
 
 jobs:
   test-repo:
@@ -21,7 +25,7 @@ jobs:
         with:
           repository: ${{ inputs.repo }}
           path: test/repos/${{ inputs.repo }}
-          token: ${{ secrets.TOKEN }}
+          token: ${{ secrets.token }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22.x'
