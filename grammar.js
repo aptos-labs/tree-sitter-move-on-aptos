@@ -85,8 +85,16 @@ module.exports = grammar({
     ],
 
     extras: $ => [
-        $.comments,
+        // `$.comments` will crash tree-sitter somehow.
+        $.line_comment,
+        $.block_comment,
         /\s/,
+    ],
+
+    externals: $ => [
+        $._block_doc_comment_marker,
+        $._block_comment_content,
+        $._doc_line_comment,
     ],
 
     rules: {
@@ -865,11 +873,38 @@ module.exports = grammar({
         ),
 
         // Comments
-        // TODO(doc): doc comments
         comments: $ => choice(
-            /\/\/.*/,
-            // TODO: properly parse the multi-line comments
-            seq('/*', /[^*]*\*+([^/*][^*]*\*+)*/, '/'),
+            $.line_comment,
+            $.block_comment,
+        ),
+
+        // https://github.com/tree-sitter/tree-sitter-rust/blob/9c84af007b0f144954adb26b3f336495cbb320a7/grammar.js#L1527
+        line_comment: $ => seq(
+            '//',
+            choice(
+                seq(token.immediate(prec(2, '//')), /.*/),
+                // _doc_line_comment is essentially `/.*/` with trailing `\n`.
+                // However, using regex to match `_doc_line_comment` is problematic due to confusion with '////xxx'
+                seq(token.immediate(prec(2, '/')), field('doc', alias($._doc_line_comment, $.doc_comment))),
+                token.immediate(prec(1, /.*/)),
+            ),
+        ),
+
+        // block_comment: $ => seq('/*', /[^*]*\*+([^/*][^*]*\*+)*/, '/'),
+        block_comment: $ => seq(
+            '/*',
+            optional(
+                choice(
+                    // Documentation block comments: /** docs */
+                    seq(
+                        $._block_doc_comment_marker,
+                        optional(field('doc', alias($._block_comment_content, $.doc_comment))),
+                    ),
+                    // Non-doc block comments
+                    $._block_comment_content,
+                )
+            ),
+            '*/',
         ),
     }
 });

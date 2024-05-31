@@ -46,11 +46,11 @@ exclude = [
 
     # non-standard
     'third_party/move/tools/move-cli/tests/build_tests/circular_dependencies',
-
+    
     # rejected case
     'attribute_no_closing_bracket',
     'attribute_num_sign_no_bracket',
-
+    'type_variable_join_single_pack.move',
 ]
 def retain_file(file: str) -> bool:
     for excl in exclude:
@@ -81,7 +81,17 @@ def get_paths() -> List[str]:
     return paths
 
 
+special_folder = [
+    'aptos-core/third_party/move/move-compiler/tests/move_check/parser',
+    'aptos-core/third_party/move/move-compiler/tests/move_check/expansion',
+]
 def should_reject(path: str) -> bool:
+    for folder in special_folder:
+        if path.find(folder) == -1:
+            continue
+        # for file xxx.move, if xxx.exp exists, then it should be rejected
+        exp = path.rstrip('move') + 'exp'
+        return os.path.exists(path) and os.path.isfile(exp)
     return False
 
 
