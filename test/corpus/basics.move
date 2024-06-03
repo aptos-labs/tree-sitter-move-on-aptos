@@ -1,44 +1,49 @@
-module 0x42::example {
-    use aptos_framework::aptos_coin::AptosCoin as aptos_coin;
-    use aptos_framework::coin::{Self, Coin as coin};
-    use aptos_framework::create_signer::create_signer;
-    use aptos_framework::event::{EventHandle, emit_event, emit};
-    use std::error;
+module 0x42::test {
 
-    friend aptos_framework::genesis;
-    friend aptos_framework::resource_account;
+    struct S has copy, drop { f: u64 }
 
-    struct CapabilityOffer<phantom T> has store { for: Option<address> }
-
-    #[event]
-    struct KeyRotation has drop, store {
-        account: address,
-        old_authentication_key: vector<u8>,
-        new_authentication_key: vector<u8>,
+    /// /*
+    /// Core data structures for holding tokens
+    ///
+    struct Token has store {
+        id: TokenId,
+        /// the amount of tokens. Only property_version = 0 can have a value bigger than 1.
+        amount: u64,
+        /// The properties with this token.
+        /// when property_version = 0, the token_properties are the same as default_properties in TokenData, we don't store it.
+        /// when the property_map mutates, a new property_version is assigned to the token.
+        token_properties: PropertyMap,
     }
 
-    /// Resource representing an account.
-    struct Account has key, store {
-        authentication_key: vector<u8>,
-        sequence_number: u64,
-        guid_creation_num: u64,
-        coin_register_events: EventHandle<CoinRegisterEvent>,
-        key_rotation_events: EventHandle<KeyRotationEvent>,
-        rotation_capability_offer: CapabilityOffer<RotationCapability>,
-        signer_capability_offer: CapabilityOffer<SignerCapability>,
+    fun t(cond: bool, s1: S, s2: S) {
+        // (if (cond) s1 else s2).f
+        let _: u64 = if (cond) { s1 } else { s2 }.f;
+
+        // (if (cond) s1).f else (s2.f)
+        // so parsing error
+        if (cond) s1.f else s2.f;
+
+        while(cond) { s1 }.f
     }
 
-    struct Example has copy, drop { i: u64 }
+    /***/
+    /*****/
+    /**/
 
-    use std::debug;
-    friend 0x42::another_example;
+    /*
+    /**/
+    /***/
+    */
 
-    const ONE: u64 = 1;
-    const TRUE: u32 = vector::length(&amounts);
-    const VEC: vector<u64> = tt;
-
-    #[view]
-    public fun exists_at(addr: address): bool {
-        exists<Account>(addr)
+    // fun!!
+    fun xx() : u64 {
+        /// doc1 /*
+        //// regular /*
+        // regular 2 /*
+        let x = b"/*" /** ??? */;
+        table.target_bucket_size = max(1024 /* free_write_quota */ / estimated_entry_size, 1);
+        300
+        / // this is not a doc comment
+        3
     }
 }

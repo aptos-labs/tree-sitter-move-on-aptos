@@ -267,14 +267,20 @@ module.exports = grammar({
         //          | <DotOrIndexChain> "[" <Exp> "]"                      spec only
         //          | <Term>
         _dot_or_index_chain: $ => choice(
-            prec.left(expr_precedence.FIELD, field('dot', seq($._dot_or_index_chain, '.', field('field', $.identifier)))),
-            prec.left(expr_precedence.CALL, field('call', seq($._dot_or_index_chain, '.', field('field', $.identifier),
-                optional(field('type_generics', seq('::', $.type_args))),
-                $.call_args,
-            ))),
-            prec.left(expr_precedence.CALL, field('mem_access', seq($._dot_or_index_chain, '[', field('index', $._expr), ']'))),
-            field('expr', $.term),
+            $.access_field,
+            $.func_call,
+            $.mem_access,
+            alias($.term, 'expr'),
         ),
+        func_call: $ => prec.left(expr_precedence.CALL, seq(
+            field('func', $._dot_or_index_chain, '.', field('field', $.identifier),
+                optional(field('type_generics', seq('::', $.type_args)))),
+            $.call_args,
+        )),
+        mem_access: $ => prec.left(expr_precedence.CALL, seq($._dot_or_index_chain, '[', field('index', $._expr), ']')),
+        access_field: $ => prec.left(expr_precedence.FIELD, seq(
+            field('element', $._dot_or_index_chain), '.', field('field', $.identifier),
+        )),
 
         // Parse an expression term:
         //      Term =
@@ -332,16 +338,16 @@ module.exports = grammar({
         if_expr: $ => prec.right(seq(
             'if',
             field('condition', $.parenthesized_expr),
-            field('then', $._expr),
-            optional(field('else', seq('else', $._expr)))
+            field('then', $._control_body),
+            optional(field('else', seq('else', $._control_body)))
         )),
         while_expr: $ => prec.left(expr_precedence.DEFAULT, seq(
             'while',
             field('condition', $.parenthesized_expr),
-            field('body', $._expr),
+            field('body', $._control_body),
             optional($.spec_loop_invariant),
         )),
-        loop_expr: $ => seq('loop', field('body', $._expr)),
+        loop_expr: $ => seq('loop', field('body', $._control_body)),
         return_expr: $ => choice(
             prec(expr_precedence.LAST, 'return'),
             prec.left(seq('return', field('value', $._expr))),
@@ -353,6 +359,10 @@ module.exports = grammar({
             optional($.spec_loop_invariant),
             ')',
             field('body', $.block),
+        ),
+        _control_body: $ => choice(
+            prec(expr_precedence.DEFAULT, $._sequence),
+            $._expr,
         ),
 
         // Parse a pack, call, or other reference to a name:
