@@ -3,8 +3,6 @@
 #include <stdbool.h>
 
 #include "tree_sitter/parser.h"
-#include "tree_sitter/alloc.h"
-#include "tree_sitter/array.h"
 
 #ifdef DEBUG
 #define log(...) fprintf(stderr, __VA_ARGS__)
