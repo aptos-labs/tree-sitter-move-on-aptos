@@ -17,6 +17,11 @@ jobs:
         with:
           repository: aptos-labs/aptos-core
           path: test/repos/aptos-labs/aptos-core
+      - name: Checkout `wormhole-foundation/wormhole`
+        uses: actions/checkout@v4
+        with:
+          repository: wormhole-foundation/wormhole
+          path: test/repos/wormhole-foundation/wormhole
       - uses: actions/setup-node@v4
         with:
           node-version: '22.x'
@@ -29,7 +34,7 @@ jobs:
       - run: npm install -g tree-sitter-cli
       - run: tree-sitter init-config
       - run: tree-sitter generate
-      - run: python batch-test.py test/repos/aptos-labs/aptos-core/aptos-move
+      - run: python batch-test.py test/repos/aptos-labs/aptos-core/aptos-move test/repos/wormhole-foundation/wormhole/aptos
   test-decompiled:
     needs: [test-aptos]
     runs-on: ubuntu-latest
