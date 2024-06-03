@@ -1,15 +1,15 @@
-package tree_sitter_move_aptos_test
+package tree_sitter_move_on_aptos_test
 
 import (
 	"testing"
 
 	tree_sitter "github.com/smacker/go-tree-sitter"
-	"github.com/tree-sitter/tree-sitter-move_aptos"
+	"github.com/tree-sitter/tree-sitter-move_on_aptos"
 )
 
 func TestCanLoadGrammar(t *testing.T) {
-	language := tree_sitter.NewLanguage(tree_sitter_move_aptos.Language())
+	language := tree_sitter.NewLanguage(tree_sitter_move_on_aptos.Language())
 	if language == nil {
-		t.Errorf("Error loading MoveAptos grammar")
+		t.Errorf("Error loading MoveOnAptos grammar")
 	}
 }

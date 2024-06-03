@@ -1,4 +1,4 @@
-"MoveAptos grammar for tree-sitter"
+"MoveOnAptos grammar for tree-sitter"
 
 from ._binding import language
 
