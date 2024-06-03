@@ -1,0 +1,62 @@
+name: Move (Aptos) Tree Sitter Parser Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test-aptos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout itself
+        uses: actions/checkout@v4
+      - name: Checkout `aptos-labs/aptos-core`
+        uses: actions/checkout@v4
+        with:
+          repository: aptos-labs/aptos-core
+          path: test/repos/aptos-labs/aptos-core
+      - name: Checkout `wormhole-foundation/wormhole`
+        uses: actions/checkout@v4
+        with:
+          repository: wormhole-foundation/wormhole
+          path: test/repos/wormhole-foundation/wormhole
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' 
+      - run: sudo apt update && sudo apt install -y gcc
+      - run: npm install -g tree-sitter-cli
+      - run: tree-sitter init-config
+      - run: tree-sitter generate
+      - run: python batch-test.py test/repos/aptos-labs/aptos-core/aptos-move test/repos/wormhole-foundation/wormhole/aptos
+  test-decompiled:
+    needs: [test-aptos]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout itself
+        uses: actions/checkout@v4
+      - name: Checkout `aptos-labs/move-modules`
+        uses: actions/checkout@v4
+        with:
+          repository: aptos-labs/move-modules
+          path: test/repos/aptos-labs/move-modules
+          token: ${{ secrets.MOVEMODULES }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' 
+      - run: sudo apt update && sudo apt install -y gcc
+      - run: npm install -g tree-sitter-cli
+      - run: tree-sitter init-config
+      - run: tree-sitter generate
+      - run: python batch-test.py test/repos/aptos-labs/move-modules/mainnet

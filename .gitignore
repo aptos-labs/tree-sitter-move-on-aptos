@@ -1,0 +1,49 @@
+# Adapted from https://github.com/tree-sitter/tree-sitter-java/blob/master/.gitignore
+
+# Rust artifacts
+Cargo.lock
+target/
+
+# Node artifacts
+build/
+prebuilds/
+node_modules/
+*.tgz
+
+# Swift artifacts
+.build/
+
+# Go artifacts
+go.sum
+_obj/
+
+# Python artifacts
+.venv/
+dist/
+*.egg-info
+*.whl
+
+# C artifacts
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.pc
+
+# Example dirs
+/examples/*/
+
+# Grammar volatiles
+*.wasm
+*.obj
+*.o
+
+# VS Code settings
+.vscode/
+
+# Tree sitter parsing output
+log.html
+
+# testing repos
+test/repos/
