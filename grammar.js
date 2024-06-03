@@ -73,7 +73,7 @@ const expr_precedence = {
 };
 
 module.exports = grammar({
-    name: 'move_aptos',
+    name: 'move_on_aptos',
 
     word: $ => $.identifier,
 
