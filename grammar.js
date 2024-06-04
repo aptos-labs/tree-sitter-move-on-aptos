@@ -5,8 +5,6 @@ const sepBy1 = (sep, rule) => seq(rule, repeat(seq(sep, rule)));
 const sepBy = (sep, rule) => optional(sepBy1(sep, rule));
 const sepByComma = (rule) => seq(sepBy(',', rule), optional(','));
 
-const keyword = (word) => field(word, word);
-
 const chain_ident = ($, wildcard) => field('path', (wildcard) ? choice('*', $.identifier) : $.identifier);
 // LeadingNameAccess = <NumericalAddress> | <Identifier>
 // `Identifier` can be `*` if `wildcard = true`
@@ -81,7 +79,7 @@ module.exports = grammar({
         [$.primitive_type, $.term],
         [$._name_expr],
         [$._reuseable_keywords, $.for_loop_expr],
-        [$.discouraged_name, $.type],
+        [$.discouraged_name, $._type],
     ],
 
     extras: $ => [
@@ -108,7 +106,7 @@ module.exports = grammar({
         )),
 
         number_type: _ => choice(
-            keyword('u8'), keyword('u16'), keyword('u32'), keyword('u64'), keyword('u128'), keyword('u256')
+            'u8', 'u16', 'u32', 'u64', 'u128', 'u256'
         ),
 
         /// `signer` is quite special: it is used externally as a type, but internally can be a variable.
@@ -117,7 +115,7 @@ module.exports = grammar({
 
         primitive_type: $ => choice(
             $.number_type,
-            keyword('bool'), keyword('address'), keyword('vector'),
+            'bool', 'address', 'vector',
         ),
 
         identifier: _ => /[a-zA-Z_]\w*/,
@@ -143,16 +141,18 @@ module.exports = grammar({
         ),
 
         // Parse a Type:
-        //         Type =        
+        //         Type = _Type | _RefType
+        //
+        //         _Type =
         //          <NameAccessChain> <TypeArgs>?
-        //          | "&" <Type>
-        //          | "&mut" <Type>
         //          | "|" Comma<Type> "|" <Type>?
         //          | "(" Comma<Type> ")"
-        type: $ => choice(
+        //
+        //         _RefType =  "&" <_Type> | "&mut" <_Type>
+        // **Double** ('&&') reference is not allowed.
+        type: $ => choice($._type, $._ref_type),
+        _type: $ => choice(
             seq(choice(name_access_chain($, false), $.primitive_type), optional($.type_args)),
-            field('ref', seq('&', $.type)),
-            field('mut_ref', seq('&mut', $.type)),
             // `||' is treated as an empty param type list in this context.
             // TODO: verify the associativity
             prec.right(expr_precedence.DEFAULT,
@@ -160,6 +160,11 @@ module.exports = grammar({
             ),
             field('tuple', seq('(', sepByComma($.type), ')')),
         ),
+        _ref_type: $ => choice(
+            field('ref', seq('&', $._type)),
+            field('mut_ref', seq('&mut', $._type)),
+        ),
+
 
         // Parse an expression:
         //      Exp =
@@ -268,13 +273,13 @@ module.exports = grammar({
         //          | <Term>
         _dot_or_index_chain: $ => choice(
             $.access_field,
-            $.func_call,
+            $.receiver_call,
             $.mem_access,
             alias($.term, 'expr'),
         ),
-        func_call: $ => prec.left(expr_precedence.CALL, seq(
-            field('func', $._dot_or_index_chain, '.', field('field', $.identifier),
-                optional(field('type_generics', seq('::', $.type_args)))),
+        receiver_call: $ => prec.left(expr_precedence.CALL, seq(
+            field('receiver', $._dot_or_index_chain), '.', field('func', $.identifier),
+            optional(field('type_generics', seq('::', $.type_args))),
             $.call_args,
         )),
         mem_access: $ => prec.left(expr_precedence.CALL, seq($._dot_or_index_chain, '[', field('index', $._expr), ']')),
@@ -454,9 +459,10 @@ module.exports = grammar({
         //           )*
         //       "}"
         //   ModuleMemberModifiers = <ModuleMemberModifier>*
+        _module_ident: $ => 'module',
         module: $ => seq(
             // TODO(doc): doc comments are not supported by now.
-            choice('spec', 'module'),
+            choice('spec', $._module_ident),
             // (<LeadingNameAccess>::)?<ModuleName>
             seq(
                 optional(seq(field('path', leading_name_access($, false)), '::')),
@@ -510,7 +516,7 @@ module.exports = grammar({
                 field('func_name', $.identifier),
                 optional($._spec_target_signature_opt),
             )),
-            keyword('module'),
+            'module',
             field('schema', seq(
                 'schema',
                 field('schema_name', $.identifier),
@@ -699,10 +705,10 @@ module.exports = grammar({
         ),
 
         // Visibility = "public" ( "(" "script" | "friend" ")" )?
-        visibility: $ => seq(keyword('public'), optional(seq('(', choice(keyword('script'), keyword('friend')), ')'))),
+        visibility: $ => seq('public', optional(seq('(', choice('script', 'friend'), ')'))),
 
         // ModuleMemberModifier = <Visibility> | "native"
-        module_member_modifier: $ => choice($.visibility, keyword('native'), keyword('entry')),
+        module_member_modifier: $ => choice($.visibility, 'native', 'entry'),
 
         // ModuleIdent = <LeadingNameAccess>(wildcard = false) "::" <ModuleName>
         module_ident: $ => seq(leading_name_access($, false), '::', field('module_name', $.identifier)),
@@ -744,7 +750,7 @@ module.exports = grammar({
         //      OptionalTypeParameters = '<' Comma<TypeParameter> ">" | <empty>
         //      Sequence = <UseDecl>* (<SequenceItem> ";")* <Exp>?
         function_decl: $ => seq(
-            optional(keyword('inline')),
+            optional('inline'),
             'fun', field('function_name', $.identifier),
             optional($.type_params),
             '(', field('parameters', sepByComma($.parameter)), ')',
@@ -828,7 +834,7 @@ module.exports = grammar({
         //          | "drop"
         //          | "store"
         //          | "key"
-        _ability: $ => choice(keyword('copy'), keyword('drop'), keyword('store'), keyword('key')),
+        _ability: $ => choice('copy', 'drop', 'store', 'key'),
 
         abilities: $ => sepBy1(',', $._ability),
 
