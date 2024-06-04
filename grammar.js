@@ -767,7 +767,7 @@ module.exports = grammar({
         ),
         _sequence: $ => seq('{', seq(
             repeat($.use_decl),
-            repeat(seq($._sequence_item, ';')),
+            repeat($._sequence_item),
             optional($._expr),
         ), '}'),
 
@@ -839,10 +839,10 @@ module.exports = grammar({
         abilities: $ => sepBy1(',', $._ability),
 
         // SequenceItem = <Exp> | "let" <BindList> (":" <Type>)? ("=" <Exp>)?
-        _sequence_item: $ => choice(
+        _sequence_item: $ => seq(choice(
             $._expr,
             $.let_expr,
-        ),
+        ), ';'),
 
         let_expr: $ => seq('let', $.bind_list, optional(seq(':', $.type)), optional(seq('=', $._expr))),
 

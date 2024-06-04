@@ -6214,17 +6214,8 @@
             {
               "type": "REPEAT",
               "content": {
-                "type": "SEQ",
-                "members": [
-                  {
-                    "type": "SYMBOL",
-                    "name": "_sequence_item"
-                  },
-                  {
-                    "type": "STRING",
-                    "value": ";"
-                  }
-                ]
+                "type": "SYMBOL",
+                "name": "_sequence_item"
               }
             },
             {
@@ -7112,15 +7103,24 @@
       ]
     },
     "_sequence_item": {
-      "type": "CHOICE",
+      "type": "SEQ",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "_expr"
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_expr"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "let_expr"
+            }
+          ]
         },
         {
-          "type": "SYMBOL",
-          "name": "let_expr"
+          "type": "STRING",
+          "value": ";"
         }
       ]
     },
