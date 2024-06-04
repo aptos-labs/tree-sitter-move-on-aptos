@@ -9718,11 +9718,10 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       END_STATE();
     case 12:
       if (lookahead == '0' ||
-          lookahead == '7') ADVANCE(27);
+          lookahead == '1') ADVANCE(26);
       END_STATE();
     case 13:
-      if (lookahead == '0' ||
-          lookahead == '1') ADVANCE(26);
+      if (('0' <= lookahead && lookahead <= '7')) ADVANCE(27);
       END_STATE();
     case 14:
       if (('0' <= lookahead && lookahead <= '9') ||
@@ -9843,8 +9842,8 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       END_STATE();
     case 23:
       ACCEPT_TOKEN(aux_sym_number_token1);
-      if (lookahead == 'b') ADVANCE(13);
-      if (lookahead == 'o') ADVANCE(12);
+      if (lookahead == 'b') ADVANCE(12);
+      if (lookahead == 'o') ADVANCE(13);
       if (lookahead == 'X' ||
           lookahead == 'x') ADVANCE(15);
       if (('0' <= lookahead && lookahead <= '9') ||

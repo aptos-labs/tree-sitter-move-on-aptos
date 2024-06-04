@@ -130,7 +130,7 @@ module.exports = grammar({
             /\d[\d_]*/,
             /0[xX][\da-fA-F][\da-fA-F_]*/,
             /0b[01][01_]*/,
-            /0o[07][0-7_]*/,
+            /0o[0-7][0-7_]*/,
         ),
         numerical_addr: $ => $.number,
         bool_literal: $ => choice('true', 'false'),
