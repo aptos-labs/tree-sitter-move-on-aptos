@@ -326,120 +326,17 @@
   {
     "type": "assignment",
     "named": true,
-    "fields": {
-      "lambda": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "access_field",
-            "named": true
-          },
-          {
-            "type": "assignment",
-            "named": true
-          },
-          {
-            "type": "bin_op_expr",
-            "named": true
-          },
-          {
-            "type": "copy_expr",
-            "named": true
-          },
-          {
-            "type": "deref_expr",
-            "named": true
-          },
-          {
-            "type": "expr",
-            "named": false
-          },
-          {
-            "type": "lambda_bind_list",
-            "named": true
-          },
-          {
-            "type": "mem_access",
-            "named": true
-          },
-          {
-            "type": "move_expr",
-            "named": true
-          },
-          {
-            "type": "not_expr",
-            "named": true
-          },
-          {
-            "type": "quantifier",
-            "named": true
-          },
-          {
-            "type": "receiver_call",
-            "named": true
-          },
-          {
-            "type": "ref_expr",
-            "named": true
-          },
-          {
-            "type": "ref_mut_expr",
-            "named": true
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
-          "type": "access_field",
+          "type": "target",
           "named": true
         },
         {
-          "type": "assignment",
-          "named": true
-        },
-        {
-          "type": "bin_op_expr",
-          "named": true
-        },
-        {
-          "type": "copy_expr",
-          "named": true
-        },
-        {
-          "type": "deref_expr",
-          "named": true
-        },
-        {
-          "type": "mem_access",
-          "named": true
-        },
-        {
-          "type": "move_expr",
-          "named": true
-        },
-        {
-          "type": "not_expr",
-          "named": true
-        },
-        {
-          "type": "quantifier",
-          "named": true
-        },
-        {
-          "type": "receiver_call",
-          "named": true
-        },
-        {
-          "type": "ref_expr",
-          "named": true
-        },
-        {
-          "type": "ref_mut_expr",
+          "type": "value",
           "named": true
         }
       ]
@@ -1186,6 +1083,36 @@
         "multiple": true,
         "required": false,
         "types": [
+          {
+            "type": "var_name",
+            "named": true
+          }
+        ]
+      },
+      "property": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": ",",
+            "named": false
+          },
+          {
+            "type": "=",
+            "named": false
+          },
+          {
+            "type": "leading_name_access",
+            "named": true
+          },
+          {
+            "type": "name_access_chain",
+            "named": true
+          },
+          {
+            "type": "value",
+            "named": true
+          },
           {
             "type": "var_name",
             "named": true
@@ -3002,128 +2929,21 @@
   {
     "type": "let_expr",
     "named": true,
-    "fields": {
-      "lambda": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "access_field",
-            "named": true
-          },
-          {
-            "type": "assignment",
-            "named": true
-          },
-          {
-            "type": "bin_op_expr",
-            "named": true
-          },
-          {
-            "type": "copy_expr",
-            "named": true
-          },
-          {
-            "type": "deref_expr",
-            "named": true
-          },
-          {
-            "type": "expr",
-            "named": false
-          },
-          {
-            "type": "lambda_bind_list",
-            "named": true
-          },
-          {
-            "type": "mem_access",
-            "named": true
-          },
-          {
-            "type": "move_expr",
-            "named": true
-          },
-          {
-            "type": "not_expr",
-            "named": true
-          },
-          {
-            "type": "quantifier",
-            "named": true
-          },
-          {
-            "type": "receiver_call",
-            "named": true
-          },
-          {
-            "type": "ref_expr",
-            "named": true
-          },
-          {
-            "type": "ref_mut_expr",
-            "named": true
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": true,
       "required": true,
       "types": [
         {
-          "type": "access_field",
-          "named": true
-        },
-        {
-          "type": "assignment",
-          "named": true
-        },
-        {
-          "type": "bin_op_expr",
-          "named": true
-        },
-        {
           "type": "bind_list",
           "named": true
         },
         {
-          "type": "copy_expr",
-          "named": true
-        },
-        {
-          "type": "deref_expr",
-          "named": true
-        },
-        {
-          "type": "mem_access",
-          "named": true
-        },
-        {
-          "type": "move_expr",
-          "named": true
-        },
-        {
-          "type": "not_expr",
-          "named": true
-        },
-        {
-          "type": "quantifier",
-          "named": true
-        },
-        {
-          "type": "receiver_call",
-          "named": true
-        },
-        {
-          "type": "ref_expr",
-          "named": true
-        },
-        {
-          "type": "ref_mut_expr",
-          "named": true
-        },
-        {
           "type": "type",
+          "named": true
+        },
+        {
+          "type": "value",
           "named": true
         }
       ]
@@ -3983,16 +3803,6 @@
           {
             "type": "ref_mut_expr",
             "named": true
-          }
-        ]
-      },
-      "min": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "min",
-            "named": false
           }
         ]
       },
@@ -4966,6 +4776,10 @@
         "required": false,
         "types": [
           {
+            "type": "use_decl",
+            "named": true
+          },
+          {
             "type": "{",
             "named": false
           },
@@ -5017,16 +4831,6 @@
           },
           {
             "type": "spec_variable",
-            "named": true
-          }
-        ]
-      },
-      "use": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "use_decl",
             "named": true
           }
         ]
@@ -6238,6 +6042,10 @@
         "required": false,
         "types": [
           {
+            "type": "use_decl",
+            "named": true
+          },
+          {
             "type": "{",
             "named": false
           },
@@ -6289,16 +6097,6 @@
           },
           {
             "type": "spec_variable",
-            "named": true
-          }
-        ]
-      },
-      "use": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "use_decl",
             "named": true
           }
         ]
@@ -6673,6 +6471,53 @@
         },
         {
           "type": "type_param",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "target",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "access_field",
+          "named": true
+        },
+        {
+          "type": "copy_expr",
+          "named": true
+        },
+        {
+          "type": "deref_expr",
+          "named": true
+        },
+        {
+          "type": "mem_access",
+          "named": true
+        },
+        {
+          "type": "move_expr",
+          "named": true
+        },
+        {
+          "type": "not_expr",
+          "named": true
+        },
+        {
+          "type": "receiver_call",
+          "named": true
+        },
+        {
+          "type": "ref_expr",
+          "named": true
+        },
+        {
+          "type": "ref_mut_expr",
           "named": true
         }
       ]
@@ -7133,6 +6978,68 @@
     "type": "value",
     "named": true,
     "fields": {
+      "lambda": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "access_field",
+            "named": true
+          },
+          {
+            "type": "assignment",
+            "named": true
+          },
+          {
+            "type": "bin_op_expr",
+            "named": true
+          },
+          {
+            "type": "copy_expr",
+            "named": true
+          },
+          {
+            "type": "deref_expr",
+            "named": true
+          },
+          {
+            "type": "expr",
+            "named": false
+          },
+          {
+            "type": "lambda_bind_list",
+            "named": true
+          },
+          {
+            "type": "mem_access",
+            "named": true
+          },
+          {
+            "type": "move_expr",
+            "named": true
+          },
+          {
+            "type": "not_expr",
+            "named": true
+          },
+          {
+            "type": "quantifier",
+            "named": true
+          },
+          {
+            "type": "receiver_call",
+            "named": true
+          },
+          {
+            "type": "ref_expr",
+            "named": true
+          },
+          {
+            "type": "ref_mut_expr",
+            "named": true
+          }
+        ]
+      },
       "path": {
         "multiple": false,
         "required": false,
@@ -7149,6 +7056,18 @@
       "required": false,
       "types": [
         {
+          "type": "access_field",
+          "named": true
+        },
+        {
+          "type": "assignment",
+          "named": true
+        },
+        {
+          "type": "bin_op_expr",
+          "named": true
+        },
+        {
           "type": "bool_literal",
           "named": true
         },
@@ -7157,11 +7076,47 @@
           "named": true
         },
         {
+          "type": "copy_expr",
+          "named": true
+        },
+        {
+          "type": "deref_expr",
+          "named": true
+        },
+        {
           "type": "leading_name_access",
           "named": true
         },
         {
+          "type": "mem_access",
+          "named": true
+        },
+        {
+          "type": "move_expr",
+          "named": true
+        },
+        {
+          "type": "not_expr",
+          "named": true
+        },
+        {
           "type": "number",
+          "named": true
+        },
+        {
+          "type": "quantifier",
+          "named": true
+        },
+        {
+          "type": "receiver_call",
+          "named": true
+        },
+        {
+          "type": "ref_expr",
+          "named": true
+        },
+        {
+          "type": "ref_mut_expr",
           "named": true
         },
         {
