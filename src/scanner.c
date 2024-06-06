@@ -10,10 +10,14 @@
 #define log(...)
 #endif
 
+/// @brief Token types. The order must match the order of the `externals` in the grammar.
 enum TokenType {
   BLOCK_DOC_COMMENT_MARKER,
   BLOCK_COMMENT_CONTENT,
   LINE_DOC_CONTENT,
+
+  // Error state sentinel, must be the last one.
+  ERROR_SENTINEL,
 };
 
 /// Tree-sitter interfaces
@@ -35,16 +39,16 @@ inline static void advance(TSLexer *lexer) { lexer->advance(lexer, false); }
 /// @param lexer the lexer
 inline static void skip(TSLexer *lexer) { lexer->advance(lexer, true); }
 
-/// @brief Check if the lookahead marks the end of line or file.
+/// @brief Check if the lookahead marks the end of line. EOF is not considered as EOL.
 /// @param lexer 
-/// @return if it is EOL/EOF
+/// @return if it is EOL
 inline static bool is_eol(TSLexer *lexer) {
   int ch = lexer->lookahead;
   return ch == '\n' || ch == 0x2028 || ch == 0x2029;
 }
 
 
-static inline bool scan_block_doc_comment_marker(TSLexer *lexer) {
+inline static bool scan_block_doc_comment_marker(TSLexer *lexer) {
   if (lexer->lookahead != '*') return false;
   // '*' but not '**', '*/'
   advance(lexer);
@@ -58,15 +62,17 @@ static inline bool scan_block_doc_comment_marker(TSLexer *lexer) {
 }
 
 
-static inline bool scan_block_comment_content(TSLexer *lexer) {
-  // At this stage, we have already entered a comment block.
+inline static bool scan_block_comment_content(TSLexer *lexer) {
+  // At this stage, we have already entered a comment block: matched `/*`.
   size_t comment_depth = 1;
 
   // munch the rest.
   while (lexer->lookahead && comment_depth > 0) {
     switch (lexer->lookahead) {
     case '*':
-      // don't match the outmost '*/': it will be recognised by tree-sitter.
+      // don't match the outmost '*/' (comment_depth = 1): it will be recognised by tree-sitter.
+      // `advance` after `mark_end` will be discarded, so the tree-sitter can still recognise the `*/`.
+      // `mark_end` can be called multiple times.
       if (comment_depth == 1)
         lexer->mark_end(lexer);
       advance(lexer);
@@ -80,9 +86,9 @@ static inline bool scan_block_comment_content(TSLexer *lexer) {
     case '/':
       advance(lexer);
       if (lexer->lookahead == '*') {
-        advance(lexer);
-        log("entering nested comment\n");
         // matched pattern: /*
+        advance(lexer);
+        log("entering a nested comment\n");
         comment_depth++;
       }
       break;
@@ -92,7 +98,7 @@ static inline bool scan_block_comment_content(TSLexer *lexer) {
     }
   }
   log("exit parsing block comment contents, remaining depth: %d, col: %d\n", comment_depth, lexer->get_column(lexer));
-  if (comment_depth > 0)
+  if (comment_depth > 0) // comment does not end, its content is scanned.
     lexer->mark_end(lexer);
   else
     lexer->result_symbol = BLOCK_COMMENT_CONTENT;
@@ -107,6 +113,7 @@ static inline bool scan_line_doc_content(TSLexer *lexer) {
   lexer->result_symbol = LINE_DOC_CONTENT;
   while (lexer->lookahead) {
     if (is_eol(lexer)) {
+      // Include the EOL character. This is friendly to the markdown renderer (although it is not necessary).
       advance(lexer);
       break;
     }
@@ -128,13 +135,20 @@ bool tree_sitter_move_on_aptos_external_scanner_scan(
   TSLexer *lexer,
   const bool *valid_symbols
 ) {
+  if (valid_symbols[ERROR_SENTINEL]) {
+    log("error state\n");
+    return false;
+  }
+
+  if (valid_symbols[LINE_DOC_CONTENT]) {
+    return scan_line_doc_content(lexer);
+  }
+
   bool ret = false;
   if (valid_symbols[BLOCK_DOC_COMMENT_MARKER])
     ret = scan_block_doc_comment_marker(lexer);
   if (!ret && valid_symbols[BLOCK_COMMENT_CONTENT])
     ret = scan_block_comment_content(lexer);
-  if (!ret && valid_symbols[LINE_DOC_CONTENT])
-    ret = scan_line_doc_content(lexer);
   log("ret: %s\n", ret ? "true" : "false");
   return ret;
 }

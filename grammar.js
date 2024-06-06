@@ -5,7 +5,10 @@ const sepBy1 = (sep, rule) => seq(rule, repeat(seq(sep, rule)));
 const sepBy = (sep, rule) => optional(sepBy1(sep, rule));
 const sepByComma = (rule) => seq(sepBy(',', rule), optional(','));
 
+// A helper function to match an identifier within an access chain.
+// When `wildcard = true`, the identifier can be `*`.
 const chain_ident = ($, wildcard) => field('path', (wildcard) ? choice('*', $.identifier) : $.identifier);
+
 // LeadingNameAccess = <NumericalAddress> | <Identifier>
 // `Identifier` can be `*` if `wildcard = true`
 const leading_name_access = ($, wildcard) => alias(
@@ -43,6 +46,7 @@ const escaped_sequence = token.immediate(seq(
     ),
 ));
 
+// Binary operators with precedence levels.
 const binary_operators = [
     [],                                                                     // 1 (no binary operators have precedence 1)
     [['==>', 'equal_equal_greater'], ['<==>', 'less_equal_equal_greater']], // 2
@@ -70,6 +74,8 @@ const expr_precedence = {
     RANGE: 16,
 };
 
+// The tree-sitter grammar. Mostly based on the `move-compiler`'s grammar.
+// `export default` is not used as `tree-sitter` only accepts CommonJS module.
 module.exports = grammar({
     name: 'move_on_aptos',
 
@@ -93,6 +99,10 @@ module.exports = grammar({
         $._block_doc_comment_marker,
         $._block_comment_content,
         $._doc_line_comment,
+
+        // If a syntax error is encountered during regular parsing, Tree-sitter’s first action during error
+        // recovery will be to call the external scanner’s scan function with all tokens marked valid.
+        $._error_sentinel,
     ],
 
     rules: {
@@ -365,6 +375,14 @@ module.exports = grammar({
             ')',
             field('body', $.block),
         ),
+
+        // The body of `if`, `while`, `loop` expressions.
+        //      ControlBody = <Sequence> | <Exp>
+        // This rule is useful to conform the cases like this:
+        //      if (a) {x}.f else c => (if (a) {x}).f else c => gives a parse error
+        //
+        // `{ }` is treated immediately after `if` or `while` or `loop` keyword.
+        // So `if (a) {x}.f` is parsed as `(if (a) {x}).f` instead of `if (a) ({x}.f)`.
         _control_body: $ => choice(
             prec(expr_precedence.DEFAULT, $._sequence),
             $._expr,
@@ -895,6 +913,9 @@ module.exports = grammar({
         ),
 
         // https://github.com/tree-sitter/tree-sitter-rust/blob/9c84af007b0f144954adb26b3f336495cbb320a7/grammar.js#L1527
+        //
+        // To differentiate between doc line comments and regular line comments, we need an external scanner.
+        // Although it is possible to use regex to extract doc comments, tree-sitter behaves weirdly.
         line_comment: $ => seq(
             '//',
             choice(
@@ -907,6 +928,8 @@ module.exports = grammar({
         ),
 
         // block_comment: $ => seq('/*', /[^*]*\*+([^/*][^*]*\*+)*/, '/'),
+
+        // External scanners are needed to match nested block (doc) comments.
         block_comment: $ => seq(
             '/*',
             optional(

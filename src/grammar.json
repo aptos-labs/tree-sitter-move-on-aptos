@@ -7814,6 +7814,10 @@
     {
       "type": "SYMBOL",
       "name": "_doc_line_comment"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_error_sentinel"
     }
   ],
   "inline": [],
