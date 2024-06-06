@@ -1,3 +1,7 @@
+'''This script is used to batch test move files recursively in a directory.
+It will search for all files with `.move` extension and run `tree-sitter parse` on them.
+If you updated the parser, you should run `tree-sitter generate` first.
+'''
 import os
 import re
 import sys
@@ -80,7 +84,11 @@ def get_paths() -> List[str]:
         assert_valid_path(path)
     return paths
 
-
+# Under these folders, if a file xxx.move exists and xxx.exp exists, then xxx.move should be rejected
+# xxx.exp is the expected error output for xxx.move. `xxx.exp` might present in other folders, but
+# they do not represent a parser error.
+#
+# Still, there are many false positives under `move_check/parser` and `move_check/expansion`.
 special_folder = [
     'aptos-core/third_party/move/move-compiler/tests/move_check/parser',
     'aptos-core/third_party/move/move-compiler/tests/move_check/expansion',
@@ -103,6 +111,7 @@ def visit_path(path: str) -> Tuple[int, int, int]:
     results = map(visit_file, files)
     failed = 0
     for result in results:
+        # Failed cases
         if result.passed == should_reject(result.path):
             if result.passed:
                 print(f'[FAIL] should reject {result.path}')

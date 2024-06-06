@@ -12,6 +12,7 @@ jobs:
     steps:
       - name: Checkout itself
         uses: actions/checkout@v4
+      # Testing repositories
       - name: Checkout `aptos-labs/aptos-core`
         uses: actions/checkout@v4
         with:
@@ -22,6 +23,13 @@ jobs:
         with:
           repository: wormhole-foundation/wormhole
           path: test/repos/wormhole-foundation/wormhole
+      - name: Checkout `pancakeswap/pancake-contracts-move`
+        uses: actions/checkout@v4
+        with:
+          repository: pancakeswap/pancake-contracts-move
+          path: test/repos/pancakeswap/pancake-contracts-move
+      
+      # Setup environment
       - uses: actions/setup-node@v4
         with:
           node-version: '22.x'
@@ -32,9 +40,19 @@ jobs:
           python-version: '3.10' 
       - run: sudo apt update && sudo apt install -y gcc
       - run: npm install -g tree-sitter-cli
+
+      # Configure and generate tree-sitter parser
       - run: tree-sitter init-config
       - run: tree-sitter generate
-      - run: python batch-test.py test/repos/aptos-labs/aptos-core/aptos-move test/repos/wormhole-foundation/wormhole/aptos
+
+      # Run tests
+      - run: |
+          python batch-test.py \
+          test/repos/aptos-labs/aptos-core/aptos-move \
+          test/repos/wormhole-foundation/wormhole/aptos \
+          test/repos/pancakeswap/pancake-contracts-move
+  
+  # Test decompiled Move modules
   test-decompiled:
     needs: [test-aptos]
     runs-on: ubuntu-latest
