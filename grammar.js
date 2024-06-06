@@ -178,7 +178,7 @@ module.exports = grammar({
             $.quantifier,
             field('lambda', seq($.lambda_bind_list, $._expr)),
         ),
-        assignment: $ => prec.left(expr_precedence.DEFAULT, seq($._unary_expr, '=', $._expr)),
+        assignment: $ => prec.left(expr_precedence.DEFAULT, seq(alias($._unary_expr, $.target), '=', alias($._expr, $.value))),
 
         // Parse a list of bindings for lambda.
         //      LambdaBindList = "|" Comma<Bind> "|"
@@ -203,7 +203,7 @@ module.exports = grammar({
             ),
             seq(
                 'choose',
-                optional(field('min', 'min')),
+                optional('min'),
                 $.quantifier_bind,
                 'where',
                 field('condition', $._expr),
@@ -504,7 +504,7 @@ module.exports = grammar({
                 seq(optional($.spec_block_target),
                     field('body', seq(
                         '{',
-                        field('use', repeat($.use_decl)),
+                        repeat($.use_decl),
                         field('member', repeat($._spec_block_member)),
                         '}'
                     )),
@@ -602,7 +602,7 @@ module.exports = grammar({
                 ';'
             ),
         ),
-        condition_props: $ => seq('[', sepByComma($._spec_pragma_prop), ']'),
+        condition_props: $ => seq('[', field('property', sepByComma($._spec_pragma_prop)), ']'),
 
 
         // Parse a specification variable.
@@ -844,7 +844,7 @@ module.exports = grammar({
             $.let_expr,
         ), ';'),
 
-        let_expr: $ => seq('let', $.bind_list, optional(seq(':', $.type)), optional(seq('=', $._expr))),
+        let_expr: $ => seq('let', $.bind_list, optional(seq(':', $.type)), optional(seq('=', alias($._expr, $.value)))),
 
         // BindList = <Bind> | "(" Comma<Bind> ")"
         bind_list: $ => choice($._bind, seq('(', sepByComma($._bind), ')')),
