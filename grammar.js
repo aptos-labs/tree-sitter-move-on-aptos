@@ -99,6 +99,10 @@ module.exports = grammar({
         $._block_doc_comment_marker,
         $._block_comment_content,
         $._doc_line_comment,
+
+        // If a syntax error is encountered during regular parsing, Tree-sitter’s first action during error
+        // recovery will be to call the external scanner’s scan function with all tokens marked valid.
+        $._error_sentinel,
     ],
 
     rules: {

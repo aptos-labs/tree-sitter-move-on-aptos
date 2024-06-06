@@ -15,6 +15,9 @@ enum TokenType {
   BLOCK_DOC_COMMENT_MARKER,
   BLOCK_COMMENT_CONTENT,
   LINE_DOC_CONTENT,
+
+  // Error state sentinel, must be the last one.
+  ERROR_SENTINEL,
 };
 
 /// Tree-sitter interfaces
@@ -132,6 +135,11 @@ bool tree_sitter_move_on_aptos_external_scanner_scan(
   TSLexer *lexer,
   const bool *valid_symbols
 ) {
+  if (valid_symbols[ERROR_SENTINEL]) {
+    log("error state\n");
+    return false;
+  }
+
   if (valid_symbols[LINE_DOC_CONTENT]) {
     return scan_line_doc_content(lexer);
   }

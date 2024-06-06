@@ -50,6 +50,9 @@ exclude = [
 
     # non-standard
     'third_party/move/tools/move-cli/tests/build_tests/circular_dependencies',
+
+    # contains invalid hex string
+    'pancake-cake-oft/sources/cake_oft.move',
     
     # rejected case
     'attribute_no_closing_bracket',
