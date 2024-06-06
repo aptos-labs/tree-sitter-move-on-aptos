@@ -2,7 +2,7 @@
 name = "tree-sitter-move-on-aptos"
 description = "MoveOnAptos grammar for tree-sitter"
 version = "0.0.1"
-license = "MIT"
+license = "Apache-2.0"
 readme = "README.md"
 keywords = ["incremental", "parsing", "tree-sitter", "move-on-aptos"]
 categories = ["parsing", "text-editors"]

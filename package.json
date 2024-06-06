@@ -12,7 +12,7 @@
     "prebuildify": "prebuildify --napi --strip"
   },
   "author": "ArArgon <liaozping@gmail.com>",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "dependencies": {
     "node-addon-api": "^7.1.0",
     "node-gyp-build": "^4.8.0"
