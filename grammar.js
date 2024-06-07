@@ -53,7 +53,7 @@ module.exports = grammar({
     word: $ => $.identifier,
 
     conflicts: $ => [
-        [$.primitive_type, $.term],
+        [$.primitive_type, $.vector_access],
         [$._reuseable_keywords, $.for_loop_expr],
         [$.discouraged_name, $._type],
         [$.var, $.call_expr, $.pack_expr],
@@ -65,6 +65,12 @@ module.exports = grammar({
         $.line_comment,
         $.block_comment,
         /\s/,
+    ],
+
+    inline: $ => [
+        $._name_expr,
+        $._dot_or_index_chain,
+        $._ident_or_wildcard,
     ],
 
     externals: $ => [
@@ -330,14 +336,11 @@ module.exports = grammar({
         term: $ => choice(
             alias('break', $.break_expr),
             alias('continue', $.continue_expr),
-            alias(
-                seq('vector', optional($.type_args), '[', sepByComma($._expr), ']'),
-                $.vector_access
-            ),
+            $.vector_access,
             $.value,
-            alias(seq('(', sepByComma($._expr), ')'), $.tuple_expr),
-            alias(seq('(', field('expr', $._expr), ':', $.type, ')'), $.type_hint_expr),
-            alias(seq('(', $._expr, 'as', $.type, ')'), $.cast_expr),
+            $.tuple_expr,
+            $.type_hint_expr,
+            $.cast_expr,
 
             $.block,
             $._name_expr,
@@ -352,8 +355,14 @@ module.exports = grammar({
             $.abort_expr,
             $.for_loop_expr,
         ),
+
+        vector_access: $ => seq('vector', optional($.type_args), '[', sepByComma($._expr), ']'),
+        tuple_expr: $ => seq('(', sepByComma($._expr), ')'),
+        type_hint_expr: $ => seq('(', $._expr, ':', $.type, ')'),
+        cast_expr: $ => seq('(', $._expr, 'as', $.type, ')'),
         parenthesized_expr: $ => seq('(', $._expr, ')'),
         block: $ => $._sequence,
+
         // Control flow expressions:
         if_expr: $ => prec.right(seq(
             'if',
@@ -705,14 +714,14 @@ module.exports = grammar({
         ),
         _spec_pragma_prop: $ => seq(
             field('prop_name', $.var_name),
-            optional(field('value', seq('=', choice($.value, $.name_access_chain)))),
+            optional(seq('=', field('value', choice($.value, $.name_access_chain)))),
         ),
 
         // Parse a specification let.
         //     SpecLet =  "let" [ "post" ] <Identifier> "=" <Exp> ";"
         spec_let: $ => seq(
             'let',
-            field('post_state', optional('post')),
+            optional(field('post_state', 'post')),
             field('variable', $.var_name),
             '=',
             field('value', $._expr),
@@ -729,7 +738,7 @@ module.exports = grammar({
             'axiom',
             field('kind', optional($.type_params)),
             optional($.condition_props),
-            $._expr,
+            field('expression', $._expr),
             ';'
         ),
 
@@ -947,8 +956,6 @@ module.exports = grammar({
                 token.immediate(prec(1, /.*/)),
             ),
         ),
-
-        // block_comment: $ => seq('/*', /[^*]*\*+([^/*][^*]*\*+)*/, '/'),
 
         // External scanners are needed to match nested block (doc) comments.
         block_comment: $ => seq(

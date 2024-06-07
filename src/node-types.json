@@ -1100,63 +1100,10 @@
   {
     "type": "cast_expr",
     "named": true,
-    "fields": {
-      "ref": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "closure_type",
-            "named": true
-          },
-          {
-            "type": "name_access_chain",
-            "named": true
-          },
-          {
-            "type": "primitive_type",
-            "named": true
-          },
-          {
-            "type": "tuple_type",
-            "named": true
-          },
-          {
-            "type": "type_args",
-            "named": true
-          }
-        ]
-      },
-      "ref_mut": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "closure_type",
-            "named": true
-          },
-          {
-            "type": "name_access_chain",
-            "named": true
-          },
-          {
-            "type": "primitive_type",
-            "named": true
-          },
-          {
-            "type": "tuple_type",
-            "named": true
-          },
-          {
-            "type": "type_args",
-            "named": true
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "access_field",
@@ -1168,10 +1115,6 @@
         },
         {
           "type": "bin_op_expr",
-          "named": true
-        },
-        {
-          "type": "closure_type",
           "named": true
         },
         {
@@ -1195,15 +1138,7 @@
           "named": true
         },
         {
-          "type": "name_access_chain",
-          "named": true
-        },
-        {
           "type": "not_expr",
-          "named": true
-        },
-        {
-          "type": "primitive_type",
           "named": true
         },
         {
@@ -1223,11 +1158,7 @@
           "named": true
         },
         {
-          "type": "tuple_type",
-          "named": true
-        },
-        {
-          "type": "type_args",
+          "type": "type",
           "named": true
         }
       ]
@@ -1307,10 +1238,6 @@
         "multiple": true,
         "required": false,
         "types": [
-          {
-            "type": "=",
-            "named": false
-          },
           {
             "type": "name_access_chain",
             "named": true
@@ -1832,20 +1759,9 @@
   {
     "type": "expr_term",
     "named": false,
-    "fields": {
-      "expr": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "type_hint_expr",
-            "named": true
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": true,
       "types": [
         {
@@ -4017,6 +3933,68 @@
     "type": "spec_axiom",
     "named": true,
     "fields": {
+      "expression": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "access_field",
+            "named": true
+          },
+          {
+            "type": "assignment",
+            "named": true
+          },
+          {
+            "type": "bin_op_expr",
+            "named": true
+          },
+          {
+            "type": "copy_expr",
+            "named": true
+          },
+          {
+            "type": "deref_expr",
+            "named": true
+          },
+          {
+            "type": "expr_term",
+            "named": false
+          },
+          {
+            "type": "lambda",
+            "named": true
+          },
+          {
+            "type": "mem_access",
+            "named": true
+          },
+          {
+            "type": "move_expr",
+            "named": true
+          },
+          {
+            "type": "not_expr",
+            "named": true
+          },
+          {
+            "type": "quantifier",
+            "named": true
+          },
+          {
+            "type": "receiver_call",
+            "named": true
+          },
+          {
+            "type": "ref_expr",
+            "named": true
+          },
+          {
+            "type": "ref_mut_expr",
+            "named": true
+          }
+        ]
+      },
       "kind": {
         "multiple": false,
         "required": false,
@@ -4029,63 +4007,11 @@
       }
     },
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": false,
       "types": [
         {
-          "type": "access_field",
-          "named": true
-        },
-        {
-          "type": "assignment",
-          "named": true
-        },
-        {
-          "type": "bin_op_expr",
-          "named": true
-        },
-        {
           "type": "condition_props",
-          "named": true
-        },
-        {
-          "type": "copy_expr",
-          "named": true
-        },
-        {
-          "type": "deref_expr",
-          "named": true
-        },
-        {
-          "type": "lambda",
-          "named": true
-        },
-        {
-          "type": "mem_access",
-          "named": true
-        },
-        {
-          "type": "move_expr",
-          "named": true
-        },
-        {
-          "type": "not_expr",
-          "named": true
-        },
-        {
-          "type": "quantifier",
-          "named": true
-        },
-        {
-          "type": "receiver_call",
-          "named": true
-        },
-        {
-          "type": "ref_expr",
-          "named": true
-        },
-        {
-          "type": "ref_mut_expr",
           "named": true
         }
       ]
@@ -4732,10 +4658,6 @@
         "required": false,
         "types": [
           {
-            "type": "=",
-            "named": false
-          },
-          {
             "type": "name_access_chain",
             "named": true
           },
@@ -5172,63 +5094,10 @@
   {
     "type": "type_hint_expr",
     "named": true,
-    "fields": {
-      "ref": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "closure_type",
-            "named": true
-          },
-          {
-            "type": "name_access_chain",
-            "named": true
-          },
-          {
-            "type": "primitive_type",
-            "named": true
-          },
-          {
-            "type": "tuple_type",
-            "named": true
-          },
-          {
-            "type": "type_args",
-            "named": true
-          }
-        ]
-      },
-      "ref_mut": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "closure_type",
-            "named": true
-          },
-          {
-            "type": "name_access_chain",
-            "named": true
-          },
-          {
-            "type": "primitive_type",
-            "named": true
-          },
-          {
-            "type": "tuple_type",
-            "named": true
-          },
-          {
-            "type": "type_args",
-            "named": true
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "access_field",
@@ -5240,10 +5109,6 @@
         },
         {
           "type": "bin_op_expr",
-          "named": true
-        },
-        {
-          "type": "closure_type",
           "named": true
         },
         {
@@ -5267,15 +5132,7 @@
           "named": true
         },
         {
-          "type": "name_access_chain",
-          "named": true
-        },
-        {
           "type": "not_expr",
-          "named": true
-        },
-        {
-          "type": "primitive_type",
           "named": true
         },
         {
@@ -5295,11 +5152,7 @@
           "named": true
         },
         {
-          "type": "tuple_type",
-          "named": true
-        },
-        {
-          "type": "type_args",
+          "type": "type",
           "named": true
         }
       ]
@@ -5546,7 +5399,7 @@
           "named": true
         },
         {
-          "type": "type",
+          "type": "type_args",
           "named": true
         }
       ]
