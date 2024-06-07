@@ -5,35 +5,6 @@ const sepBy1 = (sep, rule) => seq(rule, repeat(seq(sep, rule)));
 const sepBy = (sep, rule) => optional(sepBy1(sep, rule));
 const sepByComma = (rule) => seq(sepBy(',', rule), optional(','));
 
-// A helper function to match an identifier within an access chain.
-// When `wildcard = true`, the identifier can be `*`.
-const chain_ident = ($, wildcard) => field('path', (wildcard) ? choice('*', $.identifier) : $.identifier);
-
-// LeadingNameAccess = <NumericalAddress> | <Identifier>
-// `Identifier` can be `*` if `wildcard = true`
-const leading_name_access = ($, wildcard) => alias(
-    choice(chain_ident($, wildcard), $.numerical_addr),
-    $.leading_name_access
-);
-
-// New rule:
-// NameAccessChain = <Identifier>
-//                 | <LeadingNameAccess> "::" <Identifier> ( "::" <Identifier> )?
-// `Identifier` can be `*` if `wildcard = true`
-const name_access_chain = ($, wildcard) => {
-    const ident = () => chain_ident($, wildcard);
-    return alias(
-        choice(
-            field('name', choice(ident(), $.discouraged_name)),
-            seq(
-                choice(leading_name_access($, wildcard), $.discouraged_name),
-                field('access_two', seq('::', ident())),
-                optional(field('access_three', seq('::', ident())))
-            ),
-        ),
-        $.name_access_chain,
-    );
-};
 
 // Escaped sequence like \n, \", \xab, ...
 // It is used within a `token` rule, so it cannot be a rule identifier. Tree-sitter forbids
@@ -83,9 +54,10 @@ module.exports = grammar({
 
     conflicts: $ => [
         [$.primitive_type, $.term],
-        [$._name_expr],
         [$._reuseable_keywords, $.for_loop_expr],
         [$.discouraged_name, $._type],
+        [$.var, $.call_expr, $.pack_expr],
+        [$.var, $.pack_expr],
     ],
 
     extras: $ => [
@@ -132,9 +104,7 @@ module.exports = grammar({
         var_name: $ => choice($.identifier, $.discouraged_name),
         // FIXME: this is a workaround for the existing chaotic naming scheme. Keywords are not supposed to be identifiers.
         discouraged_name: $ => choice($.primitive_type, $._quantifier_directive, $._reuseable_keywords),
-        _reuseable_keywords: _ => choice(
-            'for', 'while', 'friend',
-        ),
+        _reuseable_keywords: _ => choice('for', 'while', 'friend'),
 
         number: _ => choice(
             /\d[\d_]*/,
@@ -144,11 +114,40 @@ module.exports = grammar({
         ),
         numerical_addr: $ => $.number,
         bool_literal: $ => choice('true', 'false'),
-        typed_number: $ => alias(seq($.number, $.number_type), 'typed_number'),
+        typed_number: $ => seq($.number, $.number_type),
         byte_string: _ => choice(
             /x\"[\da-fA-F]*\"/,
             token(seq('b"', repeat(choice(escaped_sequence, /[^\\"]/)), '"')),
         ),
+
+        // When `wildcard = true`, the identifier can be `*`.
+        _ident_or_wildcard: $ => choice($.identifier, '*'),
+
+        // LeadingNameAccess = <NumericalAddress> | <Identifier>
+        // `Identifier` can be `*` if `wildcard = true`
+        _leading_name_access: $ => choice($.numerical_addr, $.identifier),
+        _leading_name_access_wildcard: $ => choice($.numerical_addr, $._ident_or_wildcard),
+
+        // NameAccessChain = <Identifier>
+        //                 | <LeadingNameAccess> "::" <Identifier> ( "::" <Identifier> )?
+        // `Identifier` can be `*` if `wildcard = true`
+        name_access_chain: $ => choice(
+            field('name', choice($.identifier, $.discouraged_name)),
+            seq(
+                choice($._leading_name_access, $.discouraged_name),
+                seq('::', field('access_two', $.identifier)),
+                optional(seq('::', field('access_three', $.identifier)))
+            ),
+        ),
+        name_access_chain_wildcard: $ => choice(
+            field('name', choice($._ident_or_wildcard, $.discouraged_name)),
+            seq(
+                choice($._leading_name_access_wildcard, $.discouraged_name),
+                seq('::', field('access_two', $._ident_or_wildcard)),
+                optional(seq('::', field('access_three', $._ident_or_wildcard)))
+            ),
+        ),
+
 
         // Parse a Type:
         //         Type = _Type | _RefType
@@ -162,17 +161,20 @@ module.exports = grammar({
         // **Double** ('&&') reference is not allowed.
         type: $ => choice($._type, $._ref_type),
         _type: $ => choice(
-            seq(choice(name_access_chain($, false), $.primitive_type), optional($.type_args)),
+            seq(choice($.name_access_chain, $.primitive_type), optional($.type_args)),
             // `||' is treated as an empty param type list in this context.
             // TODO: verify the associativity
-            prec.right(expr_precedence.DEFAULT,
-                field('closure_type', seq('|', field('param_types', sepByComma($.type)), '|', field('return_type', optional($.type))))
-            ),
-            field('tuple', seq('(', sepByComma($.type), ')')),
+            $.closure_type,
+            $.tuple_type,
         ),
+        tuple_type: $ => seq('(', sepByComma($.type), ')'),
+        closure_type: $ => prec.right(expr_precedence.DEFAULT, seq(
+            '|', field('param_types', sepByComma($.type)), '|',
+            field('return_type', optional($.type))
+        )),
         _ref_type: $ => choice(
-            field('ref', seq('&', $._type)),
-            field('mut_ref', seq('&mut', $._type)),
+            seq('&', field('ref', $._type)),
+            seq('&mut', field('ref_mut', $._type)),
         ),
 
 
@@ -186,9 +188,9 @@ module.exports = grammar({
             $.assignment,
             $._op_expr,
             $.quantifier,
-            field('lambda', seq($.lambda_bind_list, $._expr)),
+            alias(seq($.lambda_bind_list, $._expr), $.lambda),
         ),
-        assignment: $ => prec.left(expr_precedence.DEFAULT, seq(alias($._unary_expr, $.target), '=', alias($._expr, $.value))),
+        assignment: $ => prec.left(expr_precedence.DEFAULT, seq(field('target', $._unary_expr), '=', field('value', $._expr))),
 
         // Parse a list of bindings for lambda.
         //      LambdaBindList = "|" Comma<Bind> "|"
@@ -206,8 +208,8 @@ module.exports = grammar({
             seq(
                 field('scope', choice('forall', 'exists')),
                 sepBy1(',', $.quantifier_bind),
-                optional($.triggers),
-                optional(seq('where', $._expr)),
+                optional(field('triggers', $.triggers)),
+                optional(seq('where', field('where', $._expr))),
                 ':',
                 field('assertion', $._expr),
             ),
@@ -285,16 +287,16 @@ module.exports = grammar({
             $.access_field,
             $.receiver_call,
             $.mem_access,
-            alias($.term, 'expr'),
+            alias($.term, 'expr_term'),
         ),
         receiver_call: $ => prec.left(expr_precedence.CALL, seq(
             field('receiver', $._dot_or_index_chain), '.', field('func', $.identifier),
             optional(field('type_generics', seq('::', $.type_args))),
-            $.call_args,
+            field('arguments', $.call_args),
         )),
         mem_access: $ => prec.left(expr_precedence.CALL, seq($._dot_or_index_chain, '[', field('index', $._expr), ']')),
         access_field: $ => prec.left(expr_precedence.FIELD, seq(
-            field('element', $._dot_or_index_chain), '.', field('field', $.identifier),
+            field('object', $._dot_or_index_chain), '.', field('field', $.identifier),
         )),
 
         // Parse an expression term:
@@ -326,18 +328,21 @@ module.exports = grammar({
         // TODO: make sure this behaves the same as the `move-compiler`.
         //       `lambda_bind_list` might also be involved.
         term: $ => choice(
-            field('break_expr', 'break'),
-            field('continue_expr', 'continue'),
-            field('vector_access', seq('vector', optional($.type_args), '[', sepByComma($._expr), ']')),
+            alias('break', $.break_expr),
+            alias('continue', $.continue_expr),
+            alias(
+                seq('vector', optional($.type_args), '[', sepByComma($._expr), ']'),
+                $.vector_access
+            ),
             $.value,
-            field('tuple_expr', seq('(', sepByComma($._expr), ')')),
-            seq('(', field('expr', $._expr), ':', $.type, ')'),
-            field('cast_expr', seq('(', $._expr, 'as', $.type, ')')),
+            alias(seq('(', sepByComma($._expr), ')'), $.tuple_expr),
+            alias(seq('(', field('expr', $._expr), ':', $.type, ')'), $.type_hint_expr),
+            alias(seq('(', $._expr, 'as', $.type, ')'), $.cast_expr),
 
             $.block,
             $._name_expr,
 
-            field('spec_block', $.spec_block),
+            $.spec_block,
 
             // control flow expressions
             $.if_expr,
@@ -348,13 +353,13 @@ module.exports = grammar({
             $.for_loop_expr,
         ),
         parenthesized_expr: $ => seq('(', $._expr, ')'),
-        block: $ => alias($._sequence, $.block),
+        block: $ => $._sequence,
         // Control flow expressions:
         if_expr: $ => prec.right(seq(
             'if',
             field('condition', $.parenthesized_expr),
             field('then', $._control_body),
-            optional(field('else', seq('else', $._control_body)))
+            optional(seq('else', field('else', $._control_body)))
         )),
         while_expr: $ => prec.left(expr_precedence.DEFAULT, seq(
             'while',
@@ -395,18 +400,28 @@ module.exports = grammar({
         //          | <NameAccessChain> "!" <CallArgs>
         //          | <NameAccessChain> <OptionalTypeArgs>
         _name_expr: $ => choice(
-            seq(field('name', name_access_chain($, false)), optional(field('generics', $.type_args))),
-            field('call', seq(
-                field('func_name', name_access_chain($, false)), optional(field('generics', $.type_args)), $.call_args
-            )),
-            field('pack', seq(
-                field('struct_name', name_access_chain($, false)), optional(field('generics', $.type_args)),
-                '{', sepByComma($.expr_field), '}'
-            )),
-            // macro call
-            field('macro_call', seq(
-                field('macro_name', name_access_chain($, false)), '!', $.call_args
-            )),
+            $.var,
+            $.call_expr,
+            $.pack_expr,
+            $.macro_call_expr,
+        ),
+        var: $ => seq(
+            $.name_access_chain,
+            optional(field('type_arguments', $.type_args))
+        ),
+        call_expr: $ => seq(
+            field('func_name', $.name_access_chain),
+            optional(field('type_arguments', $.type_args)),
+            field('arguments', $.call_args),
+        ),
+        pack_expr: $ => seq(
+            field('struct_name', $.name_access_chain),
+            optional(field('type_arguments', $.type_args)),
+            '{', sepByComma($.expr_field), '}'
+        ),
+        macro_call_expr: $ => seq(
+            field('macro_name', $.name_access_chain), '!',
+            field('arguments', $.call_args),
         ),
 
         call_args: $ => seq('(', sepByComma($._expr), ')'),
@@ -429,7 +444,7 @@ module.exports = grammar({
         //          | <NumberTyped>
         //          | <ByteString>
         value: $ => prec(expr_precedence.DEFAULT, choice(
-            seq('@', leading_name_access($, false)),
+            seq('@', $._leading_name_access),
             $.bool_literal,
             $.number,
             $.typed_number,
@@ -456,12 +471,12 @@ module.exports = grammar({
 
         // Parse an attribute value. Either a value literal or a module access
         //  AttributeValue = <Value> | <NameAccessChain>
-        _attribute_val: $ => choice(prec(expr_precedence.DEFAULT, $.value), name_access_chain($, false)),
+        _attribute_val: $ => choice(prec(expr_precedence.DEFAULT, $.value), $.name_access_chain),
 
         // AddressBlock = "address" <LeadingNameAccess> "{" (<Attributes> <Module>)* "}"
         address_block: $ => seq(
             'address',
-            leading_name_access($, false),
+            $._leading_name_access,
             '{', repeat(seq(optional($.attributes), $.module)), '}'
         ),
 
@@ -483,7 +498,7 @@ module.exports = grammar({
             choice('spec', $._module_ident),
             // (<LeadingNameAccess>::)?<ModuleName>
             seq(
-                optional(seq(field('path', leading_name_access($, false)), '::')),
+                optional(seq(field('path', $._leading_name_access), '::')),
                 field('module_name', $.identifier)
             ),
             '{', repeat($.declaration), '}'
@@ -545,8 +560,8 @@ module.exports = grammar({
         // SpecTargetSignatureOpt = (TypeParameters)? "(" Comma<Parameter> ")" (":" <Type>)?
         _spec_target_signature_opt: $ => seq(
             optional($.type_params),
-            field('parameters', seq('(', sepByComma($.parameter), ')')),
-            field('return_type', optional(seq(':', $.type))),
+            field('parameters', $.parameters),
+            optional(seq(':', field('return_type', $.type))),
         ),
 
         // FIXME: It's too complicated to enforce invariant-only rule.
@@ -588,38 +603,34 @@ module.exports = grammar({
         //      | "decreases" <ConditionProperties> <Exp> ";"
         //      | "emits" <ConditionProperties> <Exp> "to" <Exp> [If <Exp>] ";"
         //    ConditionProperties = ( "[" Comma<SpecPragmaProperty> "]" )?
-        spec_condition: $ => choice(
-            seq(
-                field('kind', choice('assert', 'assume', 'ensures', 'requires')),
-                optional($.condition_props),
-                $._expr,
-                ';'
-            ),
-
-            // aborts_if
-            seq(
-                field('kind', 'aborts_if'),
-                optional($.condition_props), $._expr,
-                field('with', optional(seq('with', $._expr))),
-                ';'
-            ),
-
-            // ("aborts_with" | "modifies")
-            seq(
-                field('kind', choice('aborts_with', 'modifies')),
-                optional($.condition_props), sepBy1(',', $._expr),
-                ';'
-            ),
-
-            // emits
-            seq(
-                field('kind', 'emits'),
-                optional($.condition_props), field('emission', $._expr),
-                'to', field('target', $._expr),
-                optional(field('condition', seq('if', $._expr))),
-                ';'
-            ),
+        spec_condition: $ => seq(choice(
+            $.asserts,
+            $.aborts_if,
+            $.aborts_with_or_modifies,
+            $.emits
+        ), ';'),
+        asserts: $ => seq(
+            field('kind', choice('assert', 'assume', 'ensures', 'requires')),
+            optional($.condition_props),
+            field('condition', $._expr),
         ),
+        aborts_if: $ => seq(
+            'aborts_if',
+            optional($.condition_props),
+            field('condition', $._expr),
+            optional(seq('with', field('with', $._expr))),
+        ),
+        aborts_with_or_modifies: $ => seq(
+            field('kind', choice('aborts_with', 'modifies')),
+            optional($.condition_props), sepBy1(',', $._expr),
+        ),
+        emits: $ => seq(
+            'emits',
+            optional($.condition_props), field('emission', $._expr),
+            'to', field('target', $._expr),
+            optional(seq('if', field('condition', $._expr))),
+        ),
+
         condition_props: $ => seq('[', field('property', sepByComma($._spec_pragma_prop)), ']'),
 
 
@@ -634,7 +645,7 @@ module.exports = grammar({
             field('variable', $.identifier),
             optional($.type_params),
             ':', $.type,
-            optional(field('value', seq('=', $._expr))),
+            optional(seq('=', field('value', $._expr))),
             ';'
         ),
 
@@ -646,14 +657,14 @@ module.exports = grammar({
         spec_func: $ => choice(
             seq('fun',
                 field('signature', $._spec_func_signatures),
-                choice(field('body', $._sequence), ';')
+                choice(field('body', $.block), ';')
             ),
             seq('native', 'fun', field('signature', $._spec_func_signatures), ';'),
         ),
         _spec_func_signatures: $ => seq(
             field('spec_func_name', $.identifier),
             optional($.type_params),
-            field('params', seq('(', sepByComma($.parameter), ')')),
+            field('parameters', $.parameters),
             ':', field('return_type', $.type),
         ),
 
@@ -665,9 +676,9 @@ module.exports = grammar({
         //    SpecApply = "apply" <Exp> "to" Comma<SpecApplyPattern>
         //                                   ( "except" Comma<SpecApplyPattern> )? ";"
         spec_apply: $ => seq(
-            'apply', $._expr, 'to',
+            'apply', field('expression', $._expr), 'to',
             field('targets', sepByComma($._spec_apply_pattern)),
-            optional(field('exclusions', seq('except', sepByComma($._spec_apply_pattern)))),
+            optional(seq('except', field('exclusions', sepByComma($._spec_apply_pattern)))),
             ';',
         ),
         // Parse a function pattern:
@@ -694,7 +705,7 @@ module.exports = grammar({
         ),
         _spec_pragma_prop: $ => seq(
             field('prop_name', $.var_name),
-            optional(field('value', seq('=', choice($.value, name_access_chain($, false))))),
+            optional(field('value', seq('=', choice($.value, $.name_access_chain)))),
         ),
 
         // Parse a specification let.
@@ -729,7 +740,7 @@ module.exports = grammar({
         module_member_modifier: $ => choice($.visibility, 'native', 'entry'),
 
         // ModuleIdent = <LeadingNameAccess>(wildcard = false) "::" <ModuleName>
-        module_ident: $ => seq(leading_name_access($, false), '::', field('module_name', $.identifier)),
+        module_ident: $ => seq($._leading_name_access, '::', field('module_name', $.identifier)),
 
         // Parse a use declaration:
         //      UseDecl =
@@ -752,7 +763,7 @@ module.exports = grammar({
         _use_member: $ => field('member', seq($.identifier, optional($._use_alias))),
 
         // FriendDecl = "friend" <NameAccessChain>(wildcard: false) ";"
-        friend_decl: $ => seq('friend', name_access_chain($, false), ';'),
+        friend_decl: $ => seq('friend', $.name_access_chain, ';'),
 
         // ConstantDecl = "const" <Identifier> ":" <Type> "=" <Exp> ";"
         constant_decl: $ => seq('const', field('name', $.identifier), ':', field('type', $.type), '=', field('value', $._expr), ';'),
@@ -769,25 +780,30 @@ module.exports = grammar({
         //      Sequence = <UseDecl>* (<SequenceItem> ";")* <Exp>?
         function_decl: $ => seq(
             optional('inline'),
-            'fun', field('function_name', $.identifier),
-            optional($.type_params),
-            '(', field('parameters', sepByComma($.parameter)), ')',
-            optional(seq(':', $.type)),
-            choice(
-                field('pure', 'pure'),
-                repeat(seq(
-                    optional(field('negated', '!')), choice('acquires', 'reads', 'writes'),
-                    $.access_specifier_list
-                ))
-            ),
+            'fun',
+            field('name', $.identifier),
+            field('type_parameters', optional($.type_params)),
+            field('parameters', $.parameters),
+            optional(seq(':', field('return_type', $.type))),
+            optional(field('specifier', $._specifier)),
             // Sequence
-            choice(field('body', $._sequence), ';'),
+            choice(field('body', $.block), ';'),
+        ),
+        _specifier: $ => choice(
+            field('pure', alias('pure', $.pure)),
+            repeat1(seq(
+                optional(field('negated', '!')), choice('acquires', 'reads', 'writes'),
+                $.access_specifier_list
+            )),
         ),
         _sequence: $ => seq('{', seq(
             repeat($.use_decl),
             repeat($._sequence_item),
             optional($._expr),
         ), '}'),
+
+        // Parameters = "(" Comma<Parameter> ")"
+        parameters: $ => seq('(', sepByComma($.parameter), ')'),
 
         // Parse a type parameter:
         //  TypeParameter   = <Identifier> <Constraint>?
@@ -805,13 +821,13 @@ module.exports = grammar({
         // AddressSpecifier     = <empty> | "(" <AddressSpecifierArg> ")"
         // AddressSpecifierArg  = "*" | <AddressBytes> | <NameAccessChain> [ <TypeArgs>? "(" <Identifier> ")" ]?
         access_specifier_list: $ => seq(sepBy1(',', $.access_specifier), optional(',')),
-        access_specifier: $ => seq(name_access_chain($, true), optional($.type_args), optional(seq('(', $._address_specifier, ')'))),
+        access_specifier: $ => seq($.name_access_chain_wildcard, optional($.type_args), optional(seq('(', $._address_specifier, ')'))),
         _address_specifier: $ => choice(
             '*',
             // NumericalAddress = <Number>
             field('literal_address', $.numerical_addr),
             seq(
-                field('func', name_access_chain($, false)),
+                field('func', $.name_access_chain),
                 optional(seq(
                     optional($.type_args),
                     // FIXME: only optional when NameAccessChain_::One(name) = chain.value.
@@ -862,7 +878,11 @@ module.exports = grammar({
             $.let_expr,
         ), ';'),
 
-        let_expr: $ => seq('let', $.bind_list, optional(seq(':', $.type)), optional(seq('=', alias($._expr, $.value)))),
+        let_expr: $ => seq(
+            'let',
+            $.bind_list, optional(seq(':', $.type)),
+            optional(seq('=', field('value', $._expr))),
+        ),
 
         // BindList = <Bind> | "(" Comma<Bind> ")"
         bind_list: $ => choice($._bind, seq('(', sepByComma($._bind), ')')),
@@ -871,7 +891,7 @@ module.exports = grammar({
         //      | <NameAccessChain> <OptionalTypeArgs> "{" Comma<BindField> "}"
         _bind: $ => choice(
             field('variable', $.var_name),
-            seq(name_access_chain($, false), optional($.type_args), '{', sepByComma($.bind_field), '}'),
+            seq($.name_access_chain, optional($.type_args), '{', sepByComma($.bind_field), '}'),
         ),
 
         // OptionalTypeArgs = '<' Comma<Type> ">" | <empty>
@@ -895,15 +915,16 @@ module.exports = grammar({
             // constant declarations
             repeat(seq(optional($.attributes), $.constant_decl)),
             // function
-            field('function', seq(
-                optional($.attributes),
-                // TODO(doc): doc comments
-                repeat($.module_member_modifier),
-                $.function_decl,
-            )),
+            field('function', $._script_func),
             // spec blocks
             repeat(seq(optional($.attributes), $.spec_block)),
             '}'
+        ),
+        _script_func: $ => seq(
+            optional($.attributes),
+            // TODO(doc): doc comments
+            repeat($.module_member_modifier),
+            $.function_decl,
         ),
 
         // Comments
