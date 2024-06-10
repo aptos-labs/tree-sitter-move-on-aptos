@@ -71,7 +71,6 @@ module.exports = grammar({
         $._name_expr,
         $._dot_or_index_chain,
         $._ident_or_wildcard,
-        $._control_body,
     ],
 
     externals: $ => [
