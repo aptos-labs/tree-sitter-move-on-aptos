@@ -2,6 +2,21 @@
   {
     "type": "abilities",
     "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ability",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ability",
+    "named": true,
     "fields": {}
   },
   {
@@ -827,12 +842,48 @@
     "type": "bind_field",
     "named": true,
     "fields": {
+      "bind": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "fields",
+            "named": true
+          },
+          {
+            "type": "name_access_chain",
+            "named": true
+          },
+          {
+            "type": "type_args",
+            "named": true
+          },
+          {
+            "type": "var_name",
+            "named": true
+          }
+        ]
+      },
       "field": {
         "multiple": false,
         "required": true,
         "types": [
           {
+            "type": "shorthand_field_identifier",
+            "named": true
+          },
+          {
             "type": "var_name",
+            "named": true
+          }
+        ]
+      },
+      "struct": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "name_access_chain",
             "named": true
           }
         ]
@@ -847,30 +898,22 @@
           }
         ]
       }
-    },
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "bind_field",
-          "named": true
-        },
-        {
-          "type": "name_access_chain",
-          "named": true
-        },
-        {
-          "type": "type_args",
-          "named": true
-        }
-      ]
     }
   },
   {
     "type": "bind_list",
     "named": true,
     "fields": {
+      "struct": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "name_access_chain",
+            "named": true
+          }
+        ]
+      },
       "variable": {
         "multiple": true,
         "required": false,
@@ -887,11 +930,7 @@
       "required": false,
       "types": [
         {
-          "type": "bind_field",
-          "named": true
-        },
-        {
-          "type": "name_access_chain",
+          "type": "fields",
           "named": true
         },
         {
@@ -975,17 +1014,31 @@
   {
     "type": "block_comment",
     "named": true,
-    "fields": {
-      "doc": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "doc_comment",
-            "named": true
-          }
-        ]
-      }
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "doc_comment",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "body",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "field_annot",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -1341,7 +1394,17 @@
   {
     "type": "constraints",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ability",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "copy_expr",
@@ -1685,6 +1748,10 @@
           {
             "type": "identifier",
             "named": true
+          },
+          {
+            "type": "shorthand_field_identifier",
+            "named": true
           }
         ]
       },
@@ -1692,10 +1759,6 @@
         "multiple": true,
         "required": false,
         "types": [
-          {
-            "type": ":",
-            "named": false
-          },
           {
             "type": "access_field",
             "named": true
@@ -1870,6 +1933,21 @@
     }
   },
   {
+    "type": "fields",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "bind_field",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "for_loop_expr",
     "named": true,
     "fields": {
@@ -2000,16 +2078,17 @@
   {
     "type": "friend_decl",
     "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "name_access_chain",
-          "named": true
-        }
-      ]
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "name_access_chain",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -2137,10 +2216,6 @@
         "required": false,
         "types": [
           {
-            "type": ";",
-            "named": false
-          },
-          {
             "type": "access_field",
             "named": true
           },
@@ -2150,6 +2225,10 @@
           },
           {
             "type": "bin_op_expr",
+            "named": true
+          },
+          {
+            "type": "block",
             "named": true
           },
           {
@@ -2166,10 +2245,6 @@
           },
           {
             "type": "lambda",
-            "named": true
-          },
-          {
-            "type": "let_expr",
             "named": true
           },
           {
@@ -2199,18 +2274,6 @@
           {
             "type": "ref_mut_expr",
             "named": true
-          },
-          {
-            "type": "use_decl",
-            "named": true
-          },
-          {
-            "type": "{",
-            "named": false
-          },
-          {
-            "type": "}",
-            "named": false
           }
         ]
       },
@@ -2219,10 +2282,6 @@
         "required": true,
         "types": [
           {
-            "type": ";",
-            "named": false
-          },
-          {
             "type": "access_field",
             "named": true
           },
@@ -2232,6 +2291,10 @@
           },
           {
             "type": "bin_op_expr",
+            "named": true
+          },
+          {
+            "type": "block",
             "named": true
           },
           {
@@ -2248,10 +2311,6 @@
           },
           {
             "type": "lambda",
-            "named": true
-          },
-          {
-            "type": "let_expr",
             "named": true
           },
           {
@@ -2281,18 +2340,6 @@
           {
             "type": "ref_mut_expr",
             "named": true
-          },
-          {
-            "type": "use_decl",
-            "named": true
-          },
-          {
-            "type": "{",
-            "named": false
-          },
-          {
-            "type": "}",
-            "named": false
           }
         ]
       }
@@ -2302,6 +2349,16 @@
     "type": "lambda",
     "named": true,
     "fields": {
+      "struct": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "name_access_chain",
+            "named": true
+          }
+        ]
+      },
       "variable": {
         "multiple": true,
         "required": false,
@@ -2330,15 +2387,15 @@
           "named": true
         },
         {
-          "type": "bind_field",
-          "named": true
-        },
-        {
           "type": "copy_expr",
           "named": true
         },
         {
           "type": "deref_expr",
+          "named": true
+        },
+        {
+          "type": "fields",
           "named": true
         },
         {
@@ -2351,10 +2408,6 @@
         },
         {
           "type": "move_expr",
-          "named": true
-        },
-        {
-          "type": "name_access_chain",
           "named": true
         },
         {
@@ -2388,6 +2441,26 @@
     "type": "let_expr",
     "named": true,
     "fields": {
+      "bind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "bind_list",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "type",
+            "named": true
+          }
+        ]
+      },
       "value": {
         "multiple": true,
         "required": false,
@@ -2450,36 +2523,21 @@
           }
         ]
       }
-    },
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "bind_list",
-          "named": true
-        },
-        {
-          "type": "type",
-          "named": true
-        }
-      ]
     }
   },
   {
     "type": "line_comment",
     "named": true,
-    "fields": {
-      "doc": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "doc_comment",
-            "named": true
-          }
-        ]
-      }
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "doc_comment",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -2491,10 +2549,6 @@
         "required": true,
         "types": [
           {
-            "type": ";",
-            "named": false
-          },
-          {
             "type": "access_field",
             "named": true
           },
@@ -2504,6 +2558,10 @@
           },
           {
             "type": "bin_op_expr",
+            "named": true
+          },
+          {
+            "type": "block",
             "named": true
           },
           {
@@ -2520,10 +2578,6 @@
           },
           {
             "type": "lambda",
-            "named": true
-          },
-          {
-            "type": "let_expr",
             "named": true
           },
           {
@@ -2553,18 +2607,6 @@
           {
             "type": "ref_mut_expr",
             "named": true
-          },
-          {
-            "type": "use_decl",
-            "named": true
-          },
-          {
-            "type": "{",
-            "named": false
-          },
-          {
-            "type": "}",
-            "named": false
           }
         ]
       }
@@ -2677,6 +2719,25 @@
         },
         {
           "type": "receiver_call",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "member",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "alias",
+          "named": true
+        },
+        {
+          "type": "identifier",
           "named": true
         }
       ]
@@ -3693,44 +3754,32 @@
   {
     "type": "script",
     "named": true,
-    "fields": {
-      "function": {
-        "multiple": true,
-        "required": true,
-        "types": [
-          {
-            "type": "attributes",
-            "named": true
-          },
-          {
-            "type": "function_decl",
-            "named": true
-          },
-          {
-            "type": "module_member_modifier",
-            "named": true
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "declaration",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "shorthand_field_identifier",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
       "required": false,
       "types": [
         {
-          "type": "attributes",
+          "type": "discouraged_name",
           "named": true
         },
         {
-          "type": "constant_decl",
-          "named": true
-        },
-        {
-          "type": "spec_block",
-          "named": true
-        },
-        {
-          "type": "use_decl",
+          "type": "identifier",
           "named": true
         }
       ]
@@ -4794,29 +4843,7 @@
     "type": "struct_decl",
     "named": true,
     "fields": {
-      "body": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": ",",
-            "named": false
-          },
-          {
-            "type": "field_annot",
-            "named": true
-          },
-          {
-            "type": "{",
-            "named": false
-          },
-          {
-            "type": "}",
-            "named": false
-          }
-        ]
-      },
-      "struct_name": {
+      "name": {
         "multiple": false,
         "required": true,
         "types": [
@@ -4836,11 +4863,11 @@
           "named": true
         },
         {
-          "type": "phantom",
+          "type": "body",
           "named": true
         },
         {
-          "type": "type_param",
+          "type": "type_params",
           "named": true
         }
       ]
@@ -5160,11 +5187,11 @@
   },
   {
     "type": "type_param",
-    "named": true,
+    "named": false,
     "fields": {
       "type": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "identifier",
@@ -5179,6 +5206,10 @@
       "types": [
         {
           "type": "constraints",
+          "named": true
+        },
+        {
+          "type": "phantom",
           "named": true
         }
       ]
@@ -5222,26 +5253,16 @@
     "type": "use_decl",
     "named": true,
     "fields": {
-      "alias_name": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "identifier",
-            "named": true
-          }
-        ]
-      },
       "member": {
         "multiple": true,
         "required": false,
         "types": [
           {
-            "type": "as",
+            "type": ",",
             "named": false
           },
           {
-            "type": "identifier",
+            "type": "member",
             "named": true
           }
         ]
@@ -5256,6 +5277,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "alias",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -5419,10 +5450,6 @@
         "required": true,
         "types": [
           {
-            "type": ";",
-            "named": false
-          },
-          {
             "type": "access_field",
             "named": true
           },
@@ -5432,6 +5459,10 @@
           },
           {
             "type": "bin_op_expr",
+            "named": true
+          },
+          {
+            "type": "block",
             "named": true
           },
           {
@@ -5448,10 +5479,6 @@
           },
           {
             "type": "lambda",
-            "named": true
-          },
-          {
-            "type": "let_expr",
             "named": true
           },
           {
@@ -5481,18 +5508,6 @@
           {
             "type": "ref_mut_expr",
             "named": true
-          },
-          {
-            "type": "use_decl",
-            "named": true
-          },
-          {
-            "type": "{",
-            "named": false
-          },
-          {
-            "type": "}",
-            "named": false
           }
         ]
       },
@@ -5633,6 +5648,10 @@
   {
     "type": "address",
     "named": false
+  },
+  {
+    "type": "alias",
+    "named": true
   },
   {
     "type": "apply",
