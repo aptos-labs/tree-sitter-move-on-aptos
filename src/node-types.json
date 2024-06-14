@@ -5678,6 +5678,10 @@
     "named": false
   },
   {
+    "type": "b\"",
+    "named": false
+  },
+  {
     "type": "binary_operator",
     "named": true
   },
