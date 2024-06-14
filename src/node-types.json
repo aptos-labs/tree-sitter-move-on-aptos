@@ -1896,7 +1896,7 @@
           "named": true
         },
         {
-          "type": "vector_access",
+          "type": "vector_value_expr",
           "named": true
         },
         {
@@ -5187,7 +5187,7 @@
   },
   {
     "type": "type_param",
-    "named": true,
+    "named": false,
     "fields": {
       "type": {
         "multiple": false,
@@ -5370,7 +5370,7 @@
     }
   },
   {
-    "type": "vector_access",
+    "type": "vector_value_expr",
     "named": true,
     "fields": {},
     "children": {
@@ -5535,6 +5535,10 @@
   },
   {
     "type": "!",
+    "named": false
+  },
+  {
+    "type": "\"",
     "named": false
   },
   {
@@ -5935,6 +5939,10 @@
   },
   {
     "type": "writes",
+    "named": false
+  },
+  {
+    "type": "x\"",
     "named": false
   },
   {

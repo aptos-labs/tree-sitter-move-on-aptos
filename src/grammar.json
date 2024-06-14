@@ -173,16 +173,43 @@
           "value": "\\d[\\d_]*"
         },
         {
-          "type": "PATTERN",
-          "value": "0[xX][\\da-fA-F][\\da-fA-F_]*"
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "PATTERN",
+              "value": "0[xX]"
+            },
+            {
+              "type": "PATTERN",
+              "value": "[\\da-fA-F][\\da-fA-F_]*"
+            }
+          ]
         },
         {
-          "type": "PATTERN",
-          "value": "0b[01][01_]*"
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "PATTERN",
+              "value": "0[bB]"
+            },
+            {
+              "type": "PATTERN",
+              "value": "[01][01_]*"
+            }
+          ]
         },
         {
-          "type": "PATTERN",
-          "value": "0o[0-7][0-7_]*"
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "PATTERN",
+              "value": "0[oO]"
+            },
+            {
+              "type": "PATTERN",
+              "value": "[0-7][0-7_]*"
+            }
+          ]
         }
       ]
     },
@@ -220,8 +247,21 @@
       "type": "CHOICE",
       "members": [
         {
-          "type": "PATTERN",
-          "value": "x\\\"[\\da-fA-F]*\\\""
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "x\""
+            },
+            {
+              "type": "PATTERN",
+              "value": "[\\da-fA-F]*"
+            },
+            {
+              "type": "STRING",
+              "value": "\""
+            }
+          ]
         },
         {
           "type": "TOKEN",
@@ -2172,7 +2212,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "vector_access"
+          "name": "vector_value_expr"
         },
         {
           "type": "SYMBOL",
@@ -2228,7 +2268,7 @@
         }
       ]
     },
-    "vector_access": {
+    "vector_value_expr": {
       "type": "SEQ",
       "members": [
         {
@@ -6691,7 +6731,7 @@
   "conflicts": [
     [
       "primitive_type",
-      "vector_access"
+      "vector_value_expr"
     ],
     [
       "_reuseable_keywords",
