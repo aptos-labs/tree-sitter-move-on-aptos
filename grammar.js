@@ -122,8 +122,8 @@ module.exports = grammar({
         bool_literal: $ => choice('true', 'false'),
         typed_number: $ => seq($.number, $.number_type),
         byte_string: _ => choice(
-            seq('x"', /[\da-fA-F]*/, '"'),
-            seq('b"', token(repeat(choice(escaped_sequence, /[^\\"]/))), '"'),
+            token(seq('x"', /[\da-fA-F]*/, '"')),
+            token(seq('b"', repeat(choice(escaped_sequence, /[^\\"]/)), '"')),
         ),
 
         // When `wildcard = true`, the identifier can be `*`.

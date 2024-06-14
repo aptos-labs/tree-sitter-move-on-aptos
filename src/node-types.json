@@ -5187,7 +5187,7 @@
   },
   {
     "type": "type_param",
-    "named": false,
+    "named": true,
     "fields": {
       "type": {
         "multiple": false,
@@ -5538,10 +5538,6 @@
     "named": false
   },
   {
-    "type": "\"",
-    "named": false
-  },
-  {
     "type": "#",
     "named": false
   },
@@ -5675,10 +5671,6 @@
   },
   {
     "type": "axiom",
-    "named": false
-  },
-  {
-    "type": "b\"",
     "named": false
   },
   {
@@ -5943,10 +5935,6 @@
   },
   {
     "type": "writes",
-    "named": false
-  },
-  {
-    "type": "x\"",
     "named": false
   },
   {

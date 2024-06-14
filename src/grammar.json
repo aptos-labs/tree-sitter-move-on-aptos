@@ -247,32 +247,35 @@
       "type": "CHOICE",
       "members": [
         {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "STRING",
-              "value": "x\""
-            },
-            {
-              "type": "PATTERN",
-              "value": "[\\da-fA-F]*"
-            },
-            {
-              "type": "STRING",
-              "value": "\""
-            }
-          ]
+          "type": "TOKEN",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "x\""
+              },
+              {
+                "type": "PATTERN",
+                "value": "[\\da-fA-F]*"
+              },
+              {
+                "type": "STRING",
+                "value": "\""
+              }
+            ]
+          }
         },
         {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "STRING",
-              "value": "b\""
-            },
-            {
-              "type": "TOKEN",
-              "content": {
+          "type": "TOKEN",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "b\""
+              },
+              {
                 "type": "REPEAT",
                 "content": {
                   "type": "CHOICE",
@@ -308,13 +311,13 @@
                     }
                   ]
                 }
+              },
+              {
+                "type": "STRING",
+                "value": "\""
               }
-            },
-            {
-              "type": "STRING",
-              "value": "\""
-            }
-          ]
+            ]
+          }
         }
       ]
     },
