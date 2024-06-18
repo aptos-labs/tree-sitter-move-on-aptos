@@ -53,7 +53,7 @@ module.exports = grammar({
     word: $ => $.identifier,
 
     conflicts: $ => [
-        [$.primitive_type, $.vector_access],
+        [$.primitive_type, $.vector_value_expr],
         [$._reuseable_keywords, $.for_loop_expr],
         [$.discouraged_name, $._type],
         [$.var, $.call_expr, $.pack_expr],
@@ -114,15 +114,15 @@ module.exports = grammar({
 
         number: _ => choice(
             /\d[\d_]*/,
-            /0[xX][\da-fA-F][\da-fA-F_]*/,
-            /0b[01][01_]*/,
-            /0o[0-7][0-7_]*/,
+            seq(/0[xX]/, /[\da-fA-F][\da-fA-F_]*/),
+            seq(/0[bB]/, /[01][01_]*/),
+            seq(/0[oO]/, /[0-7][0-7_]*/),
         ),
         numerical_addr: $ => $.number,
         bool_literal: $ => choice('true', 'false'),
         typed_number: $ => seq($.number, $.number_type),
         byte_string: _ => choice(
-            /x\"[\da-fA-F]*\"/,
+            token(seq('x"', /[\da-fA-F]*/, '"')),
             token(seq('b"', repeat(choice(escaped_sequence, /[^\\"]/)), '"')),
         ),
 
@@ -336,7 +336,7 @@ module.exports = grammar({
         term: $ => choice(
             alias('break', $.break_expr),
             alias('continue', $.continue_expr),
-            $.vector_access,
+            $.vector_value_expr,
             $.value,
             $.tuple_expr,
             $.type_hint_expr,
@@ -356,7 +356,7 @@ module.exports = grammar({
             $.for_loop_expr,
         ),
 
-        vector_access: $ => seq('vector', optional($.type_args), '[', sepByComma($._expr), ']'),
+        vector_value_expr: $ => seq('vector', optional($.type_args), '[', sepByComma($._expr), ']'),
         tuple_expr: $ => seq('(', sepByComma($._expr), ')'),
         type_hint_expr: $ => seq('(', $._expr, ':', $.type, ')'),
         cast_expr: $ => seq('(', $._expr, 'as', $.type, ')'),

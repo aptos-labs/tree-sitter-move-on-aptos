@@ -1896,7 +1896,7 @@
           "named": true
         },
         {
-          "type": "vector_access",
+          "type": "vector_value_expr",
           "named": true
         },
         {
@@ -5370,7 +5370,7 @@
     }
   },
   {
-    "type": "vector_access",
+    "type": "vector_value_expr",
     "named": true,
     "fields": {},
     "children": {
