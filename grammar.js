@@ -56,7 +56,6 @@ module.exports = grammar({
         [$.primitive_type, $.vector_value_expr],
         [$._reuseable_keywords, $.for_loop_expr],
         [$.discouraged_name, $._type],
-        [$.var, $.call_expr, $.pack_expr],
         [$.var, $.pack_expr],
     ],
 
@@ -909,7 +908,7 @@ module.exports = grammar({
         _bind_fields: $ => seq('{', sepByComma($.bind_field), '}'),
 
         // OptionalTypeArgs = '<' Comma<Type> ">" | <empty>
-        type_args: $ => seq('<', sepByComma($.type), '>'),
+        type_args: $ => seq(token.immediate('<'), sepByComma($.type), '>'),
 
         // BindField    = <Field> <":" <Bind>>?
         // Field        = <Identifier>

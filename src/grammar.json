@@ -2991,8 +2991,11 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "STRING",
-          "value": "<"
+          "type": "IMMEDIATE_TOKEN",
+          "content": {
+            "type": "STRING",
+            "value": "<"
+          }
         },
         {
           "type": "SEQ",
@@ -6743,11 +6746,6 @@
     [
       "discouraged_name",
       "_type"
-    ],
-    [
-      "var",
-      "call_expr",
-      "pack_expr"
     ],
     [
       "var",
