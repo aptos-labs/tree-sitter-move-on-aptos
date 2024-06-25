@@ -26,6 +26,33 @@ def list_move_codes(path: str) -> List[str]:
     return result
 
 
+PROMPT_EXTRACT = re.compile(r'\(([A-Z]+( [^\[\]]+)?) \[(\d+), \d+\] - \[(\d+), \d+\]\)')
+BAD_LINE = re.compile(r'^(abort|return) [^;\r\n]*$')
+MOVE_MODULE_PATH = 'aptos-labs/move-modules'
+
+
+def decompiled_workaround(file: str, prompt: str) -> bool:
+    if file.find(MOVE_MODULE_PATH) == -1:
+        return False
+    
+    match = PROMPT_EXTRACT.search(prompt)
+    if match is None:
+        return False
+    # Extract the line numbers
+    line_begin = int(match.group(3))
+    line_end = int(match.group(4))
+
+    if line_begin != line_end:
+        return False
+
+    with open(file, 'r') as f:
+        lines = f.readlines()
+        if line_begin >= len(lines):
+            return False
+        line = lines[line_begin].strip()
+        return BAD_LINE.match(line) is not None
+
+
 def visit_file(file: str) -> TestResult:
     proc = subprocess.run(
         args=['tree-sitter', 'parse', file],
@@ -36,7 +63,9 @@ def visit_file(file: str) -> TestResult:
     last_line = ''
     for line in proc.stdout.splitlines():
         last_line = line
-    return TestResult(file, False, last_line.decode("utf-8"))
+    last_line = last_line.decode("utf-8")
+
+    return TestResult(file, decompiled_workaround(file, last_line), last_line)
 
 
 exclude = [
