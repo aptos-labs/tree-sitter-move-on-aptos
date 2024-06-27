@@ -789,6 +789,11 @@ module.exports = grammar({
         //      OptionalTypeParameters = '<' Comma<TypeParameter> ">" | <empty>
         //      Sequence = <UseDecl>* (<SequenceItem> ";")* <Exp>?
         function_decl: $ => seq(
+            $._function_signature,
+            // Sequence
+            choice(field('body', $.block), ';'),
+        ),
+        _function_signature: $ => seq(
             optional('inline'),
             'fun',
             field('name', $.identifier),
@@ -796,8 +801,6 @@ module.exports = grammar({
             field('parameters', $.parameters),
             optional(seq(':', field('return_type', $.type))),
             optional(field('specifier', $._specifier)),
-            // Sequence
-            choice(field('body', $.block), ';'),
         ),
         _specifier: $ => choice(
             field('pure', alias('pure', $.pure)),
@@ -854,10 +857,13 @@ module.exports = grammar({
         // StructTypeParameter  = '<' Comma<TypeParameterWithPhantomDecl> '>'
         // TypeParameterWithPhantomDecl = "phantom"? <TypeParameter>
         struct_decl: $ => seq(
+            $._struct_signature,
+            choice(alias($.struct_body, $.body), ';'),
+        ),
+        _struct_signature: $ => seq(
             'struct',
             $._struct_def_name,
             optional(seq('has', $.abilities)),
-            choice(alias($.struct_body, $.body), ';'),
         ),
         struct_body: $ => seq('{', sepByComma($.field_annot), '}'),
         _struct_def_name: $ => seq(
