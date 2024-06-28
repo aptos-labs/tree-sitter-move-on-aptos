@@ -502,15 +502,17 @@ module.exports = grammar({
         //           )*
         //       "}"
         //   ModuleMemberModifiers = <ModuleMemberModifier>*
-        _module_ident: $ => 'module',
+        _module_keyword: $ => 'module',
+
+        // (<LeadingNameAccess>::)?<ModuleName>
+        _module_path: $ => seq(
+            optional(seq(field('path', $._leading_name_access), '::')),
+            field('name', $.identifier),
+        ),
         module: $ => seq(
             // TODO(doc): doc comments are not supported by now.
-            choice('spec', $._module_ident),
-            // (<LeadingNameAccess>::)?<ModuleName>
-            seq(
-                optional(seq(field('path', $._leading_name_access), '::')),
-                field('module_name', $.identifier)
-            ),
+            choice('spec', $._module_keyword),
+            $._module_path,
             '{', repeat($.declaration), '}'
         ),
 
