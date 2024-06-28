@@ -936,13 +936,13 @@ module.exports = grammar({
         //      "}"
         script: $ => seq(
             'script', '{',
-            repeat(alias($._script_user_decl, $.declaration)),
+            repeat(alias($._script_use_decl, $.declaration)),
             repeat(alias($._script_constant_decl, $.declaration)),
             alias($._script_func_decl, $.declaration),
             repeat(alias($._script_spec_block, $.declaration)),
             '}'
         ),
-        _script_user_decl: $ => seq(optional($.attributes), $.use_decl),
+        _script_use_decl: $ => seq(optional($.attributes), $.use_decl),
         _script_constant_decl: $ => seq(optional($.attributes), $.constant_decl),
         _script_func_decl: $ => seq(
             optional($.attributes),

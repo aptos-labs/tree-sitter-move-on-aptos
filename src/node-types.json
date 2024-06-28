@@ -5187,7 +5187,7 @@
   },
   {
     "type": "type_param",
-    "named": false,
+    "named": true,
     "fields": {
       "type": {
         "multiple": false,
