@@ -487,8 +487,9 @@ module.exports = grammar({
         address_block: $ => seq(
             'address',
             $._leading_name_access,
-            '{', repeat(seq(optional($.attributes), $.module)), '}'
+            '{', repeat($._address_member), '}'
         ),
+        _address_member: $ => seq(optional($.attributes), $.module),
 
         // Parse a module:
         //   Module =
