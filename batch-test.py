@@ -50,7 +50,11 @@ def decompiled_workaround(file: str, prompt: str) -> bool:
         if line_begin >= len(lines):
             return False
         line = lines[line_begin].strip()
-        return BAD_LINE.match(line) is not None
+        if BAD_LINE.match(line) is not None:
+            return True
+        if line[-1] != ';':
+            return True
+        return False
 
 
 def visit_file(file: str) -> TestResult:
