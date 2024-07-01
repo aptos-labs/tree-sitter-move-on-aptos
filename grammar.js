@@ -487,8 +487,9 @@ module.exports = grammar({
         address_block: $ => seq(
             'address',
             $._leading_name_access,
-            '{', repeat(seq(optional($.attributes), $.module)), '}'
+            '{', repeat($._address_member), '}'
         ),
+        _address_member: $ => seq(optional($.attributes), $.module),
 
         // Parse a module:
         //   Module =
@@ -502,15 +503,17 @@ module.exports = grammar({
         //           )*
         //       "}"
         //   ModuleMemberModifiers = <ModuleMemberModifier>*
-        _module_ident: $ => 'module',
+        _module_keyword: $ => 'module',
+
+        // (<LeadingNameAccess>::)?<ModuleName>
+        _module_path: $ => seq(
+            optional(seq(field('path', $._leading_name_access), '::')),
+            field('name', $.identifier),
+        ),
         module: $ => seq(
             // TODO(doc): doc comments are not supported by now.
-            choice('spec', $._module_ident),
-            // (<LeadingNameAccess>::)?<ModuleName>
-            seq(
-                optional(seq(field('path', $._leading_name_access), '::')),
-                field('module_name', $.identifier)
-            ),
+            choice('spec', $._module_keyword),
+            $._module_path,
             '{', repeat($.declaration), '}'
         ),
 
@@ -789,6 +792,11 @@ module.exports = grammar({
         //      OptionalTypeParameters = '<' Comma<TypeParameter> ">" | <empty>
         //      Sequence = <UseDecl>* (<SequenceItem> ";")* <Exp>?
         function_decl: $ => seq(
+            $._function_signature,
+            // Sequence
+            choice(field('body', $.block), ';'),
+        ),
+        _function_signature: $ => seq(
             optional('inline'),
             'fun',
             field('name', $.identifier),
@@ -796,8 +804,6 @@ module.exports = grammar({
             field('parameters', $.parameters),
             optional(seq(':', field('return_type', $.type))),
             optional(field('specifier', $._specifier)),
-            // Sequence
-            choice(field('body', $.block), ';'),
         ),
         _specifier: $ => choice(
             field('pure', alias('pure', $.pure)),
@@ -854,10 +860,13 @@ module.exports = grammar({
         // StructTypeParameter  = '<' Comma<TypeParameterWithPhantomDecl> '>'
         // TypeParameterWithPhantomDecl = "phantom"? <TypeParameter>
         struct_decl: $ => seq(
+            $._struct_signature,
+            choice(alias($.struct_body, $.body), ';'),
+        ),
+        _struct_signature: $ => seq(
             'struct',
             $._struct_def_name,
             optional(seq('has', $.abilities)),
-            choice(alias($.struct_body, $.body), ';'),
         ),
         struct_body: $ => seq('{', sepByComma($.field_annot), '}'),
         _struct_def_name: $ => seq(
@@ -930,13 +939,13 @@ module.exports = grammar({
         //      "}"
         script: $ => seq(
             'script', '{',
-            repeat(alias($._script_user_decl, $.declaration)),
+            repeat(alias($._script_use_decl, $.declaration)),
             repeat(alias($._script_constant_decl, $.declaration)),
             alias($._script_func_decl, $.declaration),
             repeat(alias($._script_spec_block, $.declaration)),
             '}'
         ),
-        _script_user_decl: $ => seq(optional($.attributes), $.use_decl),
+        _script_use_decl: $ => seq(optional($.attributes), $.use_decl),
         _script_constant_decl: $ => seq(optional($.attributes), $.constant_decl),
         _script_func_decl: $ => seq(
             optional($.attributes),
