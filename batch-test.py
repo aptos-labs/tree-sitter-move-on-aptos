@@ -27,7 +27,7 @@ def list_move_codes(path: str) -> List[str]:
 
 
 PROMPT_EXTRACT = re.compile(r'\(([A-Z]+( [^\[\]]+)?) \[(\d+), \d+\] - \[(\d+), \d+\]\)')
-BAD_LINE = re.compile(r'^(abort|return) [^;\r\n]*$')
+BAD_LINE = re.compile(r'^(abort|return) [^\r\n]*$')
 MOVE_MODULE_PATH = 'aptos-labs/move-modules'
 
 
@@ -52,9 +52,7 @@ def decompiled_workaround(file: str, prompt: str) -> bool:
         line = lines[line_begin].strip()
         if BAD_LINE.match(line) is not None:
             return True
-        if line[-1] != ';':
-            return True
-        return False
+        return line[-1] != ';'
 
 
 def visit_file(file: str) -> TestResult:
