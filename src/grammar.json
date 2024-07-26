@@ -6278,7 +6278,7 @@
         }
       ]
     },
-    "enum_decl": {
+    "_enum_signature": {
       "type": "SEQ",
       "members": [
         {
@@ -6309,6 +6309,15 @@
               "type": "BLANK"
             }
           ]
+        }
+      ]
+    },
+    "enum_decl": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_enum_signature"
         },
         {
           "type": "STRING",

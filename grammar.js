@@ -922,10 +922,13 @@ module.exports = grammar({
         // Notice:
         //     If the variant is based on a block, we allow but do not require
         //     a `,`. Otherwise, a comma is required.
-        enum_decl: $ => seq(
+        _enum_signature: $ => seq(
             'enum',
             $._struct_def_name,
             optional(seq('has', $.abilities)),
+        ),
+        enum_decl: $ => seq(
+            $._enum_signature,
             '{',
             repeat($._variant), optional(field('variant', $.identifier)),
             '}'
