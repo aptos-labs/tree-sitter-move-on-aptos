@@ -59,6 +59,7 @@ module.exports = grammar({
         [$.var, $.pack_expr],
         [$._quantifier_directive, $.quantifier],
         [$.var, $.call_expr],
+        [$._reuseable_keywords, $.match_expr],
     ],
 
     extras: $ => [
@@ -115,7 +116,7 @@ module.exports = grammar({
         var_name: $ => choice($.identifier, $.discouraged_name),
         // FIXME: this is a workaround for the existing chaotic naming scheme. Keywords are not supposed to be identifiers.
         discouraged_name: $ => choice($.primitive_type, $._quantifier_directive, $._reuseable_keywords),
-        _reuseable_keywords: _ => choice('for', 'while', 'friend'),
+        _reuseable_keywords: _ => choice('for', 'while', 'friend', 'match'),
 
         number: _ => choice(
             /\d[\d_]*/,

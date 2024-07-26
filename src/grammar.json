@@ -162,6 +162,10 @@
         {
           "type": "STRING",
           "value": "friend"
+        },
+        {
+          "type": "STRING",
+          "value": "match"
         }
       ]
     },
@@ -7153,6 +7157,10 @@
     [
       "var",
       "call_expr"
+    ],
+    [
+      "_reuseable_keywords",
+      "match_expr"
     ]
   ],
   "precedences": [
