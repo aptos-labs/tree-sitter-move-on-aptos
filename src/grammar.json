@@ -7139,10 +7139,6 @@
   ],
   "conflicts": [
     [
-      "primitive_type",
-      "vector_value_expr"
-    ],
-    [
       "_reuseable_keywords",
       "for_loop_expr"
     ],
@@ -7168,6 +7164,16 @@
     ]
   ],
   "precedences": [
+    [
+      {
+        "type": "SYMBOL",
+        "name": "vector_value_expr"
+      },
+      {
+        "type": "SYMBOL",
+        "name": "primitive_type"
+      }
+    ],
     [
       {
         "type": "SYMBOL",

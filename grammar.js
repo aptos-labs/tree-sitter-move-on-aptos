@@ -53,7 +53,6 @@ module.exports = grammar({
     word: $ => $.identifier,
 
     conflicts: $ => [
-        [$.primitive_type, $.vector_value_expr],
         [$._reuseable_keywords, $.for_loop_expr],
         [$.discouraged_name, $._type],
         [$.var, $.pack_expr],
@@ -86,6 +85,7 @@ module.exports = grammar({
     ],
 
     precedences: $ => [
+        [$.vector_value_expr, $.primitive_type],
         [$.var_name, $.name_access_chain],
     ],
 
