@@ -5081,6 +5081,10 @@
                     {
                       "type": "STRING",
                       "value": "friend"
+                    },
+                    {
+                      "type": "STRING",
+                      "value": "package"
                     }
                   ]
                 },

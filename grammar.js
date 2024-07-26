@@ -723,7 +723,7 @@ module.exports = grammar({
             ';',
         ),
         // Parse a function pattern:
-        //     SpecApplyPattern = <Visibility>? <SpecApplyFragment>+ <OptionalTypeArgs>
+        //     SpecApplyPattern = ( "public" | "internal" )? <SpecApplyFragment>+ <OptionalTypeArgs>
         //     SpecApplyFragment = <Identifier> | "*"
         _spec_apply_pattern: $ => seq(
             optional(field('visibility', choice('public', 'internal'))),
@@ -774,8 +774,8 @@ module.exports = grammar({
             ';'
         ),
 
-        // Visibility = "public" ( "(" "script" | "friend" ")" )?
-        visibility: $ => seq('public', optional(seq('(', choice('script', 'friend'), ')'))),
+        // Visibility = "public" ( "(" "script" | "friend" | "package" ")" )?
+        visibility: $ => seq('public', optional(seq('(', choice('script', 'friend', 'package'), ')'))),
 
         // ModuleMemberModifier = <Visibility> | "native"
         module_member_modifier: $ => choice($.visibility, 'native', 'entry'),

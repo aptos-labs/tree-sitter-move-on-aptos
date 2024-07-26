@@ -5560,7 +5560,7 @@
   },
   {
     "type": "type_param",
-    "named": false,
+    "named": true,
     "fields": {
       "type": {
         "multiple": false,
@@ -6208,6 +6208,10 @@
   },
   {
     "type": "native",
+    "named": false
+  },
+  {
+    "type": "package",
     "named": false
   },
   {
