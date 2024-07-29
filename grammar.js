@@ -385,8 +385,8 @@ module.exports = grammar({
         // MatchArm = <Bind> ( "if" <Exp> )? "=>" <Exp>
         match_arm: $ => seq(
             alias($.bind_list, $.pattern),
-            optional(seq('if', alias($._control_body, $.condition))),
-            '=>', alias($._expr, $.result),
+            optional(seq('if', alias($._expr, $.condition))),
+            '=>', alias($._control_body, $.result),
         ),
 
         // Control flow expressions:

@@ -1268,10 +1268,6 @@
           "named": true
         },
         {
-          "type": "block",
-          "named": true
-        },
-        {
           "type": "copy_expr",
           "named": true
         },
@@ -4014,6 +4010,10 @@
           "named": true
         },
         {
+          "type": "block",
+          "named": true
+        },
+        {
           "type": "copy_expr",
           "named": true
         },
@@ -5560,7 +5560,7 @@
   },
   {
     "type": "type_param",
-    "named": true,
+    "named": false,
     "fields": {
       "type": {
         "multiple": false,
