@@ -89,6 +89,13 @@ exclude = [
     'attribute_no_closing_bracket',
     'attribute_num_sign_no_bracket',
     'type_variable_join_single_pack.move',
+
+    # error cases
+    'abort_negative_stack_size',
+    'variants_parse_err',
+    'constants_standalone_let',
+    'pack_err',
+    'variables_err',
 ]
 def retain_file(file: str) -> bool:
     for excl in exclude:

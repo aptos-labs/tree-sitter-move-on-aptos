@@ -53,10 +53,12 @@ module.exports = grammar({
     word: $ => $.identifier,
 
     conflicts: $ => [
-        [$.primitive_type, $.vector_value_expr],
         [$._reuseable_keywords, $.for_loop_expr],
         [$.discouraged_name, $._type],
         [$.var, $.pack_expr],
+        [$._quantifier_directive, $.quantifier],
+        [$.var, $.call_expr],
+        [$._reuseable_keywords, $.match_expr],
     ],
 
     extras: $ => [
@@ -80,6 +82,11 @@ module.exports = grammar({
         // If a syntax error is encountered during regular parsing, Tree-sitter’s first action during error
         // recovery will be to call the external scanner’s scan function with all tokens marked valid.
         $._error_sentinel,
+    ],
+
+    precedences: $ => [
+        [$.vector_value_expr, $.primitive_type],
+        [$.var_name, $.name_access_chain],
     ],
 
     rules: {
@@ -109,7 +116,7 @@ module.exports = grammar({
         var_name: $ => choice($.identifier, $.discouraged_name),
         // FIXME: this is a workaround for the existing chaotic naming scheme. Keywords are not supposed to be identifiers.
         discouraged_name: $ => choice($.primitive_type, $._quantifier_directive, $._reuseable_keywords),
-        _reuseable_keywords: _ => choice('for', 'while', 'friend'),
+        _reuseable_keywords: _ => choice('for', 'while', 'friend', 'match'),
 
         number: _ => choice(
             /\d[\d_]*/,
@@ -134,14 +141,17 @@ module.exports = grammar({
         _leading_name_access_wildcard: $ => choice($.numerical_addr, $._ident_or_wildcard),
 
         // NameAccessChain = <Identifier>
-        //                 | <LeadingNameAccess> "::" <Identifier> ( "::" <Identifier> )?
+        //                 | <LeadingNameAccess> "::" <Identifier> ( "::" <Identifier> ( "::" <Identifier> )? )?
         // `Identifier` can be `*` if `wildcard = true`
         name_access_chain: $ => choice(
             field('name', choice($.identifier, $.discouraged_name)),
             seq(
                 choice($._leading_name_access, $.discouraged_name),
                 seq('::', field('access_two', $.identifier)),
-                optional(seq('::', field('access_three', $.identifier)))
+                optional(seq(
+                    '::', field('access_three', $.identifier),
+                    optional(seq('::', field('access_four', $.identifier))),
+                ))
             ),
         ),
         name_access_chain_wildcard: $ => choice(
@@ -149,7 +159,10 @@ module.exports = grammar({
             seq(
                 choice($._leading_name_access_wildcard, $.discouraged_name),
                 seq('::', field('access_two', $._ident_or_wildcard)),
-                optional(seq('::', field('access_three', $._ident_or_wildcard)))
+                optional(seq(
+                    '::', field('access_three', $._ident_or_wildcard),
+                    optional(seq('::', field('access_four', $._ident_or_wildcard))),
+                ))
             ),
         ),
 
@@ -321,6 +334,7 @@ module.exports = grammar({
         //          | "while" "(" <Exp> ")" <Exp> <SpecLoopInvariant>?
         //          | "loop" <Exp>
         //          | "loop" "{" <Exp> "}"
+        //          | <Match>
         //          | "return" "{" <Exp> "}"
         //          | "return" <Exp>?
         //          | "abort" "{" <Exp> "}"
@@ -348,6 +362,7 @@ module.exports = grammar({
 
             // control flow expressions
             $.if_expr,
+            $.match_expr,
             $.while_expr,
             $.loop_expr,
             $.return_expr,
@@ -360,6 +375,19 @@ module.exports = grammar({
         type_hint_expr: $ => seq('(', $._expr, ':', $.type, ')'),
         cast_expr: $ => seq('(', $._expr, 'as', $.type, ')'),
         parenthesized_expr: $ => seq('(', $._expr, ')'),
+
+        // Match = "match" "(" <Exp> ")" "{" ( <MatchArm> ","? )* "}"
+        match_expr: $ => seq(
+            'match', '(', field('value', $._expr), ')',
+            '{', repeat(seq($.match_arm, optional(','))), '}'
+        ),
+
+        // MatchArm = <Bind> ( "if" <Exp> )? "=>" <Exp>
+        match_arm: $ => seq(
+            alias($.bind_list, $.pattern),
+            optional(seq('if', alias($._expr, $.condition))),
+            '=>', alias($._control_body, $.result),
+        ),
 
         // Control flow expressions:
         if_expr: $ => prec.right(seq(
@@ -528,7 +556,7 @@ module.exports = grammar({
                 $.spec_invariant,
 
                 // TODO(doc): doc comments
-                seq(repeat($.module_member_modifier), choice($.constant_decl, $.struct_decl, $.function_decl)),
+                seq(repeat($.module_member_modifier), choice($.constant_decl, $._struct_or_enum_decl, $.function_decl)),
             )
         ),
 
@@ -695,7 +723,7 @@ module.exports = grammar({
             ';',
         ),
         // Parse a function pattern:
-        //     SpecApplyPattern = <Visibility>? <SpecApplyFragment>+ <OptionalTypeArgs>
+        //     SpecApplyPattern = ( "public" | "internal" )? <SpecApplyFragment>+ <OptionalTypeArgs>
         //     SpecApplyFragment = <Identifier> | "*"
         _spec_apply_pattern: $ => seq(
             optional(field('visibility', choice('public', 'internal'))),
@@ -746,8 +774,8 @@ module.exports = grammar({
             ';'
         ),
 
-        // Visibility = "public" ( "(" "script" | "friend" ")" )?
-        visibility: $ => seq('public', optional(seq('(', choice('script', 'friend'), ')'))),
+        // Visibility = "public" ( "(" "script" | "friend" | "package" ")" )?
+        visibility: $ => seq('public', optional(seq('(', choice('script', 'friend', 'package'), ')'))),
 
         // ModuleMemberModifier = <Visibility> | "native"
         module_member_modifier: $ => choice($.visibility, 'native', 'entry'),
@@ -853,6 +881,12 @@ module.exports = grammar({
             ),
         ),
 
+        // StructOrEnumDecl = <StructDecl> | <EnumDecl>
+        _struct_or_enum_decl: $ => choice(
+            $.struct_decl,
+            $.enum_decl,
+        ),
+
         // StructDecl =
         //     "struct" <StructDefName> ("has" <Ability> (, <Ability>)+)?
         //     ("{" Comma<FieldAnnot> "}" | ";")
@@ -883,6 +917,35 @@ module.exports = grammar({
             field('field', $.identifier), ':', $.type
         ),
 
+        // EnumDecl =
+        //     "enum" <StructDefName> <Abilities>? "{" Comma<EnumVariant> "}"
+        // Notice:
+        //     If the variant is based on a block, we allow but do not require
+        //     a `,`. Otherwise, a comma is required.
+        _enum_signature: $ => seq(
+            'enum',
+            $._struct_def_name,
+            optional(seq('has', $.abilities)),
+        ),
+        enum_decl: $ => seq(
+            $._enum_signature,
+            '{',
+            repeat($._variant), optional(field('variant', $.identifier)),
+            '}'
+        ),
+
+        _variant: $ => choice(
+            seq($.enum_variant, optional(',')),
+            seq(field('variant', $.identifier), ','),
+        ),
+
+        // EnumVariant =
+        //     <Identifier> "{" Comma<FieldAnnot> "}"
+        enum_variant: $ => seq(
+            field('variant', $.identifier),
+            seq('{', sepByComma($.field_annot), '}'),
+        ),
+
         // Parse a type ability
         //      Ability =
         //            "copy"
@@ -910,9 +973,10 @@ module.exports = grammar({
 
         // Bind = <Var>
         //      | <NameAccessChain> <OptionalTypeArgs> "{" Comma<BindField> "}"
+        //      | <NameAccessChain> <OptionalTypeArgs>              enum, v2 only
         _bind: $ => choice(
             field('variable', $.var_name),
-            seq(field('struct', $.name_access_chain), optional($.type_args), alias($._bind_fields, $.fields)),
+            seq(field('struct', $.name_access_chain), optional($.type_args), optional(alias($._bind_fields, $.fields))),
         ),
         _bind_fields: $ => seq('{', sepByComma($.bind_field), '}'),
 
