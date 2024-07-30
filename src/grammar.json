@@ -2149,7 +2149,7 @@
             "name": "func",
             "content": {
               "type": "SYMBOL",
-              "name": "identifier_or_anon_field"
+              "name": "_identifier_or_anon_field"
             }
           },
           {
@@ -2240,13 +2240,13 @@
             "name": "field",
             "content": {
               "type": "SYMBOL",
-              "name": "identifier_or_anon_field"
+              "name": "_identifier_or_anon_field"
             }
           }
         ]
       }
     },
-    "identifier_or_anon_field": {
+    "_identifier_or_anon_field": {
       "type": "CHOICE",
       "members": [
         {
@@ -2254,10 +2254,14 @@
           "name": "identifier"
         },
         {
-          "type": "PATTERN",
-          "value": "\\d+"
+          "type": "SYMBOL",
+          "name": "anon_field_index"
         }
       ]
+    },
+    "anon_field_index": {
+      "type": "PATTERN",
+      "value": "\\d+"
     },
     "term": {
       "type": "CHOICE",

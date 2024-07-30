@@ -318,7 +318,11 @@
         "required": true,
         "types": [
           {
-            "type": "identifier_or_anon_field",
+            "type": "anon_field_index",
+            "named": true
+          },
+          {
+            "type": "identifier",
             "named": true
           }
         ]
@@ -2382,21 +2386,6 @@
     }
   },
   {
-    "type": "identifier_or_anon_field",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": false,
-      "types": [
-        {
-          "type": "identifier",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "if_expr",
     "named": true,
     "fields": {
@@ -3918,7 +3907,11 @@
         "required": true,
         "types": [
           {
-            "type": "identifier_or_anon_field",
+            "type": "anon_field_index",
+            "named": true
+          },
+          {
+            "type": "identifier",
             "named": true
           }
         ]
@@ -6161,6 +6154,10 @@
   },
   {
     "type": "alias",
+    "named": true
+  },
+  {
+    "type": "anon_field_index",
     "named": true
   },
   {

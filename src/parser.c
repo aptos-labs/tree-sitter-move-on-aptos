@@ -84,7 +84,7 @@ enum ts_symbol_identifiers {
   anon_sym_DOT = 66,
   anon_sym_LBRACK = 67,
   anon_sym_RBRACK = 68,
-  aux_sym_identifier_or_anon_field_token1 = 69,
+  sym_anon_field_index = 69,
   anon_sym_break = 70,
   anon_sym_continue = 71,
   anon_sym_as = 72,
@@ -193,7 +193,7 @@ enum ts_symbol_identifiers {
   sym_receiver_call = 175,
   sym_mem_access = 176,
   sym_access_field = 177,
-  sym_identifier_or_anon_field = 178,
+  sym__identifier_or_anon_field = 178,
   sym_term = 179,
   sym_vector_value_expr = 180,
   sym_tuple_expr = 181,
@@ -415,7 +415,7 @@ static const char * const ts_symbol_names[] = {
   [anon_sym_DOT] = ".",
   [anon_sym_LBRACK] = "[",
   [anon_sym_RBRACK] = "]",
-  [aux_sym_identifier_or_anon_field_token1] = "identifier_or_anon_field_token1",
+  [sym_anon_field_index] = "anon_field_index",
   [anon_sym_break] = "break_expr",
   [anon_sym_continue] = "continue_expr",
   [anon_sym_as] = "as",
@@ -524,7 +524,7 @@ static const char * const ts_symbol_names[] = {
   [sym_receiver_call] = "receiver_call",
   [sym_mem_access] = "mem_access",
   [sym_access_field] = "access_field",
-  [sym_identifier_or_anon_field] = "identifier_or_anon_field",
+  [sym__identifier_or_anon_field] = "_identifier_or_anon_field",
   [sym_term] = "expr_term",
   [sym_vector_value_expr] = "vector_value_expr",
   [sym_tuple_expr] = "tuple_expr",
@@ -746,7 +746,7 @@ static const TSSymbol ts_symbol_map[] = {
   [anon_sym_DOT] = anon_sym_DOT,
   [anon_sym_LBRACK] = anon_sym_LBRACK,
   [anon_sym_RBRACK] = anon_sym_RBRACK,
-  [aux_sym_identifier_or_anon_field_token1] = aux_sym_identifier_or_anon_field_token1,
+  [sym_anon_field_index] = sym_anon_field_index,
   [anon_sym_break] = anon_sym_break,
   [anon_sym_continue] = anon_sym_continue,
   [anon_sym_as] = anon_sym_as,
@@ -855,7 +855,7 @@ static const TSSymbol ts_symbol_map[] = {
   [sym_receiver_call] = sym_receiver_call,
   [sym_mem_access] = sym_mem_access,
   [sym_access_field] = sym_access_field,
-  [sym_identifier_or_anon_field] = sym_identifier_or_anon_field,
+  [sym__identifier_or_anon_field] = sym__identifier_or_anon_field,
   [sym_term] = sym_term,
   [sym_vector_value_expr] = sym_vector_value_expr,
   [sym_tuple_expr] = sym_tuple_expr,
@@ -1284,9 +1284,9 @@ static const TSSymbolMetadata ts_symbol_metadata[] = {
     .visible = true,
     .named = false,
   },
-  [aux_sym_identifier_or_anon_field_token1] = {
-    .visible = false,
-    .named = false,
+  [sym_anon_field_index] = {
+    .visible = true,
+    .named = true,
   },
   [anon_sym_break] = {
     .visible = true,
@@ -1720,8 +1720,8 @@ static const TSSymbolMetadata ts_symbol_metadata[] = {
     .visible = true,
     .named = true,
   },
-  [sym_identifier_or_anon_field] = {
-    .visible = true,
+  [sym__identifier_or_anon_field] = {
+    .visible = false,
     .named = true,
   },
   [sym_term] = {
@@ -6617,7 +6617,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       ACCEPT_TOKEN(anon_sym_RBRACK);
       END_STATE();
     case 80:
-      ACCEPT_TOKEN(aux_sym_identifier_or_anon_field_token1);
+      ACCEPT_TOKEN(sym_anon_field_index);
       if (('0' <= lookahead && lookahead <= '9')) ADVANCE(80);
       END_STATE();
     case 81:
@@ -117729,10 +117729,10 @@ static const uint16_t ts_small_parse_table[] = {
     ACTIONS(21), 1,
       anon_sym_SLASH_STAR,
     STATE(729), 1,
-      sym_identifier_or_anon_field,
+      sym__identifier_or_anon_field,
     ACTIONS(3650), 2,
       sym_identifier,
-      aux_sym_identifier_or_anon_field_token1,
+      sym_anon_field_index,
     STATE(1722), 2,
       sym_line_comment,
       sym_block_comment,
@@ -124747,8 +124747,8 @@ static const TSParseActionEntry ts_parse_actions[] = {
   [811] = {.entry = {.count = 1, .reusable = true}}, REDUCE(sym_number, 1, 0, 0),
   [813] = {.entry = {.count = 1, .reusable = false}}, REDUCE(sym_numerical_addr, 1, 0, 0),
   [815] = {.entry = {.count = 1, .reusable = true}}, REDUCE(sym_numerical_addr, 1, 0, 0),
-  [817] = {.entry = {.count = 1, .reusable = false}}, REDUCE(sym_identifier_or_anon_field, 1, 0, 0),
-  [819] = {.entry = {.count = 1, .reusable = true}}, REDUCE(sym_identifier_or_anon_field, 1, 0, 0),
+  [817] = {.entry = {.count = 1, .reusable = false}}, REDUCE(sym__identifier_or_anon_field, 1, 0, 0),
+  [819] = {.entry = {.count = 1, .reusable = true}}, REDUCE(sym__identifier_or_anon_field, 1, 0, 0),
   [821] = {.entry = {.count = 1, .reusable = false}}, REDUCE(sym_spec_loop_invariant, 1, 0, 100),
   [823] = {.entry = {.count = 1, .reusable = true}}, REDUCE(sym_spec_loop_invariant, 1, 0, 100),
   [825] = {.entry = {.count = 1, .reusable = false}}, REDUCE(sym_receiver_call, 4, 0, 110),

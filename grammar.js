@@ -310,18 +310,19 @@ module.exports = grammar({
             alias($.term, 'expr_term'),
         ),
         receiver_call: $ => prec.left(expr_precedence.CALL, seq(
-            field('receiver', $._dot_or_index_chain), '.', field('func', $.identifier_or_anon_field),
+            field('receiver', $._dot_or_index_chain), '.', field('func', $._identifier_or_anon_field),
             optional(field('type_generics', seq('::', $.type_args))),
             field('arguments', $.call_args),
         )),
         mem_access: $ => prec.left(expr_precedence.CALL, seq($._dot_or_index_chain, '[', field('index', $._expr), ']')),
         access_field: $ => prec.left(expr_precedence.FIELD, seq(
-            field('object', $._dot_or_index_chain), '.', field('field', $.identifier_or_anon_field),
+            field('object', $._dot_or_index_chain), '.', field('field', $._identifier_or_anon_field),
         )),
 
         // Parse an identifier or an positional field
         //      IdentifierOrAnonField = <Identifier> | (0-9)+
-        identifier_or_anon_field: $ => choice($.identifier, /\d+/),
+        _identifier_or_anon_field: $ => choice($.identifier, $.anon_field_index),
+        anon_field_index: $ => /\d+/,
 
         // Parse an expression term:
         //      Term =
