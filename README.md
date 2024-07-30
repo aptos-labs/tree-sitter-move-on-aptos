@@ -1,4 +1,4 @@
-# Treesitter Semgrep Move on Aptos (ALPHA)
+# Treesitter Semgrep Move on Aptos (BETA)
 Semgrep integration and Move Tree-sitter grammar
 
 ## Project Structure
