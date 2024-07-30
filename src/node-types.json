@@ -315,10 +315,10 @@
     "fields": {
       "field": {
         "multiple": false,
-        "required": false,
+        "required": true,
         "types": [
           {
-            "type": "identifier",
+            "type": "identifier_or_anon_field",
             "named": true
           }
         ]
@@ -2382,6 +2382,21 @@
     }
   },
   {
+    "type": "identifier_or_anon_field",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "if_expr",
     "named": true,
     "fields": {
@@ -3900,10 +3915,10 @@
       },
       "func": {
         "multiple": false,
-        "required": false,
+        "required": true,
         "types": [
           {
-            "type": "identifier",
+            "type": "identifier_or_anon_field",
             "named": true
           }
         ]
@@ -5678,7 +5693,7 @@
   },
   {
     "type": "type_param",
-    "named": true,
+    "named": false,
     "fields": {
       "type": {
         "multiple": false,
