@@ -315,7 +315,7 @@
     "fields": {
       "field": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "identifier",
@@ -434,6 +434,21 @@
         },
         {
           "type": "numerical_addr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "anon_fields",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "type",
           "named": true
         }
       ]
@@ -855,6 +870,10 @@
             "named": true
           },
           {
+            "type": "tuple",
+            "named": true
+          },
+          {
             "type": "type_args",
             "named": true
           },
@@ -931,6 +950,10 @@
       "types": [
         {
           "type": "fields",
+          "named": true
+        },
+        {
+          "type": "tuple",
           "named": true
         },
         {
@@ -1805,19 +1828,9 @@
     }
   },
   {
-    "type": "enum_decl",
+    "type": "enum_body",
     "named": true,
     "fields": {
-      "name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "identifier",
-            "named": true
-          }
-        ]
-      },
       "variant": {
         "multiple": true,
         "required": false,
@@ -1834,11 +1847,37 @@
       "required": false,
       "types": [
         {
+          "type": "enum_variant",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "enum_decl",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
           "type": "abilities",
           "named": true
         },
         {
-          "type": "enum_variant",
+          "type": "enum_body",
           "named": true
         },
         {
@@ -1864,11 +1903,15 @@
       }
     },
     "children": {
-      "multiple": true,
-      "required": false,
+      "multiple": false,
+      "required": true,
       "types": [
         {
-          "type": "field_annot",
+          "type": "anon_fields",
+          "named": true
+        },
+        {
+          "type": "struct_body",
           "named": true
         }
       ]
@@ -2569,6 +2612,10 @@
         },
         {
           "type": "ref_mut_expr",
+          "named": true
+        },
+        {
+          "type": "tuple",
           "named": true
         },
         {
@@ -3484,6 +3531,10 @@
           "named": true
         },
         {
+          "type": "tuple",
+          "named": true
+        },
+        {
           "type": "type_args",
           "named": true
         }
@@ -3849,7 +3900,7 @@
       },
       "func": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "identifier",
@@ -5213,6 +5264,21 @@
     }
   },
   {
+    "type": "struct_body",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "field_annot",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "struct_decl",
     "named": true,
     "fields": {
@@ -5233,6 +5299,10 @@
       "types": [
         {
           "type": "abilities",
+          "named": true
+        },
+        {
+          "type": "anon_fields",
           "named": true
         },
         {
@@ -5312,6 +5382,50 @@
           }
         ]
       }
+    }
+  },
+  {
+    "type": "tuple",
+    "named": true,
+    "fields": {
+      "struct": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "name_access_chain",
+            "named": true
+          }
+        ]
+      },
+      "variable": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "var_name",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "fields",
+          "named": true
+        },
+        {
+          "type": "tuple",
+          "named": true
+        },
+        {
+          "type": "type_args",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -5560,7 +5674,7 @@
   },
   {
     "type": "type_param",
-    "named": false,
+    "named": true,
     "fields": {
       "type": {
         "multiple": false,
