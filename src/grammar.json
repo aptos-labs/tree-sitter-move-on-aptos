@@ -6056,6 +6056,39 @@
             },
             {
               "type": "SYMBOL",
+              "name": "struct_body"
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "abilities"
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
+            },
+            {
+              "type": "STRING",
+              "value": ";"
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "struct"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "_struct_def_name"
+            },
+            {
+              "type": "SYMBOL",
               "name": "anon_fields"
             },
             {
@@ -7353,6 +7386,10 @@
     [
       "enum_decl",
       "_enum_signature"
+    ],
+    [
+      "struct_decl",
+      "_struct_signature"
     ]
   ],
   "precedences": [

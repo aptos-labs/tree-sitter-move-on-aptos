@@ -5310,6 +5310,10 @@
           "named": true
         },
         {
+          "type": "struct_body",
+          "named": true
+        },
+        {
           "type": "type_params",
           "named": true
         }

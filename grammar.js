@@ -60,6 +60,7 @@ module.exports = grammar({
         [$.var, $.call_expr],
         [$._reuseable_keywords, $.match_expr],
         [$.enum_decl, $._enum_signature],
+        [$.struct_decl, $._struct_signature],
     ],
 
     extras: $ => [
@@ -894,13 +895,17 @@ module.exports = grammar({
         ),
 
         // StructDecl =
-        //     | "struct" <StructDefName> <Abilities>? ("{" Comma<FieldAnnot> "}" | ";")
+        //     | "struct" <StructDefName> <Abilities>? (<StructBody> | ";")
+        //     | "struct" <StructDefName> <StructBody> <Abilities>? ";"                 // alternative syntax
         //     | "struct" <StructDefName> "(" Comma<Type> ")" <Abilities>? ";"          // positional fields
+        //
+        // StructBody = "{" Comma<FieldAnnot> "}"
         // StructDefName        = <Identifier> <StructTypeParameter>?
         // StructTypeParameter  = '<' Comma<TypeParameterWithPhantomDecl> '>'
         // TypeParameterWithPhantomDecl = "phantom"? <TypeParameter>
         struct_decl: $ => choice(
             seq($._struct_signature, choice(alias($.struct_body, $.body), ';')),
+            seq('struct', $._struct_def_name, $.struct_body, optional($.abilities), ';'),
             seq('struct', $._struct_def_name, $.anon_fields, optional($.abilities), ';'),
         ),
         _struct_signature: $ => seq(
