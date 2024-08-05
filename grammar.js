@@ -1,3 +1,7 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
 // Helper functions
 
 // source: https://github.com/tree-sitter/tree-sitter-javascript/blob/master/grammar.js
@@ -61,6 +65,7 @@ module.exports = grammar({
         [$._reuseable_keywords, $.match_expr],
         [$.enum_decl, $._enum_signature],
         [$.struct_decl, $._struct_signature],
+        [$._variant, $._variant_last],
     ],
 
     extras: $ => [
@@ -467,7 +472,9 @@ module.exports = grammar({
         ),
 
         call_args: $ => seq('(', sepByComma($._expr), ')'),
-        type_args: $ => seq('<', sepByComma($.type), '>'),
+
+        // OptionalTypeArgs = '<' Comma<Type> ">" | <empty>
+        type_args: $ => seq(token.immediate('<'), sepByComma($.type), '>'),
 
         // Parse a field name optionally followed by a colon and an expression argument:
         //      ExpField = <Field> <":" <Exp>>?
@@ -920,7 +927,7 @@ module.exports = grammar({
             optional(alias($._struct_type_params, $.type_params)),
         ),
         _struct_type_params: $ => seq('<', sepByComma(alias($._struct_type_parameter, $.type_param)), '>'),
-        _struct_type_parameter: $ => seq(optional($.phantom), alias($.type_param, 'type_param')),
+        _struct_type_parameter: $ => seq(optional($.phantom), $.type_param),
         phantom: _ => 'phantom',
 
         // FieldAnnot = <DocComments> <Field> ":" <Type>
@@ -942,22 +949,28 @@ module.exports = grammar({
 
         _enum_signature: $ => seq('enum', $._struct_def_name, optional($.abilities),),
 
-        enum_body: $ => seq('{', repeat($._variant), optional(field('variant', $.identifier)), '}'),
+        enum_body: $ => seq('{', repeat($._variant), optional($._variant_last), '}'),
         _variant: $ => choice(
-            seq($.enum_variant, optional(',')),
-            seq(field('variant', $.identifier), ','),
+            seq($.enum_variant_struct, optional(',')),
+            seq($.enum_variant, ','),
+            seq($.enum_variant_posit, ','),
+        ),
+        _variant_last: $ => seq(
+            choice(
+                $.enum_variant,
+                $.enum_variant_struct,
+                $.enum_variant_posit,
+            ),
+            optional(','),
         ),
 
         // EnumVariant =
         //       <Identifier> "{" Comma<FieldAnnot> "}"
         //     | <Identifier> "(" Comma<Type> ")"    // positional fields
-        enum_variant: $ => seq(
-            field('variant', $.identifier),
-            choice(
-                $.struct_body,
-                $.anon_fields,
-            ),
-        ),
+        //     | <Identifier>
+        enum_variant_struct: $ => seq(field('variant', $.identifier), $.struct_body),
+        enum_variant_posit: $ => seq(field('variant', $.identifier), $.anon_fields),
+        enum_variant: $ => $.identifier,
 
         // Parse a type ability
         //      Ability =
@@ -1003,9 +1016,6 @@ module.exports = grammar({
         ),
         _bind_tuple: $ => seq('(', sepByComma($._bind), ')'),
         _bind_fields: $ => seq('{', sepByComma($.bind_field), '}'),
-
-        // OptionalTypeArgs = '<' Comma<Type> ">" | <empty>
-        type_args: $ => seq(token.immediate('<'), sepByComma($.type), '>'),
 
         // BindField    = <Field> <":" <Bind>>?
         // Field        = <Identifier>

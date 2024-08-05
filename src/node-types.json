@@ -1834,24 +1834,21 @@
   {
     "type": "enum_body",
     "named": true,
-    "fields": {
-      "variant": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "identifier",
-            "named": true
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": true,
       "required": false,
       "types": [
         {
           "type": "enum_variant",
+          "named": true
+        },
+        {
+          "type": "enum_variant_posit",
+          "named": true
+        },
+        {
+          "type": "enum_variant_struct",
           "named": true
         }
       ]
@@ -1894,6 +1891,21 @@
   {
     "type": "enum_variant",
     "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "enum_variant_posit",
+    "named": true,
     "fields": {
       "variant": {
         "multiple": false,
@@ -1913,7 +1925,29 @@
         {
           "type": "anon_fields",
           "named": true
-        },
+        }
+      ]
+    }
+  },
+  {
+    "type": "enum_variant_struct",
+    "named": true,
+    "fields": {
+      "variant": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
         {
           "type": "struct_body",
           "named": true
@@ -5686,7 +5720,7 @@
   },
   {
     "type": "type_param",
-    "named": false,
+    "named": true,
     "fields": {
       "type": {
         "multiple": false,
@@ -5700,7 +5734,7 @@
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": false,
       "types": [
         {
@@ -5709,6 +5743,10 @@
         },
         {
           "type": "phantom",
+          "named": true
+        },
+        {
+          "type": "type_param",
           "named": true
         }
       ]

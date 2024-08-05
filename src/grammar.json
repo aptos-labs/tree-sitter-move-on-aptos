@@ -6385,13 +6385,8 @@
           ]
         },
         {
-          "type": "ALIAS",
-          "content": {
-            "type": "SYMBOL",
-            "name": "type_param"
-          },
-          "named": false,
-          "value": "type_param"
+          "type": "SYMBOL",
+          "name": "type_param"
         }
       ]
     },
@@ -6514,12 +6509,8 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "FIELD",
-              "name": "variant",
-              "content": {
-                "type": "SYMBOL",
-                "name": "identifier"
-              }
+              "type": "SYMBOL",
+              "name": "_variant_last"
             },
             {
               "type": "BLANK"
@@ -6540,7 +6531,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "enum_variant"
+              "name": "enum_variant_struct"
             },
             {
               "type": "CHOICE",
@@ -6560,12 +6551,21 @@
           "type": "SEQ",
           "members": [
             {
-              "type": "FIELD",
-              "name": "variant",
-              "content": {
-                "type": "SYMBOL",
-                "name": "identifier"
-              }
+              "type": "SYMBOL",
+              "name": "enum_variant"
+            },
+            {
+              "type": "STRING",
+              "value": ","
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "enum_variant_posit"
             },
             {
               "type": "STRING",
@@ -6575,7 +6575,41 @@
         }
       ]
     },
-    "enum_variant": {
+    "_variant_last": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "enum_variant"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "enum_variant_struct"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "enum_variant_posit"
+            }
+          ]
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "STRING",
+              "value": ","
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        }
+      ]
+    },
+    "enum_variant_struct": {
       "type": "SEQ",
       "members": [
         {
@@ -6587,19 +6621,31 @@
           }
         },
         {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "struct_body"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "anon_fields"
-            }
-          ]
+          "type": "SYMBOL",
+          "name": "struct_body"
         }
       ]
+    },
+    "enum_variant_posit": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "variant",
+          "content": {
+            "type": "SYMBOL",
+            "name": "identifier"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "anon_fields"
+        }
+      ]
+    },
+    "enum_variant": {
+      "type": "SYMBOL",
+      "name": "identifier"
     },
     "ability": {
       "type": "CHOICE",
@@ -7394,6 +7440,10 @@
     [
       "struct_decl",
       "_struct_signature"
+    ],
+    [
+      "_variant",
+      "_variant_last"
     ]
   ],
   "precedences": [

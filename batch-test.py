@@ -132,15 +132,27 @@ def get_paths() -> List[str]:
 # Still, there are many false positives under `move_check/parser` and `move_check/expansion`.
 special_folder = [
     'aptos-core/third_party/move/move-compiler/tests/move_check/parser',
-    'aptos-core/third_party/move/move-compiler/tests/move_check/expansion',
+    # 'aptos-core/third_party/move/move-compiler/tests/move_check/expansion',
+    'aptos-core/third_party/move/move-compiler-v2/tests/checking/positional_fields',
 ]
+
+error_messages = [
+    'error',
+    'invalid documentation comment',
+]
+
 def should_reject(path: str) -> bool:
     for folder in special_folder:
         if path.find(folder) == -1:
             continue
         # for file xxx.move, if xxx.exp exists, then it should be rejected
         exp = path.rstrip('move') + 'exp'
-        return os.path.exists(path) and os.path.isfile(exp)
+        if os.path.exists(path) and os.path.isfile(exp):
+            with open(exp, 'r') as f:
+                for line in f.readlines():
+                    for msg in error_messages:
+                        if line.find(msg) != -1:
+                            return True
     return False
 
 
