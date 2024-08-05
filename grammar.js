@@ -416,7 +416,7 @@ module.exports = grammar({
         )),
         loop_expr: $ => seq('loop', field('body', $._control_body)),
         return_expr: $ => choice(
-            prec(expr_precedence.LAST, 'return'),
+            prec(expr_precedence.DEFAULT, 'return'),
             prec.left(seq('return', field('value', $._expr))),
         ),
         abort_expr: $ => seq('abort', field('condition', $._expr)),
