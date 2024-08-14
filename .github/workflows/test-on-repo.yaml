@@ -45,8 +45,18 @@ jobs:
       - run: tree-sitter init-config
       - run: tree-sitter generate
 
+      # Check if the generated files are up-to-date
+      - name: Check if the generated files are up-to-date
+        # `node-types.json` is ignored because there is a field that could be different
+        run: git diff --compact-summary --exit-code ':!src/node-types.json'
+      
+      #
+      - name: Check formats
+        run: npx eslint grammar.js
+
       # Run tests
-      - run: |
+      - name: Test the parser on repositories
+        run: |
           python batch-test.py \
           test/repos/aptos-labs/aptos-core/aptos-move \
           test/repos/wormhole-foundation/wormhole/aptos \
