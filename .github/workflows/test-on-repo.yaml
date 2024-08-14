@@ -50,9 +50,9 @@ jobs:
         # `node-types.json` is ignored because there is a field that could be different
         run: git diff --compact-summary --exit-code ':!src/node-types.json'
       
-      #
+      # Check formats
       - name: Check formats
-        run: npx eslint grammar.js
+        run: npm install && npx eslint grammar.js
 
       # Run tests
       - name: Test the parser on repositories
