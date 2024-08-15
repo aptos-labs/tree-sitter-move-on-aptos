@@ -9,7 +9,9 @@
     "parse": "tree-sitter parse",
     "generate": "tree-sitter generate",
     "install": "node-gyp-build",
-    "prebuildify": "prebuildify --napi --strip"
+    "prebuildify": "prebuildify --napi --strip",
+    "format": "eslint --fix grammar.js",
+    "format:check": "eslint grammar.js"
   },
   "author": "ArArgon <liaozping@gmail.com>",
   "license": "Apache-2.0",

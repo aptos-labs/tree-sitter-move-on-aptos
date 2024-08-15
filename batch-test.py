@@ -2,11 +2,19 @@
 It will search for all files with `.move` extension and run `tree-sitter parse` on them.
 If you updated the parser, you should run `tree-sitter generate` first.
 '''
+from functools import reduce
 import os
 import re
-import sys
 import subprocess
+import argparse
+from operator import add
 from typing import List, Optional, Tuple
+
+from config import exclude, special_folder, error_messages
+
+PROMPT_EXTRACT = re.compile(r'\(([A-Z]+( [^\[\]]+)?) \[(\d+), \d+\] - \[(\d+), \d+\]\)')
+BAD_LINE = re.compile(r'^(abort|return) [^\r\n]*$')
+MOVE_MODULE_PATH = 'aptos-labs/move-modules'
 
 class TestResult:
     def __init__(self, path: str, passed: bool, last_output = '') -> None:
@@ -24,11 +32,6 @@ def list_move_codes(path: str) -> List[str]:
             filter(lambda file: name_filter.match(file) is not None, files))
         )
     return result
-
-
-PROMPT_EXTRACT = re.compile(r'\(([A-Z]+( [^\[\]]+)?) \[(\d+), \d+\] - \[(\d+), \d+\]\)')
-BAD_LINE = re.compile(r'^(abort|return) [^\r\n]*$')
-MOVE_MODULE_PATH = 'aptos-labs/move-modules'
 
 
 def decompiled_workaround(file: str, prompt: str) -> bool:
@@ -70,33 +73,6 @@ def visit_file(file: str) -> TestResult:
     return TestResult(file, decompiled_workaround(file, last_line), last_line)
 
 
-exclude = [
-    'aptos-move/writeset-transaction-generator/templates',
-    'aptos-move/move-examples/move-tutorial/step_3/basic_coin.move',
-    'third_party/move/testing-infra/transactional-test-runner/tests/vm_test_harness',
-    'third_party/move/documentation/tutorial/step_3',
-
-    # deprecated syntax
-    'third_party/move/move-prover/tests/xsources/design',
-
-    # non-standard
-    'third_party/move/tools/move-cli/tests/build_tests/circular_dependencies',
-
-    # contains invalid hex string
-    'pancake-cake-oft/sources/cake_oft.move',
-    
-    # rejected case
-    'attribute_no_closing_bracket',
-    'attribute_num_sign_no_bracket',
-    'type_variable_join_single_pack.move',
-
-    # error cases
-    'abort_negative_stack_size',
-    'variants_parse_err',
-    'constants_standalone_let',
-    'pack_err',
-    'variables_err',
-]
 def retain_file(file: str) -> bool:
     for excl in exclude:
         if file.find(excl) != -1:
@@ -114,32 +90,19 @@ def assert_valid_path(path: str):
         exit(-1)
 
 
-def get_paths() -> List[str]:
-    if len(sys.argv) < 2:
-        print(f'usage: {sys.argv[0]} <root_path> [ .. <root_path> ]')
-        print('at least one path should be provided')
-        exit(-1)
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description='Batch test move files')
+    parser.add_argument('PATH', nargs='+', help='Root paths to search for move files')
+    parser.add_argument('--only-stats', action='store_true', help='Only print statistics and do not fail')
+    return parser.parse_args()
 
-    paths = sys.argv[1:]
+
+def normalize_args(args: argparse.Namespace) -> Tuple[List[str], bool]:
+    paths, stats = args.PATH, args.only_stats
     for path in paths:
         assert_valid_path(path)
-    return paths
+    return paths, stats
 
-# Under these folders, if a file xxx.move exists and xxx.exp exists, then xxx.move should be rejected
-# xxx.exp is the expected error output for xxx.move. `xxx.exp` might present in other folders, but
-# they do not represent a parser error.
-#
-# Still, there are many false positives under `move_check/parser` and `move_check/expansion`.
-special_folder = [
-    'aptos-core/third_party/move/move-compiler/tests/move_check/parser',
-    # 'aptos-core/third_party/move/move-compiler/tests/move_check/expansion',
-    'aptos-core/third_party/move/move-compiler-v2/tests/checking/positional_fields',
-]
-
-error_messages = [
-    'error',
-    'invalid documentation comment',
-]
 
 def should_reject(path: str) -> bool:
     for folder in special_folder:
@@ -174,28 +137,29 @@ def visit_path(path: str) -> Tuple[int, int, int]:
     return total_files, len(files), failed
 
 
-def main():
-    total_files, tested_files, failed = 0, 0, 0
-
-    paths = get_paths()
-    for path in paths:
-        total, tested, fail = visit_path(path)
-        total_files += total
-        tested_files += tested
-        failed += fail
-    
+def print_stats(total_files: int, tested_files: int, failed: int, paths: List[str]):
     print('\n')
-    print('Searched paths:')
+    print(f'Searched {len(paths)} path(s):')
     for path in paths:
         print(f'  - {path}')
-    print(f'Total move source files: {total_files}')
-    print(f'Filtered files: {total_files - tested_files}')
-    print(f'{failed} case(s) failed')
+    print(f'Total move files: {total_files}, filtered: {total_files - tested_files}, failed: {failed}')
     print(f'Result: {tested_files - failed} / {tested_files}')
-    if failed != 0:
-        print('Failed!')
-        exit(-1)
-    print('Passed!')
+    if tested_files != 0:
+        print('Success rate: {:.2f}%'.format((tested_files - failed) / tested_files * 100))
+
+
+def main():
+    args = parse_args()
+    paths, only_stats = normalize_args(args)
+
+    total_files, tested_files, failed = reduce(lambda acc, path: tuple(map(add, acc, visit_path(path))), paths, (0, 0, 0))
+    print_stats(total_files, tested_files, failed, paths)
+
+    if not only_stats:
+        if failed != 0:
+            print('Failed!')
+            exit(-1)
+        print('Passed!')
 
 
 if __name__ == '__main__':
