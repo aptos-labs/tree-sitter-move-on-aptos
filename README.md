@@ -49,7 +49,9 @@ In addition, a few sources you may need:
     Also, when contributing to this repo, be sure to pull `aptos-core` periodically in case of new language features.
     
 
-After you finish coding, run `tree-sitter generate` to check
+After you finish coding, run `npm run format` to format your code.
+
+Finally, run `tree-sitter generate` to check
 
 1. whether `grammar.js` contains any syntax errors;
 2. whether the rules contain any conflicts. Tree-sitter’s documents serve as a great literature for resolving conflicts.
@@ -73,4 +75,11 @@ Remember to test the rule on a larger scale using `batch-test.py`.
 
 ## Submitting the Code
 
-You should run `tree-sitter generate` before committing. Remember to include updated generated code into your git commit.
+You should run 
+
+```bash
+npm run format
+tree-sitter generate
+```
+
+before committing. Remember to include all updated generated code into your git commit.

@@ -9,7 +9,9 @@
     "parse": "tree-sitter parse",
     "generate": "tree-sitter generate",
     "install": "node-gyp-build",
-    "prebuildify": "prebuildify --napi --strip"
+    "prebuildify": "prebuildify --napi --strip",
+    "format": "eslint --fix grammar.js",
+    "format:check": "eslint grammar.js"
   },
   "author": "ArArgon <liaozping@gmail.com>",
   "license": "Apache-2.0",
@@ -26,8 +28,12 @@
     }
   },
   "devDependencies": {
-    "tree-sitter-cli": "^0.22.6",
-    "prebuildify": "^6.0.0"
+    "eslint": "^9.9.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.9.0",
+    "prebuildify": "^6.0.1",
+    "tree-sitter-cli": "^0.22.6"
   },
   "files": [
     "grammar.js",

@@ -39,21 +39,31 @@ jobs:
         with:
           python-version: '3.10' 
       - run: sudo apt update && sudo apt install -y gcc
-      - run: npm install -g tree-sitter-cli
+      - run: npm install -g tree-sitter-cli && npm install
 
       # Configure and generate tree-sitter parser
       - run: tree-sitter init-config
       - run: tree-sitter generate
 
+      # Check if the generated files are up-to-date
+      - name: Check if the generated files are up-to-date
+        # `node-types.json` is ignored because there is a field that could be different
+        run: git diff --compact-summary --exit-code ':!src/node-types.json'
+      
+      # Check formats
+      - name: Check formats
+        run: npm run format:check
+
       # Run tests
-      - run: |
+      - name: Test the parser on repositories
+        run: |
           python batch-test.py \
           test/repos/aptos-labs/aptos-core/aptos-move \
           test/repos/wormhole-foundation/wormhole/aptos \
           test/repos/pancakeswap/pancake-contracts-move
   
   # Test decompiled Move modules
-  test-decompiled:
+  parse-stats:
     needs: [test-aptos]
     runs-on: ubuntu-latest
     steps:
@@ -65,6 +75,42 @@ jobs:
           repository: aptos-labs/move-modules
           path: test/repos/aptos-labs/move-modules
           token: ${{ secrets.MOVEMODULES }}
+      - name: Checkout `aptos-labs/aptos-core`
+        uses: actions/checkout@v4
+        with:
+          repository: aptos-labs/aptos-core
+          path: test/repos/aptos-labs/aptos-core
+      - name: Checkout `wormhole-foundation/wormhole`
+        uses: actions/checkout@v4
+        with:
+          repository: wormhole-foundation/wormhole
+          path: test/repos/wormhole-foundation/wormhole
+      - name: Checkout `pancakeswap/pancake-contracts-move`
+        uses: actions/checkout@v4
+        with:
+          repository: pancakeswap/pancake-contracts-move
+          path: test/repos/pancakeswap/pancake-contracts-move
+      - name: Checkout `aave/aptos-aave-v3`
+        uses: actions/checkout@v4
+        with:
+          repository: aave/aptos-aave-v3
+          path: test/repos/aave/aptos-aave-v3
+      - name: Checkout `movefuns/move-by-example`
+        uses: actions/checkout@v4
+        with:
+          repository: movefuns/move-by-example
+          path: test/repos/movefuns/move-by-example
+      - name: Checkout `aptos-labs/token-minter`
+        uses: actions/checkout@v4
+        with:
+          repository: aptos-labs/token-minter
+          path: test/repos/aptos-labs/token-minter
+      - name: Checkout `aptos-labs/aptos-names-contracts`
+        uses: actions/checkout@v4
+        with:
+          repository: aptos-labs/aptos-names-contracts
+          path: test/repos/aptos-labs/aptos-names-contracts
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22.x'
@@ -77,4 +123,13 @@ jobs:
       - run: npm install -g tree-sitter-cli
       - run: tree-sitter init-config
       - run: tree-sitter generate
-      - run: python batch-test.py test/repos/aptos-labs/move-modules/mainnet
+      - run: |
+          python batch-test.py --only-stats             \
+          test/repos/aptos-labs/move-modules/mainnet    \
+          test/repos/aptos-labs/aptos-core/             \
+          test/repos/wormhole-foundation/wormhole/aptos \
+          test/repos/pancakeswap/pancake-contracts-move \
+          test/repos/aave/aptos-aave-v3                 \
+          test/repos/movefuns/move-by-example           \
+          test/repos/aptos-labs/token-minter            \
+          test/repos/aptos-labs/aptos-names-contracts
