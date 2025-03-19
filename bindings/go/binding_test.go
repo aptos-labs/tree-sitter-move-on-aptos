@@ -3,7 +3,7 @@ package tree_sitter_move_on_aptos_test
 import (
 	"testing"
 
-	tree_sitter_move_on_aptos "github.com/friedemannf/tree-sitter-move-on-aptos/bindings/go"
+	tree_sitter_move_on_aptos "github.com/aptos-labs/tree-sitter-move-on-aptos/bindings/go"
 	tree_sitter "github.com/smacker/go-tree-sitter"
 )
 

@@ -1,4 +1,4 @@
-module github.com/friedemannf/tree-sitter-move-on-aptos
+module github.com/aptos-labs/tree-sitter-move-on-aptos
 
 go 1.22
 
