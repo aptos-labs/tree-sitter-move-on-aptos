@@ -1,4 +1,5 @@
 {
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/grammar.schema.json",
   "name": "move_on_aptos",
   "word": "identifier",
   "rules": {
@@ -7491,5 +7492,6 @@
     "_dot_or_index_chain",
     "_ident_or_wildcard"
   ],
-  "supertypes": []
+  "supertypes": [],
+  "reserved": {}
 }
