@@ -21,8 +21,10 @@ _obj/
 dist/
 *.egg-info
 *.whl
+__pycache__/
 
 # C artifacts
+CMakeLists.txt
 *.a
 *.so
 *.so.*
@@ -46,3 +48,10 @@ log.html
 
 # testing repos
 test/repos/
+
+# IntelliJ IDEA settings
+.idea/
+
+# Vim Settings
+*.swp
+*.swo

@@ -48,6 +48,9 @@ const binary_operators = [
     ], // 12
 ];
 
+// Assignment operators, don't need precedence because only one can be used
+const assignment_operators = ['=', '+=', '-=', '*=', '%=', '/=', '&=', '|=', '^=', '<<=', '>>='];
+
 const expr_precedence = {
     DEFAULT: 1,
     LAST: -1,
@@ -76,6 +79,17 @@ module.exports = grammar({
         [$.enum_decl, $._enum_signature],
         [$.struct_decl, $._struct_signature],
         [$._variant, $._variant_last],
+        [$.visibility, $.friend_decl],
+        [$._control_body, $.cast_expr],
+        [$.abort_expr, $.cast_expr],
+        [$._expr, $.cast_expr],
+        [$.quantifier, $.cast_expr],
+        [$._control_body, $.is_type_expr],
+        [$.abort_expr, $.is_type_expr],
+        [$._expr, $.is_type_expr],
+        [$.quantifier, $.is_type_expr],
+        [$._op_expr, $.for_loop_expr],
+        [$.tuple_expr, $.call_expr],
     ],
 
     extras: $ => [
@@ -128,7 +142,7 @@ module.exports = grammar({
         // FIXME: this is a workaround for the existing chaotic naming scheme. Keywords are not supposed to be identifiers.
         discouraged_name: $ =>
             choice($.primitive_type, $._quantifier_directive, $._reuseable_keywords),
-        _reuseable_keywords: _ => choice('for', 'while', 'friend', 'match'),
+        _reuseable_keywords: _ => choice('for', 'while', 'package', 'friend', 'match'),
 
         number: _ =>
             choice(
@@ -209,13 +223,15 @@ module.exports = grammar({
             ),
         tuple_type: $ => seq('(', sepByComma($.type), ')'),
         closure_type: $ =>
-            prec.right(
+            // Changed this to left, seems to make it parse properly, didn't work properly as right
+            prec.left(
                 expr_precedence.DEFAULT,
                 seq(
                     '|',
                     field('param_types', sepByComma($.type)),
                     '|',
-                    field('return_type', optional($.type))
+                    field('return_type', optional($.type)),
+                    optional(seq('has', sepBy1('+', $.ability)))
                 )
             ),
         _ref_type: $ =>
@@ -237,12 +253,23 @@ module.exports = grammar({
         assignment: $ =>
             prec.left(
                 expr_precedence.DEFAULT,
-                seq(field('target', $._unary_expr), '=', field('value', $._expr))
+                seq(
+                    field('target', $._unary_expr),
+                    choice(...assignment_operators),
+                    field('value', $._expr)
+                )
             ),
 
         // Parse a list of bindings for lambda.
         //      LambdaBindList = "|" Comma<Bind> "|"
-        lambda_bind_list: $ => seq('|', sepByComma($._bind), '|'),
+        //      LambdaBindList = "|" Comma<Bind> ":" <Type> | &<Type> "|"
+        lambda_bind_list: $ =>
+            seq(
+                '|',
+                // TODO: Verify if there need to be two different lambda matchers (closure vs lambda)
+                sepByComma(seq($._bind, optional(seq(':', choice($._type, $._ref_type))))),
+                '|'
+            ),
 
         // Parses a quantifier expressions
         //
@@ -336,6 +363,7 @@ module.exports = grammar({
         //          | <Term>
         _dot_or_index_chain: $ =>
             choice($.access_field, $.receiver_call, $.mem_access, alias($.term, 'expr_term')),
+        // This allows for `self.function(args)` calls, with possible generics e.g. `self.function<T>(args)`
         receiver_call: $ =>
             prec.left(
                 expr_precedence.CALL,
@@ -347,11 +375,13 @@ module.exports = grammar({
                     field('arguments', $.call_args)
                 )
             ),
+        // This applies to global access, not vectors
         mem_access: $ =>
             prec.left(
                 expr_precedence.CALL,
                 seq($._dot_or_index_chain, '[', field('index', $._expr), ']')
             ),
+        // This is to access a field in a struct or enum
         access_field: $ =>
             prec.left(
                 expr_precedence.FIELD,
@@ -405,6 +435,7 @@ module.exports = grammar({
                 $.tuple_expr,
                 $.type_hint_expr,
                 $.cast_expr,
+                $.is_type_expr,
 
                 $.block,
                 $._name_expr,
@@ -421,13 +452,25 @@ module.exports = grammar({
                 $.for_loop_expr
             ),
 
+        // Provide a vector constant e.g. vector[0, 1]
         vector_value_expr: $ => seq('vector', optional($.type_args), '[', sepByComma($._expr), ']'),
+        // Provide a tuple e.g. (0u8, true, 10u64)
         tuple_expr: $ => seq('(', sepByComma($._expr), ')'),
+
+        // TODO: I'm not sure when this applies
         type_hint_expr: $ => seq('(', $._expr, ':', $.type, ')'),
-        cast_expr: $ => seq('(', $._expr, 'as', $.type, ')'),
+
+        // Cast a variable as a different variable e.g. (5u8 as u64).  Old rules required parens, new do not.
+        cast_expr: $ => seq($._expr, 'as', $.type),
+
+        // Boolean check if a variable is of a given type
+        is_type_expr: $ => seq($._expr, 'is', $.type),
+
+        // Parens around any expression
         parenthesized_expr: $ => seq('(', $._expr, ')'),
 
         // Match = "match" "(" <Exp> ")" "{" ( <MatchArm> ","? )* "}"
+        // TODO: Only applies to enums
         match_expr: $ =>
             seq(
                 'match',
@@ -468,13 +511,21 @@ module.exports = grammar({
                     optional($.spec_loop_invariant)
                 )
             ),
+
+        // A do forever loop
         loop_expr: $ => seq('loop', field('body', $._control_body)),
+
+        // Explicit return calls
         return_expr: $ =>
             choice(
                 prec(expr_precedence.DEFAULT, 'return'),
                 prec.left(seq('return', field('value', $._expr)))
             ),
+
+        // Simple `abort` call
         abort_expr: $ => seq('abort', field('condition', $._expr)),
+
+        // For loop, which is just convenience around a while loop with a counter.  Requires in and `..` for a range.
         for_loop_expr: $ =>
             seq(
                 'for',
@@ -508,7 +559,12 @@ module.exports = grammar({
         var: $ => seq($.name_access_chain, optional(field('type_arguments', $.type_args))),
         call_expr: $ =>
             seq(
-                field('func_name', $.name_access_chain),
+                choice(
+                    field('func_name', $.name_access_chain),
+                    // Very specifically, to make a (struct.function_value)() to execute a function value
+                    // TODO: restrict to only struct variables
+                    seq('(', $._expr, ')')
+                ),
                 optional(field('type_arguments', $.type_args)),
                 field('arguments', $.call_args)
             ),
@@ -865,8 +921,14 @@ module.exports = grammar({
             ),
 
         // Visibility = "public" ( "(" "script" | "friend" | "package" ")" )?
+        // TODO: script is legacy, should not apply anymore
         visibility: $ =>
-            seq('public', optional(seq('(', choice('script', 'friend', 'package'), ')'))),
+            choice(
+                seq('public', optional(seq('(', choice('script', 'friend', 'package'), ')'))),
+                // Note that package and friend now can stand on their own without `public(friend)`
+                'package',
+                'friend'
+            ),
 
         // ModuleMemberModifier = <Visibility> | "native"
         module_member_modifier: $ => choice($.visibility, 'native', 'entry'),
@@ -1100,7 +1162,7 @@ module.exports = grammar({
         //      | <NameAccessChain> <OptionalTypeArgs>                              enum, v2 only
         _bind: $ =>
             choice(
-                field('variable', $.var_name),
+                prec(expr_precedence.UNARY, seq('*', field('variable', $.var_name))),
                 seq(
                     field('struct', $.name_access_chain),
                     optional($.type_args),
@@ -1115,7 +1177,8 @@ module.exports = grammar({
         bind_field: $ =>
             choice(
                 field('field', alias($.var_name, $.shorthand_field_identifier)),
-                seq(field('field', $.var_name), ':', field('bind', $._bind))
+                seq(field('field', $.var_name), ':', field('bind', $._bind)),
+                '..' // TODO: Ensure this is only at the end of the binding
             ),
 
         // Parse a script:
