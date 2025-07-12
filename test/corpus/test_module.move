@@ -156,8 +156,7 @@ module module_addr::test_module {
             // Otherwise, we'll reset the unlock time to the new time
             let escrow = &Escrow[*escrow_address];
             match (escrow) {
-                // FIXME: Match doesn't work with the '..', this code isn't ideal atm
-                Simple { original_owner: _, delete_ref: _ } => {
+                Simple { .. } => {
                     // Do nothing
                 }
                 TimeUnlock { original_owner: _, unlock_secs: _, delete_ref: _ } => {

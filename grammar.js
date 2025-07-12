@@ -245,7 +245,7 @@ module.exports = grammar({
                 expr_precedence.DEFAULT,
                 seq(
                     field('target', $._unary_expr),
-                    choice('+=', '-=', '*=', '%=', '/=', '&=', '|=', '^=', '<<=', '>>='),
+                    choice('=', '+=', '-=', '*=', '%=', '/=', '&=', '|=', '^=', '<<=', '>>='),
                     field('value', $._expr)
                 )
             ),
@@ -1114,13 +1114,11 @@ module.exports = grammar({
         //      | <NameAccessChain> <OptionalTypeArgs>                              enum, v2 only
         _bind: $ =>
             choice(
-                field('variable', $.var_name),
+                prec(expr_precedence.UNARY, seq('*', field('variable', $.var_name))),
                 seq(
                     field('struct', $.name_access_chain),
                     optional($.type_args),
-                    optional(
-                        choice(alias($._bind_fields, $.fields), alias($._bind_tuple, $.tuple))
-                    )
+                    optional(choice(alias($._bind_fields, $.fields), alias($._bind_tuple, $.tuple)))
                 )
             ),
         _bind_tuple: $ => seq('(', sepByComma($._bind), ')'),

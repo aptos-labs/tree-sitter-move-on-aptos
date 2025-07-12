@@ -878,6 +878,10 @@
             "members": [
               {
                 "type": "STRING",
+                "value": "="
+              },
+              {
+                "type": "STRING",
                 "value": "+="
               },
               {
@@ -6914,11 +6918,24 @@
       "type": "CHOICE",
       "members": [
         {
-          "type": "FIELD",
-          "name": "variable",
+          "type": "PREC",
+          "value": 13,
           "content": {
-            "type": "SYMBOL",
-            "name": "var_name"
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "*"
+              },
+              {
+                "type": "FIELD",
+                "name": "variable",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "var_name"
+                }
+              }
+            ]
           }
         },
         {

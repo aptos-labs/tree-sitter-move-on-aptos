@@ -866,6 +866,10 @@
         "required": false,
         "types": [
           {
+            "type": "*",
+            "named": false
+          },
+          {
             "type": "fields",
             "named": true
           },
