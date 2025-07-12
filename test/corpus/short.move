@@ -2,20 +2,11 @@
 ///
 module module_addr::test_module {
 
-    use std::option::{Self, Option};
-    use std::signer;
-    use aptos_std::smart_table::{Self, SmartTable};
-    use aptos_framework::dispatchable_fungible_asset;
-    use aptos_framework::fungible_asset::{Self, Metadata, FungibleStore};
-    use aptos_framework::object::{Self, Object, ExtendRef, DeleteRef};
-    use aptos_framework::primary_fungible_store;
-    use aptos_framework::timestamp;
-
     #[resource_group_member(group = aptos_framework::object::ObjectGroup)]
     /// A single lockup, which has the same lockup period for all of them
     ///
     /// These are stored on objects, which map to the appropriate escrows
-    enum TestEnum has drop {
+    enum TestEnum<phantom T> has key, drop {
         A {
             v1: u8,
             v2: u16,
@@ -27,19 +18,21 @@ module module_addr::test_module {
         }
     }
 
-    struct TestStruct has drop {
+    struct TestStruct<phantom T> has drop {
         v1: u8,
         v2: u16
     }
 
     public fun test_fun() {
-        let enum1 = TestEnum::A {
+        let enum1 = TestEnum::A<u8> {
             v1: 0,
             v2: 1
         };
 
-        match (enum1) {
-            (TestEnum::A { v1: a, v2 }) => {}
+        match (&enum1) {
+            (TestEnum::A<u8> { v1: _a, v2 }) => {
+                let _v2 = v2;
+            }
             _ => {}
         };
 
@@ -48,45 +41,45 @@ module module_addr::test_module {
             v2
         } = enum1;
 
-        let enum2 = TestEnum::B {
+        let enum2 = TestEnum::B<u8> {
             v1,
             v2,
             v3: true
         };
 
-        match (enum2) {
-            B { v1, v2, v3 } => {}
+        match (&enum2) {
+            B { v1, v2, v3 } => {
+                let _ = if (*v3) *v1 else *v2 as u8;
+            }
             _ => {}
         };
 
         let TestEnum::B {
-            v1: bv1,
+            v1: _bv1,
             v3: _,
             ..
         } = enum2;
 
-        let str = TestStruct {
+        let str = TestStruct<u8> {
             v1,
             v2,
         };
-        let TestStruct { v1: tsv1, .. } = str;
+        let TestStruct { v1: _tsv1, .. } = str;
 
         let var: u8 = 0;
         let ref = &mut var;
-        let ref_ref = &mut ref;
-        *var = 1;
-        **var = 2;
+        *ref = 1;
 
-        let (num, b) = tuple(true);
+        let (_num, _b) = tuple(true);
     }
 
     public fun tuple(input: bool): (u8, bool) {
-        let var = if (input) {
+        let (num, b) = if (input) {
             (5, false)
         } else {
             (2, true)
         };
 
-        var
+        (num, b)
     }
 }
