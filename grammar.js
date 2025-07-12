@@ -243,7 +243,11 @@ module.exports = grammar({
         assignment: $ =>
             prec.left(
                 expr_precedence.DEFAULT,
-                seq(field('target', $._unary_expr), '=', field('value', $._expr))
+                seq(
+                    field('target', $._unary_expr),
+                    choice('+=', '-=', '*=', '%=', '/=', '&=', '|=', '^=', '<<=', '>>='),
+                    field('value', $._expr)
+                )
             ),
 
         // Parse a list of bindings for lambda.
