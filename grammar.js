@@ -76,6 +76,12 @@ module.exports = grammar({
         [$.enum_decl, $._enum_signature],
         [$.struct_decl, $._struct_signature],
         [$._variant, $._variant_last],
+        [$.visibility, $.friend_decl],
+        [$._control_body, $.cast_expr],
+        [$.abort_expr, $.cast_expr],
+        [$._expr, $.cast_expr],
+        [$.quantifier, $.cast_expr],
+        [$._op_expr, $.for_loop_expr],
     ],
 
     extras: $ => [
@@ -424,7 +430,7 @@ module.exports = grammar({
         vector_value_expr: $ => seq('vector', optional($.type_args), '[', sepByComma($._expr), ']'),
         tuple_expr: $ => seq('(', sepByComma($._expr), ')'),
         type_hint_expr: $ => seq('(', $._expr, ':', $.type, ')'),
-        cast_expr: $ => seq('(', $._expr, 'as', $.type, ')'),
+        cast_expr: $ => seq($._expr, 'as', $.type),
         parenthesized_expr: $ => seq('(', $._expr, ')'),
 
         // Match = "match" "(" <Exp> ")" "{" ( <MatchArm> ","? )* "}"
@@ -866,7 +872,11 @@ module.exports = grammar({
 
         // Visibility = "public" ( "(" "script" | "friend" | "package" ")" )?
         visibility: $ =>
-            seq('public', optional(seq('(', choice('script', 'friend', 'package'), ')'))),
+            choice(
+                seq('public', optional(seq('(', choice('script', 'friend', 'package'), ')'))),
+                'package',
+                'friend'
+            ),
 
         // ModuleMemberModifier = <Visibility> | "native"
         module_member_modifier: $ => choice($.visibility, 'native', 'entry'),

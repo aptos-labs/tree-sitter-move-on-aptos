@@ -2518,10 +2518,6 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "STRING",
-          "value": "("
-        },
-        {
           "type": "SYMBOL",
           "name": "_expr"
         },
@@ -2532,10 +2528,6 @@
         {
           "type": "SYMBOL",
           "name": "type"
-        },
-        {
-          "type": "STRING",
-          "value": ")"
         }
       ]
     },
@@ -5073,49 +5065,62 @@
       ]
     },
     "visibility": {
-      "type": "SEQ",
+      "type": "CHOICE",
       "members": [
         {
-          "type": "STRING",
-          "value": "public"
-        },
-        {
-          "type": "CHOICE",
+          "type": "SEQ",
           "members": [
             {
-              "type": "SEQ",
+              "type": "STRING",
+              "value": "public"
+            },
+            {
+              "type": "CHOICE",
               "members": [
                 {
-                  "type": "STRING",
-                  "value": "("
-                },
-                {
-                  "type": "CHOICE",
+                  "type": "SEQ",
                   "members": [
                     {
                       "type": "STRING",
-                      "value": "script"
+                      "value": "("
+                    },
+                    {
+                      "type": "CHOICE",
+                      "members": [
+                        {
+                          "type": "STRING",
+                          "value": "script"
+                        },
+                        {
+                          "type": "STRING",
+                          "value": "friend"
+                        },
+                        {
+                          "type": "STRING",
+                          "value": "package"
+                        }
+                      ]
                     },
                     {
                       "type": "STRING",
-                      "value": "friend"
-                    },
-                    {
-                      "type": "STRING",
-                      "value": "package"
+                      "value": ")"
                     }
                   ]
                 },
                 {
-                  "type": "STRING",
-                  "value": ")"
+                  "type": "BLANK"
                 }
               ]
-            },
-            {
-              "type": "BLANK"
             }
           ]
+        },
+        {
+          "type": "STRING",
+          "value": "package"
+        },
+        {
+          "type": "STRING",
+          "value": "friend"
         }
       ]
     },
@@ -7445,6 +7450,30 @@
     [
       "_variant",
       "_variant_last"
+    ],
+    [
+      "visibility",
+      "friend_decl"
+    ],
+    [
+      "_control_body",
+      "cast_expr"
+    ],
+    [
+      "abort_expr",
+      "cast_expr"
+    ],
+    [
+      "_expr",
+      "cast_expr"
+    ],
+    [
+      "quantifier",
+      "cast_expr"
+    ],
+    [
+      "_op_expr",
+      "for_loop_expr"
     ]
   ],
   "precedences": [

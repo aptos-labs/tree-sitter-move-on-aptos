@@ -386,7 +386,7 @@ module module_addr::test_module {
     }
 
     /// Returns all outstanding funds
-    inline fun return_funds(
+    public(package) inline fun return_funds(
         self: &Lockup,
         fa_metadata: Object<Metadata>,
         escrow_address: address,
@@ -405,7 +405,7 @@ module module_addr::test_module {
     }
 
     /// Deletes an escrow object
-    inline fun delete_escrow(self: &mut Lockup, lockup_key: EscrowKey) {
+    package inline fun delete_escrow(self: &mut Lockup, lockup_key: EscrowKey) {
         let escrow_addr = self.escrows.remove(lockup_key);
 
         // The following lines will return the storage deposit
@@ -429,7 +429,7 @@ module module_addr::test_module {
 
     #[view]
     /// Tells the amount of escrowed funds currently available
-    public fun escrowed_funds(
+    public(package) fun escrowed_funds(
         lockup_obj: Object<Lockup>,
         fa_metadata: Object<Metadata>,
         user: address
@@ -450,7 +450,7 @@ module module_addr::test_module {
 
     #[view]
     /// Tells the amount of escrowed funds currently available
-    public fun remaining_escrow_time(
+    package fun remaining_escrow_time(
         lockup_obj: Object<Lockup>,
         fa_metadata: Object<Metadata>,
         user: address
