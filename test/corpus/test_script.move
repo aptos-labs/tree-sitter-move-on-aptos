@@ -35,7 +35,7 @@ script {
         };
         let receiver = signer::address_of(account2);
         */
-        let balance: u64 = ((total / 3) as u64); // FIXME: Should support no parens cast
+        let balance: u64 = (total / 3) as u64; // FIXME: Should support no parens cast
         aptos_account::transfer(account1, receiver, balance);
         aptos_account::transfer(account1, i7, balance);
         let addr = object::object_address(&i10);
