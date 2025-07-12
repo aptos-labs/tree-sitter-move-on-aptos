@@ -1118,7 +1118,9 @@ module.exports = grammar({
                 seq(
                     field('struct', $.name_access_chain),
                     optional($.type_args),
-                    optional(choice(alias($._bind_fields, $.fields), alias($._bind_tuple, $.tuple)))
+                    optional(
+                        choice(alias($._bind_fields, $.fields), alias($._bind_tuple, $.tuple))
+                    )
                 )
             ),
         _bind_tuple: $ => seq('(', sepByComma($._bind), ')'),
@@ -1129,7 +1131,8 @@ module.exports = grammar({
         bind_field: $ =>
             choice(
                 field('field', alias($.var_name, $.shorthand_field_identifier)),
-                seq(field('field', $.var_name), ':', field('bind', $._bind))
+                seq(field('field', $.var_name), ':', field('bind', $._bind)),
+                '..' // TODO: Ensure this is only at the end of the binding
             ),
 
         // Parse a script:

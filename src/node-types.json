@@ -889,7 +889,7 @@
       },
       "field": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "shorthand_field_identifier",
