@@ -82,4 +82,16 @@ module module_addr::test_module {
 
         (num, b)
     }
+
+    enum Ordering {
+        Equal,
+        Greater,
+        Less
+    }
+
+    native public fun compare<T>(first: &T, second: &T): Ordering;
+
+    public fun is_eq(self: &Ordering): bool {
+        self is Ordering::Equal
+    }
 }

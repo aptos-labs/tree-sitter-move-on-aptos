@@ -2352,6 +2352,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "is_type_expr"
+        },
+        {
+          "type": "SYMBOL",
           "name": "block"
         },
         {
@@ -2569,6 +2573,23 @@
         {
           "type": "STRING",
           "value": "as"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "type"
+        }
+      ]
+    },
+    "is_type_expr": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_expr"
+        },
+        {
+          "type": "STRING",
+          "value": "is"
         },
         {
           "type": "SYMBOL",
@@ -7532,6 +7553,22 @@
     [
       "quantifier",
       "cast_expr"
+    ],
+    [
+      "_control_body",
+      "is_type_expr"
+    ],
+    [
+      "abort_expr",
+      "is_type_expr"
+    ],
+    [
+      "_expr",
+      "is_type_expr"
+    ],
+    [
+      "quantifier",
+      "is_type_expr"
     ],
     [
       "_op_expr",

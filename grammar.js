@@ -81,6 +81,10 @@ module.exports = grammar({
         [$.abort_expr, $.cast_expr],
         [$._expr, $.cast_expr],
         [$.quantifier, $.cast_expr],
+        [$._control_body, $.is_type_expr],
+        [$.abort_expr, $.is_type_expr],
+        [$._expr, $.is_type_expr],
+        [$.quantifier, $.is_type_expr],
         [$._op_expr, $.for_loop_expr],
     ],
 
@@ -415,6 +419,7 @@ module.exports = grammar({
                 $.tuple_expr,
                 $.type_hint_expr,
                 $.cast_expr,
+                $.is_type_expr,
 
                 $.block,
                 $._name_expr,
@@ -435,6 +440,7 @@ module.exports = grammar({
         tuple_expr: $ => seq('(', sepByComma($._expr), ')'),
         type_hint_expr: $ => seq('(', $._expr, ':', $.type, ')'),
         cast_expr: $ => seq($._expr, 'as', $.type),
+        is_type_expr: $ => seq($._expr, 'is', $.type),
         parenthesized_expr: $ => seq('(', $._expr, ')'),
 
         // Match = "match" "(" <Exp> ")" "{" ( <MatchArm> ","? )* "}"
