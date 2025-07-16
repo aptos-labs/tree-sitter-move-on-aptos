@@ -94,6 +94,12 @@ module module_addr::test_module {
         self is Ordering::Equal
     }
 
+    /// Public structs, not valid yet, but for testing purposes on syntax
+    public struct PublicStruct {
+        inner: u8
+    }
+
+    /// Function values with abilities need to be allowed
     struct Funcs {
         f: |u64| u64 has drop + copy,
     }
