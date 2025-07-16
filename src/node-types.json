@@ -1278,6 +1278,16 @@
             }
           ]
         }
+      },
+      "children": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "ability",
+            "named": true
+          }
+        ]
       }
     },
     {

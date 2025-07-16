@@ -225,7 +225,8 @@ module.exports = grammar({
                     '|',
                     field('param_types', sepByComma($.type)),
                     '|',
-                    field('return_type', optional($.type))
+                    field('return_type', optional($.type)),
+                    optional(seq('has', sepBy1('+', $.ability)))
                 )
             ),
         _ref_type: $ =>

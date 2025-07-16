@@ -1,7 +1,6 @@
 /// Test module
 ///
 module module_addr::test_module {
-
     #[resource_group_member(group = aptos_framework::object::ObjectGroup)]
     /// A single lockup, which has the same lockup period for all of them
     ///
@@ -93,5 +92,9 @@ module module_addr::test_module {
 
     public fun is_eq(self: &Ordering): bool {
         self is Ordering::Equal
+    }
+
+    struct Funcs {
+        f: |u64| u64 has drop + copy,
     }
 }
