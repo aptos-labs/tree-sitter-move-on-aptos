@@ -48,6 +48,9 @@ const binary_operators = [
     ], // 12
 ];
 
+// Assignment operators, don't need precedence because only one can be used
+const assignment_operators = ['=', '+=', '-=', '*=', '%=', '/=', '&=', '|=', '^=', '<<=', '>>='];
+
 const expr_precedence = {
     DEFAULT: 1,
     LAST: -1,
@@ -252,16 +255,18 @@ module.exports = grammar({
                 expr_precedence.DEFAULT,
                 seq(
                     field('target', $._unary_expr),
-                    choice('=', '+=', '-=', '*=', '%=', '/=', '&=', '|=', '^=', '<<=', '>>='),
+                    choice(...assignment_operators),
                     field('value', $._expr)
                 )
             ),
 
         // Parse a list of bindings for lambda.
         //      LambdaBindList = "|" Comma<Bind> "|"
+        //      LambdaBindList = "|" Comma<Bind> ":" <Type> | &<Type> "|"
         lambda_bind_list: $ =>
             seq(
                 '|',
+                // TODO: Verify if there need to be two different lambda matchers (closure vs lambda)
                 sepByComma(seq($._bind, optional(seq(':', choice($._type, $._ref_type))))),
                 '|'
             ),
@@ -358,6 +363,7 @@ module.exports = grammar({
         //          | <Term>
         _dot_or_index_chain: $ =>
             choice($.access_field, $.receiver_call, $.mem_access, alias($.term, 'expr_term')),
+        // This allows for `self.function(args)` calls, with possible generics e.g. `self.function<T>(args)`
         receiver_call: $ =>
             prec.left(
                 expr_precedence.CALL,
@@ -369,11 +375,13 @@ module.exports = grammar({
                     field('arguments', $.call_args)
                 )
             ),
+        // This applies to global access, not vectors
         mem_access: $ =>
             prec.left(
                 expr_precedence.CALL,
                 seq($._dot_or_index_chain, '[', field('index', $._expr), ']')
             ),
+        // This is to access a field in a struct or enum
         access_field: $ =>
             prec.left(
                 expr_precedence.FIELD,
@@ -444,14 +452,25 @@ module.exports = grammar({
                 $.for_loop_expr
             ),
 
+        // Provide a vector constant e.g. vector[0, 1]
         vector_value_expr: $ => seq('vector', optional($.type_args), '[', sepByComma($._expr), ']'),
+        // Provide a tuple e.g. (0u8, true, 10u64)
         tuple_expr: $ => seq('(', sepByComma($._expr), ')'),
+
+        // TODO: I'm not sure when this applies
         type_hint_expr: $ => seq('(', $._expr, ':', $.type, ')'),
+
+        // Cast a variable as a different variable e.g. (5u8 as u64).  Old rules required parens, new do not.
         cast_expr: $ => seq($._expr, 'as', $.type),
+
+        // Boolean check if a variable is of a given type
         is_type_expr: $ => seq($._expr, 'is', $.type),
+
+        // Parens around any expression
         parenthesized_expr: $ => seq('(', $._expr, ')'),
 
         // Match = "match" "(" <Exp> ")" "{" ( <MatchArm> ","? )* "}"
+        // TODO: Only applies to enums
         match_expr: $ =>
             seq(
                 'match',
@@ -492,13 +511,21 @@ module.exports = grammar({
                     optional($.spec_loop_invariant)
                 )
             ),
+
+        // A do forever loop
         loop_expr: $ => seq('loop', field('body', $._control_body)),
+
+        // Explicit return calls
         return_expr: $ =>
             choice(
                 prec(expr_precedence.DEFAULT, 'return'),
                 prec.left(seq('return', field('value', $._expr)))
             ),
+
+        // Simple `abort` call
         abort_expr: $ => seq('abort', field('condition', $._expr)),
+
+        // For loop, which is just convenience around a while loop with a counter.  Requires in and `..` for a range.
         for_loop_expr: $ =>
             seq(
                 'for',
@@ -894,9 +921,11 @@ module.exports = grammar({
             ),
 
         // Visibility = "public" ( "(" "script" | "friend" | "package" ")" )?
+        // TODO: script is legacy, should not apply anymore
         visibility: $ =>
             choice(
                 seq('public', optional(seq('(', choice('script', 'friend', 'package'), ')'))),
+                // Note that package and friend now can stand on their own without `public(friend)`
                 'package',
                 'friend'
             ),
