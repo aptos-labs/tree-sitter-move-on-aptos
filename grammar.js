@@ -86,6 +86,7 @@ module.exports = grammar({
         [$._expr, $.is_type_expr],
         [$.quantifier, $.is_type_expr],
         [$._op_expr, $.for_loop_expr],
+        [$.tuple_expr, $.call_expr],
     ],
 
     extras: $ => [
@@ -219,7 +220,8 @@ module.exports = grammar({
             ),
         tuple_type: $ => seq('(', sepByComma($.type), ')'),
         closure_type: $ =>
-            prec.right(
+            // Changed this to left, seems to make it parse properly, didn't work properly as right
+            prec.left(
                 expr_precedence.DEFAULT,
                 seq(
                     '|',
@@ -257,7 +259,12 @@ module.exports = grammar({
 
         // Parse a list of bindings for lambda.
         //      LambdaBindList = "|" Comma<Bind> "|"
-        lambda_bind_list: $ => seq('|', sepByComma($._bind), '|'),
+        lambda_bind_list: $ =>
+            seq(
+                '|',
+                sepByComma(seq($._bind, optional(seq(':', choice($._type, $._ref_type))))),
+                '|'
+            ),
 
         // Parses a quantifier expressions
         //
@@ -525,7 +532,12 @@ module.exports = grammar({
         var: $ => seq($.name_access_chain, optional(field('type_arguments', $.type_args))),
         call_expr: $ =>
             seq(
-                field('func_name', $.name_access_chain),
+                choice(
+                    field('func_name', $.name_access_chain),
+                    // Very specifically, to make a (struct.function_value)() to execute a function value
+                    // TODO: restrict to only struct variables
+                    seq('(', $._expr, ')')
+                ),
                 optional(field('type_arguments', $.type_args)),
                 field('arguments', $.call_args)
             ),
