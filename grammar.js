@@ -142,7 +142,7 @@ module.exports = grammar({
         // FIXME: this is a workaround for the existing chaotic naming scheme. Keywords are not supposed to be identifiers.
         discouraged_name: $ =>
             choice($.primitive_type, $._quantifier_directive, $._reuseable_keywords),
-        _reuseable_keywords: _ => choice('for', 'while', 'friend', 'match'),
+        _reuseable_keywords: _ => choice('for', 'while', 'package', 'friend', 'match'),
 
         number: _ =>
             choice(

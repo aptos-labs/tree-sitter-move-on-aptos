@@ -162,6 +162,10 @@
         },
         {
           "type": "STRING",
+          "value": "package"
+        },
+        {
+          "type": "STRING",
           "value": "friend"
         },
         {
