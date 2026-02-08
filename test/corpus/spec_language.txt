@@ -1,0 +1,344 @@
+================================================================================
+Spec module block with pragma
+================================================================================
+
+module 0x1::test {
+    fun f(): u64 { 1 }
+
+    spec module {
+        pragma verify = true;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        return_type: (primitive_type)
+        body: (block
+          (num_literal)))
+      (spec_block
+        body: (spec_body
+          (spec_pragma
+            (spec_property
+              (identifier)
+              (bool_literal))))))))
+
+================================================================================
+Spec function with ensures
+================================================================================
+
+module 0x1::test {
+    fun add(a: u64, b: u64): u64 { a + b }
+
+    spec fun add {
+        ensures result == a + b;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (primitive_type))
+          (function_parameter
+            name: (identifier)
+            type: (primitive_type)))
+        return_type: (primitive_type)
+        body: (block
+          (binary_expression
+            lhs: (name_expression
+              (name_access_chain
+                (identifier)))
+            rhs: (name_expression
+              (name_access_chain
+                (identifier))))))
+      (spec_block
+        target: (identifier)
+        body: (spec_body
+          (spec_condition
+            (binary_expression
+              lhs: (name_expression
+                (name_access_chain
+                  (identifier)))
+              rhs: (binary_expression
+                lhs: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                rhs: (name_expression
+                  (name_access_chain
+                    (identifier)))))))))))
+
+================================================================================
+Spec with requires and aborts_if
+================================================================================
+
+module 0x1::test {
+    fun divide(a: u64, b: u64): u64 { a / b }
+
+    spec fun divide {
+        requires b != 0;
+        aborts_if b == 0;
+        ensures result == a / b;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (primitive_type))
+          (function_parameter
+            name: (identifier)
+            type: (primitive_type)))
+        return_type: (primitive_type)
+        body: (block
+          (binary_expression
+            lhs: (name_expression
+              (name_access_chain
+                (identifier)))
+            rhs: (name_expression
+              (name_access_chain
+                (identifier))))))
+      (spec_block
+        target: (identifier)
+        body: (spec_body
+          (spec_condition
+            (binary_expression
+              lhs: (name_expression
+                (name_access_chain
+                  (identifier)))
+              rhs: (num_literal)))
+          (spec_condition
+            (binary_expression
+              lhs: (name_expression
+                (name_access_chain
+                  (identifier)))
+              rhs: (num_literal)))
+          (spec_condition
+            (binary_expression
+              lhs: (name_expression
+                (name_access_chain
+                  (identifier)))
+              rhs: (binary_expression
+                lhs: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                rhs: (name_expression
+                  (name_access_chain
+                    (identifier)))))))))))
+
+================================================================================
+Spec struct invariant
+================================================================================
+
+module 0x1::test {
+    struct Counter has key {
+        value: u64,
+    }
+
+    spec struct Counter {
+        invariant value > 0;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (struct_declaration
+        name: (identifier)
+        abilities: (ability_declarations
+          (ability))
+        fields: (struct_fields
+          (field_declaration
+            name: (identifier)
+            type: (primitive_type))))
+      (spec_block
+        target: (identifier)
+        body: (spec_body
+          (spec_invariant
+            (binary_expression
+              lhs: (name_expression
+                (name_access_chain
+                  (identifier)))
+              rhs: (num_literal))))))))
+
+================================================================================
+Spec include and apply
+================================================================================
+
+module 0x1::test {
+    spec module {
+        include SomeSchema;
+        apply SomeSchema to *;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        body: (spec_body
+          (spec_include
+            (name_expression
+              (name_access_chain
+                (identifier))))
+          (spec_apply
+            (name_expression
+              (name_access_chain
+                (identifier)))
+            (spec_apply_pattern)))))))
+
+================================================================================
+Spec let binding
+================================================================================
+
+module 0x1::test {
+    spec module {
+        let total = balance + pending;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        body: (spec_body
+          (spec_let
+            name: (identifier)
+            value: (binary_expression
+              lhs: (name_expression
+                (name_access_chain
+                  (identifier)))
+              rhs: (name_expression
+                (name_access_chain
+                  (identifier))))))))))
+
+================================================================================
+Spec function definition with define
+================================================================================
+
+module 0x1::test {
+    spec module {
+        define spec_add(a: u64, b: u64): u64 {
+            a + b
+        }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        body: (spec_body
+          (usual_spec_function
+            name: (identifier)
+            parameters: (function_parameters
+              (function_parameter
+                name: (identifier)
+                type: (primitive_type))
+              (function_parameter
+                name: (identifier)
+                type: (primitive_type)))
+            return_type: (primitive_type)
+            body: (block
+              (binary_expression
+                lhs: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                rhs: (name_expression
+                  (name_access_chain
+                    (identifier)))))))))))
+
+================================================================================
+Quantifier expression: forall
+================================================================================
+
+module 0x1::test {
+    spec module {
+        invariant forall addr: address: exists<Coin>(addr) ==> balance(addr) > 0;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        body: (spec_body
+          (spec_invariant
+            (quantifier_expression
+              (quantifier_bindings
+                (quantifier_binding
+                  (identifier)
+                  (primitive_type)))
+              (binary_expression
+                lhs: (call_expression
+                  function: (name_access_chain
+                    (identifier))
+                  type_arguments: (type_arguments
+                    (apply_type
+                      (name_access_chain
+                        (identifier))))
+                  arguments: (arg_list
+                    (name_expression
+                      (name_access_chain
+                        (identifier)))))
+                rhs: (binary_expression
+                  lhs: (call_expression
+                    function: (name_access_chain
+                      (identifier))
+                    arguments: (arg_list
+                      (name_expression
+                        (name_access_chain
+                          (identifier)))))
+                  rhs: (num_literal))))))))))

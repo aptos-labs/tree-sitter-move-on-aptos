@@ -1,0 +1,133 @@
+================================================================================
+Not expression
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let x = !true;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (not_expression
+              (bool_literal))))))))
+
+================================================================================
+Borrow expression
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let r = &x;
+        let m = &mut y;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (borrow_expression
+              (name_expression
+                (name_access_chain
+                  (identifier)))))
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (borrow_expression
+              (name_expression
+                (name_access_chain
+                  (identifier))))))))))
+
+================================================================================
+Dereference expression
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let v = *ref;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (dereference_expression
+              (name_expression
+                (name_access_chain
+                  (identifier))))))))))
+
+================================================================================
+Move and copy expressions
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let a = move x;
+        let b = copy y;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (move_expression
+              (name_expression
+                (name_access_chain
+                  (identifier)))))
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (copy_expression
+              (name_expression
+                (name_access_chain
+                  (identifier))))))))))
