@@ -1030,6 +1030,7 @@ module.exports = grammar({
       seq('struct', $.identifier),
       'module',
       seq('schema', $.identifier, optional($.type_parameters)),
+      $.identifier,  // bare identifier shorthand: spec add { ... }
     ),
 
     spec_body: $ => seq(
@@ -1131,19 +1132,19 @@ module.exports = grammar({
     ),
 
     native_spec_function: $ => seq(
-      'native', 'define',
+      'native', choice('fun', 'define'),
       $._spec_function_signature,
       ';',
     ),
 
     usual_spec_function: $ => seq(
-      'define',
+      choice('fun', 'define'),
       $._spec_function_signature,
       field('body', $.block),
     ),
 
     uninterpreted_spec_function: $ => seq(
-      'define',
+      choice('fun', 'define'),
       $._spec_function_signature,
       ';',
     ),

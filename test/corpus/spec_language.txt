@@ -32,13 +32,13 @@ module 0x1::test {
               (bool_literal))))))))
 
 ================================================================================
-Spec function with ensures
+Spec function with ensures (bare identifier shorthand)
 ================================================================================
 
 module 0x1::test {
     fun add(a: u64, b: u64): u64 { a + b }
 
-    spec fun add {
+    spec add {
         ensures result == a + b;
     }
 }
@@ -261,6 +261,47 @@ Spec function definition with define
 module 0x1::test {
     spec module {
         define spec_add(a: u64, b: u64): u64 {
+            a + b
+        }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        body: (spec_body
+          (usual_spec_function
+            name: (identifier)
+            parameters: (function_parameters
+              (function_parameter
+                name: (identifier)
+                type: (primitive_type))
+              (function_parameter
+                name: (identifier)
+                type: (primitive_type)))
+            return_type: (primitive_type)
+            body: (block
+              (binary_expression
+                lhs: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                rhs: (name_expression
+                  (name_access_chain
+                    (identifier)))))))))))
+
+================================================================================
+Spec function definition with fun keyword
+================================================================================
+
+module 0x1::test {
+    spec module {
+        fun spec_add(a: u64, b: u64): u64 {
             a + b
         }
     }
