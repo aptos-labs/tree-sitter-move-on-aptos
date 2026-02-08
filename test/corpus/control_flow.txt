@@ -107,6 +107,41 @@ module 0x1::test {
               (continue_expression))))))))
 
 ================================================================================
+Loop labels with break
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        'outer: loop {
+            'inner: loop {
+                break 'outer
+            };
+        };
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (loop_expression
+            (loop_label)
+            body: (block
+              (loop_expression
+                (loop_label)
+                body: (block
+                  (break_expression
+                    (label_name)))))))))))
+
+================================================================================
 Assignment and compound assignment
 ================================================================================
 

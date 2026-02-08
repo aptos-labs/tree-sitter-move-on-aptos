@@ -266,3 +266,46 @@ module 0x1::test {
             value: (name_expression
               (name_access_chain
                 (identifier)))))))))
+
+================================================================================
+Or-pattern in match
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        match (x) {
+            Color::Red | Color::Blue => 1,
+            _ => 0,
+        };
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (match_expression
+            subject: (name_expression
+              (name_access_chain
+                (identifier)))
+            (match_arm
+              pattern: (or_pattern
+                (name_expression
+                  (name_access_chain
+                    (identifier)
+                    (identifier)))
+                (name_expression
+                  (name_access_chain
+                    (identifier)
+                    (identifier))))
+              body: (num_literal))
+            (match_arm
+              body: (num_literal))))))))

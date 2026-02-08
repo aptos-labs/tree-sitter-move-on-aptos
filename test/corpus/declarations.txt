@@ -357,3 +357,110 @@ module 0x1::test {
         name: (identifier)
         parameters: (function_parameters)
         body: (block)))))
+
+================================================================================
+Use declarations with aliases
+================================================================================
+
+module 0x1::test {
+    use 0x1::string::String;
+    use 0x1::coin::{Self, Coin as MyCoin};
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (use_declaration
+        (use_module_member
+          (module_identity
+            address: (numerical_address)
+            module: (identifier))
+          (use_member
+            member: (identifier))))
+      (use_declaration
+        (use_module_members
+          (module_identity
+            address: (numerical_address)
+            module: (identifier))
+          (use_member
+            member: (identifier))
+          (use_member
+            member: (identifier)
+            (use_alias
+              alias: (identifier))))))))
+
+================================================================================
+Attributes with arguments
+================================================================================
+
+module 0x1::test {
+    #[test]
+    #[expected_failure(abort_code = 1)]
+    fun test_abort() {
+        abort 1
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        (attributes
+          (attribute
+            (identifier))
+          (attribute
+            (identifier)
+            (attribute
+              (identifier)
+              (num_literal))))
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (abort_expression
+            (num_literal)))))))
+
+================================================================================
+Script with use and function args
+================================================================================
+
+script {
+    use 0x1::debug;
+    fun main(account: &signer) {
+        debug::print(&42);
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (script_declaration
+    (use_declaration
+      (use_module
+        (module_identity
+          address: (numerical_address)
+          module: (identifier))))
+    (function_declaration
+      name: (identifier)
+      parameters: (function_parameters
+        (function_parameter
+          name: (identifier)
+          type: (ref_type
+            (primitive_type))))
+      body: (block
+        (call_expression
+          function: (name_access_chain
+            (identifier)
+            (identifier))
+          arguments: (arg_list
+            (borrow_expression
+              (num_literal))))))))

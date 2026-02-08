@@ -196,3 +196,43 @@ module 0x1::test {
         body: (block
           (vector_expression
             (identifier)))))))
+
+================================================================================
+Nested generics
+================================================================================
+
+module 0x1::test {
+    struct Wrapper<T> has key {
+        inner: vector<Option<T>>,
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (struct_declaration
+        name: (identifier)
+        type_parameters: (type_parameters
+          (type_parameter
+            name: (identifier)))
+        abilities: (ability_declarations
+          (ability))
+        fields: (struct_fields
+          (field_declaration
+            name: (identifier)
+            type: (apply_type
+              (name_access_chain
+                (identifier))
+              (type_arguments
+                (apply_type
+                  (name_access_chain
+                    (identifier))
+                  (type_arguments
+                    (apply_type
+                      (name_access_chain
+                        (identifier)))))))))))))

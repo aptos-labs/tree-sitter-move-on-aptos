@@ -383,3 +383,109 @@ module 0x1::test {
                         (name_access_chain
                           (identifier)))))
                   rhs: (num_literal))))))))))
+
+================================================================================
+Spec schema block with type parameters
+================================================================================
+
+module 0x1::test {
+    spec schema MySchema<T> {
+        invariant true;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        target: (identifier)
+        target: (type_parameters
+          (type_parameter
+            name: (identifier)))
+        body: (spec_body
+          (spec_invariant
+            (bool_literal)))))))
+
+================================================================================
+Native and uninterpreted spec functions
+================================================================================
+
+module 0x1::test {
+    spec module {
+        native fun serialize<T>(v: &T): vector<u8>;
+        fun is_empty(v: vector<u8>): bool;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        body: (spec_body
+          (native_spec_function
+            name: (identifier)
+            type_parameters: (type_parameters
+              (type_parameter
+                name: (identifier)))
+            parameters: (function_parameters
+              (function_parameter
+                name: (identifier)
+                type: (ref_type
+                  (apply_type
+                    (name_access_chain
+                      (identifier))))))
+            return_type: (apply_type
+              (name_access_chain
+                (identifier))
+              (type_arguments
+                (primitive_type))))
+          (uninterpreted_spec_function
+            name: (identifier)
+            parameters: (function_parameters
+              (function_parameter
+                name: (identifier)
+                type: (apply_type
+                  (name_access_chain
+                    (identifier))
+                  (type_arguments
+                    (primitive_type)))))
+            return_type: (primitive_type)))))))
+
+================================================================================
+Spec global variable with type parameters
+================================================================================
+
+module 0x1::test {
+    spec module {
+        global<T> total_supply: num;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        body: (spec_body
+          (spec_variable
+            (type_parameters
+              (type_parameter
+                name: (identifier)))
+            name: (identifier)
+            type: (apply_type
+              (name_access_chain
+                (identifier)))))))))

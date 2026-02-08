@@ -1109,8 +1109,8 @@ module.exports = grammar({
 
     spec_variable: $ => seq(
       optional(choice('global', 'local')),
-      field('name', $.identifier),
       optional($.type_parameters),
+      field('name', $.identifier),
       ':',
       field('type', $._type),
       ';',
