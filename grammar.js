@@ -292,8 +292,7 @@ module.exports = grammar({
       optional(field('type_parameters', $.type_parameters)),
       optional(field('abilities', $.ability_declarations)),
       '{',
-      sepBy(optional(','), $.enum_variant),
-      optional(','),
+      commaSep($.enum_variant),
       '}',
     ),
 
@@ -525,7 +524,7 @@ module.exports = grammar({
 
     bool_literal: _ => choice('true', 'false'),
 
-    byte_string_literal: _ => token(seq('b"', repeat(choice(/\\[nrt0\\"\\]/, /\\x[0-9a-fA-F]{2}/, /[^\\"]/)), '"')),
+    byte_string_literal: _ => token(seq('b"', repeat(choice(/\\[nrt0\\"]/, /\\x[0-9a-fA-F]{2}/, /[^\\"]/)), '"')),
 
     hex_string_literal: _ => token(seq('x"', /[0-9a-fA-F]*/, '"')),
 

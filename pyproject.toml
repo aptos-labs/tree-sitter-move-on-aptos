@@ -25,5 +25,5 @@ Homepage = "https://github.com/tree-sitter/tree-sitter-move-on-aptos"
 core = ["tree-sitter~=0.25"]
 
 [tool.cibuildwheel]
-build = "cp38-*"
+build = "cp310-*"
 build-frontend = "build"

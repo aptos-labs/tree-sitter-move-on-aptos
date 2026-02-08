@@ -1041,55 +1041,52 @@
           "value": "{"
         },
         {
-          "type": "CHOICE",
+          "type": "SEQ",
           "members": [
             {
-              "type": "SEQ",
+              "type": "CHOICE",
               "members": [
                 {
-                  "type": "SYMBOL",
-                  "name": "enum_variant"
-                },
-                {
-                  "type": "REPEAT",
-                  "content": {
-                    "type": "SEQ",
-                    "members": [
-                      {
-                        "type": "CHOICE",
+                  "type": "SEQ",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "enum_variant"
+                    },
+                    {
+                      "type": "REPEAT",
+                      "content": {
+                        "type": "SEQ",
                         "members": [
                           {
                             "type": "STRING",
                             "value": ","
                           },
                           {
-                            "type": "BLANK"
+                            "type": "SYMBOL",
+                            "name": "enum_variant"
                           }
                         ]
-                      },
-                      {
-                        "type": "SYMBOL",
-                        "name": "enum_variant"
                       }
-                    ]
-                  }
+                    }
+                  ]
+                },
+                {
+                  "type": "BLANK"
                 }
               ]
             },
             {
-              "type": "BLANK"
-            }
-          ]
-        },
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "STRING",
-              "value": ","
-            },
-            {
-              "type": "BLANK"
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": ","
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
             }
           ]
         },
@@ -2494,7 +2491,7 @@
               "members": [
                 {
                   "type": "PATTERN",
-                  "value": "\\\\[nrt0\\\\\"\\\\]"
+                  "value": "\\\\[nrt0\\\\\"]"
                 },
                 {
                   "type": "PATTERN",
