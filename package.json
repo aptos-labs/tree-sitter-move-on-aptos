@@ -33,7 +33,7 @@
     "eslint-plugin-prettier": "^5.5.1",
     "globals": "^16.3.0",
     "prebuildify": "^6.0.1",
-    "tree-sitter-cli": "^0.25.7"
+    "tree-sitter-cli": "^0.26.5"
   },
   "files": [
     "grammar.js",
