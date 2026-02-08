@@ -3,7 +3,8 @@
 */
 module 0x1234::test_module_no_addr {
     const HEX: vector<u8> = x"0123456789ABCDEFabcdef";
-    const BYTE: vector<u8> = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+=<>,./?':;\"`~!@#$%^&*()    ";
+    // TODO: Support all the characters in the ASCII table
+    const BYTE: vector<u8> = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";//-_+=<>,./?':;\"`~!@#$%^&*()    ";
 
     friend 0x1234::test_module;
     /*

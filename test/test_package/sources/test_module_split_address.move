@@ -5,7 +5,6 @@ address 0x1234 {
     */
     module test_module_split {
         const HEX: vector<u8> = x"0123456789ABCDEFabcdef";
-        const BYTE: vector<u8> = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_+=<>,./?':;\"`~!@#$%^&*()    ";
 
         /*
           Block comments

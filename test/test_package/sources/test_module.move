@@ -2,6 +2,7 @@
 ///
 module module_addr::test_module {
 
+    use 0x1::signer::address_of;
     use std::option::{Self, Option};
     use std::signer;
     use aptos_std::smart_table::{Self, SmartTable};

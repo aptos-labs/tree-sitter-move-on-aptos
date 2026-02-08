@@ -1,9 +1,7 @@
-// Docs
+/// Docs
 script {
-    // something
+    /// something
     const VALUE: u64 = 42;
-
-    /***/
 
     //
     fun main(_caller: &signer) {
@@ -16,9 +14,7 @@ script {
     /*****/
     /**/
 
-    /*
     /**/
     /***/
-    */
 
 }

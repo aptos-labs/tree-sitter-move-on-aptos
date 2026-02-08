@@ -1,0 +1,359 @@
+================================================================================
+Module declaration with address
+================================================================================
+
+module 0x1::my_module {
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body)))
+
+================================================================================
+Module declaration with named address
+================================================================================
+
+module std::vector {
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (identifier)
+      module: (identifier))
+    body: (module_body)))
+
+================================================================================
+Address block with modules
+================================================================================
+
+address 0x1 {
+    module one {
+        fun test() {}
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (address_block
+    address: (numerical_address)
+    (module_declaration
+      name: (identifier)
+      body: (module_body
+        (function_declaration
+          name: (identifier)
+          parameters: (function_parameters)
+          body: (block))))))
+
+================================================================================
+Use declarations
+================================================================================
+
+module 0x1::test {
+    use std::vector;
+    use std::option::{Self, Option};
+    use aptos_framework::coin as c;
+    use aptos_framework::fungible_asset::deposit;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (use_declaration
+        (use_module
+          (module_identity
+            address: (identifier)
+            module: (identifier))))
+      (use_declaration
+        (use_module_members
+          (module_identity
+            address: (identifier)
+            module: (identifier))
+          (use_member
+            member: (identifier))
+          (use_member
+            member: (identifier))))
+      (use_declaration
+        (use_module
+          (module_identity
+            address: (identifier)
+            module: (identifier))
+          (use_alias
+            alias: (identifier))))
+      (use_declaration
+        (use_module_member
+          (module_identity
+            address: (identifier)
+            module: (identifier))
+          (use_member
+            member: (identifier)))))))
+
+================================================================================
+Friend declaration
+================================================================================
+
+module 0x1::test {
+    friend 0x1::other;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (friend_declaration
+        (name_access_chain
+          (numerical_address)
+          (identifier))))))
+
+================================================================================
+Constant declaration
+================================================================================
+
+module 0x1::test {
+    const MAX: u64 = 100;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (constant_declaration
+        name: (identifier)
+        type: (primitive_type)
+        value: (num_literal)))))
+
+================================================================================
+Struct with abilities and fields
+================================================================================
+
+module 0x1::test {
+    struct Coin has key, store {
+        value: u64,
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (struct_declaration
+        name: (identifier)
+        abilities: (ability_declarations
+          (ability)
+          (ability))
+        fields: (struct_fields
+          (field_declaration
+            name: (identifier)
+            type: (primitive_type)))))))
+
+================================================================================
+Positional struct
+================================================================================
+
+module 0x1::test {
+    struct Pair(u64, u64) has copy, drop;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (struct_declaration
+        name: (identifier)
+        fields: (positional_fields
+          (primitive_type)
+          (primitive_type))
+        abilities: (ability_declarations
+          (ability)
+          (ability))))))
+
+================================================================================
+Enum declaration
+================================================================================
+
+module 0x1::test {
+    enum Color has copy, drop {
+        Red,
+        Green,
+        Blue,
+        Custom { r: u8, g: u8, b: u8 },
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (enum_declaration
+        name: (identifier)
+        abilities: (ability_declarations
+          (ability)
+          (ability))
+        (enum_variant
+          name: (identifier))
+        (enum_variant
+          name: (identifier))
+        (enum_variant
+          name: (identifier))
+        (enum_variant
+          name: (identifier)
+          fields: (struct_fields
+            (field_declaration
+              name: (identifier)
+              type: (primitive_type))
+            (field_declaration
+              name: (identifier)
+              type: (primitive_type))
+            (field_declaration
+              name: (identifier)
+              type: (primitive_type))))))))
+
+================================================================================
+Function declaration with modifiers
+================================================================================
+
+module 0x1::test {
+    public entry fun transfer(from: &signer, amount: u64) acquires Coin {
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        (entry_modifier)
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (ref_type
+              (primitive_type)))
+          (function_parameter
+            name: (identifier)
+            type: (primitive_type)))
+        acquires: (acquires_clause
+          (name_access_chain
+            (identifier)))
+        body: (block)))))
+
+================================================================================
+Native function
+================================================================================
+
+module 0x1::test {
+    native public fun compare<T>(a: &T, b: &T): bool;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        type_parameters: (type_parameters
+          (type_parameter
+            name: (identifier)))
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (ref_type
+              (apply_type
+                (name_access_chain
+                  (identifier)))))
+          (function_parameter
+            name: (identifier)
+            type: (ref_type
+              (apply_type
+                (name_access_chain
+                  (identifier))))))
+        return_type: (primitive_type)))))
+
+================================================================================
+Script declaration
+================================================================================
+
+script {
+    fun main() {}
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (script_declaration
+    (function_declaration
+      name: (identifier)
+      parameters: (function_parameters)
+      body: (block))))
+
+================================================================================
+Attributes
+================================================================================
+
+module 0x1::test {
+    #[test]
+    #[expected_failure(abort_code = 1)]
+    fun test_something() {}
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        (attributes
+          (attribute
+            (identifier))
+          (attribute
+            (identifier)
+            (attribute
+              (identifier)
+              (num_literal))))
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block)))))

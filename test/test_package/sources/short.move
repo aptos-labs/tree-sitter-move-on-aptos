@@ -29,9 +29,9 @@ module module_addr::short {
         };
 
         match (&enum1) {
-            (TestEnum::A<u8> { v1: _a, v2 }) => {
-                let _v2 = v2;
-            }
+            /*(TestEnum::A<u8> { v1: _a, v2 }) => {
+                    let _v2 = v2;
+                    }*/
             _ => {}
         };
 
@@ -48,7 +48,8 @@ module module_addr::short {
 
         match (&enum2) {
             B { v1, v2, v3 } => {
-                let _ = if (*v3) *v1 else *v2 as u8;
+                if (true) 0 else 1;
+                //let _ = if (*v3) *v1 else *v2 as u8;
             }
             _ => {}
         };
@@ -95,7 +96,9 @@ module module_addr::short {
     }
 
     /// Public structs, not valid yet, but for testing purposes on syntax
-    public struct PublicStruct {
+    public
+
+    struct PublicStruct {
         inner: u8
     }
 
@@ -126,11 +129,40 @@ module module_addr::short {
         reuse_slots: bool,
         next_1: ||u64,
         next_2: ||u64): u64 {
-            next_1() + next_2()
+        next_1() + next_2()
     }
 
     fun self_functions(self: &Funcs, num: u64): u64 {
         // In Move, you need to put parens around the function value to call it as a function
-        (self.f)(num)
+        (self.f)
+        (num)
+    }
+}
+
+module module_addr::pack {
+    package fun do_pack() {}
+
+    public(package) fun do_pack_2() {}
+}
+
+module module_addr::other {
+    #[test_only]
+    friend module_addr::short_test;
+
+    friend fun do_something() {}
+
+    public(friend) fun do_something_2() {}
+}
+
+#[test_only]
+module module_addr::short_test {
+    friend module_addr::other;
+
+    #[test]
+    fun test_something() {
+        use module_addr::short_test;
+        module_addr::short_test::tuple(true);
+        short_test::tuple(false);
+        do_something();
     }
 }

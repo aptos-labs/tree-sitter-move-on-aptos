@@ -1,0 +1,422 @@
+================================================================================
+Binary expressions
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let x = 1 + 2 * 3;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (binary_expression
+              lhs: (num_literal)
+              rhs: (binary_expression
+                lhs: (num_literal)
+                rhs: (num_literal)))))))))
+
+================================================================================
+If expression
+================================================================================
+
+module 0x1::test {
+    fun f(): u64 {
+        if (x > 0) { 1 } else { 0 }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        return_type: (primitive_type)
+        body: (block
+          (if_expression
+            condition: (binary_expression
+              lhs: (name_expression
+                (name_access_chain
+                  (identifier)))
+              rhs: (num_literal))
+            consequence: (block
+              (num_literal))
+            alternative: (block
+              (num_literal))))))))
+
+================================================================================
+Match expression
+================================================================================
+
+module 0x1::test {
+    fun f(c: Color): u64 {
+        match (c) {
+            Color::Red => 1,
+            Color::Custom { r, g, b } => 4,
+            _ => 0,
+        }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (apply_type
+              (name_access_chain
+                (identifier)))))
+        return_type: (primitive_type)
+        body: (block
+          (match_expression
+            subject: (name_expression
+              (name_access_chain
+                (identifier)))
+            (match_arm
+              pattern: (name_expression
+                (name_access_chain
+                  (identifier)
+                  (identifier)))
+              body: (num_literal))
+            (match_arm
+              pattern: (struct_pattern
+                (name_access_chain
+                  (identifier)
+                  (identifier))
+                (field_pattern
+                  field: (identifier))
+                (field_pattern
+                  field: (identifier))
+                (field_pattern
+                  field: (identifier)))
+              body: (num_literal))
+            (match_arm
+              body: (num_literal))))))))
+
+================================================================================
+For loop with range
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        for (i in 0..10) {
+        };
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (for_expression
+            iterator: (identifier)
+            range: (range_expression
+              lower: (num_literal)
+              upper: (num_literal))
+            body: (block)))))))
+
+================================================================================
+Vector literal
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let v = vector[1, 2, 3];
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (vector_expression
+              (identifier)
+              (num_literal)
+              (num_literal)
+              (num_literal))))))))
+
+================================================================================
+Lambda expression
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let add_one = |x: u64| x + 1;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (lambda_expression
+              parameters: (lambda_parameters
+                (lambda_parameter
+                  bind: (bind_var
+                    (identifier))
+                  type: (primitive_type)))
+              body: (binary_expression
+                lhs: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                rhs: (num_literal)))))))))
+
+================================================================================
+Macro call assert!
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        assert!(x > 0, 1);
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (macro_call_expression
+            macro: (macro_identifier)
+            arguments: (arg_list
+              (binary_expression
+                lhs: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                rhs: (num_literal))
+              (num_literal))))))))
+
+================================================================================
+Dot expression and method call
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let v = obj.field;
+        obj.method(1);
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (dot_expression
+              object: (name_expression
+                (name_access_chain
+                  (identifier)))
+              field: (identifier)))
+          (dot_expression
+            object: (name_expression
+              (name_access_chain
+                (identifier)))
+            field: (identifier)
+            arguments: (arg_list
+              (num_literal))))))))
+
+================================================================================
+Pack expression
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let c = Coin { value: 100 };
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (pack_expression
+              type: (name_access_chain
+                (identifier))
+              (field_initializer
+                field: (identifier)
+                value: (num_literal)))))))))
+
+================================================================================
+Return and abort
+================================================================================
+
+module 0x1::test {
+    fun f(): u64 {
+        if (false) {
+            abort 42
+        };
+        return 0
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        return_type: (primitive_type)
+        body: (block
+          (if_expression
+            condition: (bool_literal)
+            consequence: (block
+              (abort_expression
+                (num_literal))))
+          (return_expression
+            (num_literal)))))))
+
+================================================================================
+Type cast expression
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let x = (y as u64);
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (parenthesized_expression
+              (cast_expression
+                expr: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                type: (primitive_type)))))))))
+
+================================================================================
+Call with type arguments
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        borrow_global<Coin>(addr);
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (call_expression
+            function: (name_access_chain
+              (identifier))
+            type_arguments: (type_arguments
+              (apply_type
+                (name_access_chain
+                  (identifier))))
+            arguments: (arg_list
+              (name_expression
+                (name_access_chain
+                  (identifier))))))))))

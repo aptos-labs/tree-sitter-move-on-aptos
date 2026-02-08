@@ -37,7 +37,7 @@ module 0x42::test_enums {
     }
 
     #[view]
-    public(package) fun view_e(addr: address): Example acquires Example {
+    package fun view_e(addr: address): Example acquires Example {
         Example[addr]
     }
 
