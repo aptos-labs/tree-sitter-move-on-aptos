@@ -7,7 +7,7 @@
       "title": "Move on Aptos",
       "scope": "source.move_on_aptos",
       "file-types": [
-        "move_on_aptos"
+        "move"
       ],
       "injection-regex": "^move_on_aptos$",
       "class-name": "TreeSitterMoveOnAptos"
