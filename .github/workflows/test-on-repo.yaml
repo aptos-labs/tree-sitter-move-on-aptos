@@ -23,11 +23,11 @@ jobs:
         with:
           repository: wormhole-foundation/wormhole
           path: test/repos/wormhole-foundation/wormhole
-      - name: Checkout `pancakeswap/pancake-contracts-move`
+      - name: Checkout `aptos-labs/daily-move`
         uses: actions/checkout@v4
         with:
-          repository: pancakeswap/pancake-contracts-move
-          path: test/repos/pancakeswap/pancake-contracts-move
+          repository: aptos-labs/daily-move
+          path: test/repos/aptos-labs/daily-move
       
       # Setup environment
       - uses: actions/setup-node@v4
@@ -60,7 +60,7 @@ jobs:
           python batch-test.py \
           test/repos/aptos-labs/aptos-core/aptos-move \
           test/repos/wormhole-foundation/wormhole/aptos \
-          test/repos/pancakeswap/pancake-contracts-move
+          test/repos/aptos-labs/daily-move
   
   # Test decompiled Move modules
   parse-stats:
@@ -85,11 +85,11 @@ jobs:
         with:
           repository: wormhole-foundation/wormhole
           path: test/repos/wormhole-foundation/wormhole
-      - name: Checkout `pancakeswap/pancake-contracts-move`
+      - name: Checkout `aptos-labs/daily-move`
         uses: actions/checkout@v4
         with:
-          repository: pancakeswap/pancake-contracts-move
-          path: test/repos/pancakeswap/pancake-contracts-move
+          repository: aptos-labs/daily-move
+          path: test/repos/aptos-labs/daily-move
       - name: Checkout `aave/aptos-aave-v3`
         uses: actions/checkout@v4
         with:
@@ -128,7 +128,7 @@ jobs:
           test/repos/aptos-labs/move-modules/mainnet    \
           test/repos/aptos-labs/aptos-core/             \
           test/repos/wormhole-foundation/wormhole/aptos \
-          test/repos/pancakeswap/pancake-contracts-move \
+          test/repos/aptos-labs/daily-move \
           test/repos/aave/aptos-aave-v3                 \
           test/repos/movefuns/move-by-example           \
           test/repos/aptos-labs/token-minter            \
