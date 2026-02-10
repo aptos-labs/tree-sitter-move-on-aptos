@@ -518,3 +518,35 @@ spec aptos_framework::coin {
             (name_access_chain
               (identifier)))
           rhs: (num_literal))))))
+
+================================================================================
+Nested spec block with parameter bindings
+================================================================================
+
+spec aptos_framework::test {
+    spec initialize(account: &signer) {
+        pragma verify = false;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (spec_block
+    target: (name_access_chain
+      (identifier)
+      (identifier))
+    body: (spec_body
+      (spec_block
+        target: (name_access_chain
+          (identifier))
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (ref_type
+              (primitive_type))))
+        body: (spec_body
+          (spec_pragma
+            (spec_property
+              (identifier)
+              (bool_literal))))))))

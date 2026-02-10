@@ -944,11 +944,15 @@ module.exports = grammar({
 
         _spec_block_target: $ =>
             choice(
-                seq('fun', $.identifier),
+                seq('fun', $.identifier, optional(field('parameters', $.function_parameters))),
                 seq('struct', $.identifier),
                 'module',
                 seq('schema', $.identifier, optional($.type_parameters)),
-                $.name_access_chain // bare identifier or module path: spec add { ... } or spec 0x1::coin { ... }
+                // bare identifier or module path with optional param bindings:
+                //   spec add { ... }
+                //   spec 0x1::coin { ... }
+                //   spec initialize(aptos_framework: &signer) { ... }
+                seq($.name_access_chain, optional(field('parameters', $.function_parameters)))
             ),
 
         spec_body: $ => seq('{', repeat(choice($.use_declaration, $._spec_block_member)), '}'),
@@ -962,7 +966,8 @@ module.exports = grammar({
                 $.spec_pragma,
                 $.spec_variable,
                 $.spec_let,
-                $._spec_function
+                $._spec_function,
+                $.spec_block // nested spec blocks: spec fun_name(params) { ... }
             ),
 
         spec_invariant: $ =>
