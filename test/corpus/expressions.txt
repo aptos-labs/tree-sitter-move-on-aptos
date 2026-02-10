@@ -420,3 +420,55 @@ module 0x1::test {
               (name_expression
                 (name_access_chain
                   (identifier))))))))))
+
+================================================================================
+Less-than comparison vs generic type arguments
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        while (i < 10) {};
+        assert!(x < 3, 42);
+        exists<T>(addr);
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (while_expression
+            condition: (binary_expression
+              lhs: (name_expression
+                (name_access_chain
+                  (identifier)))
+              rhs: (num_literal))
+            body: (block))
+          (macro_call_expression
+            macro: (macro_identifier)
+            arguments: (arg_list
+              (binary_expression
+                lhs: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                rhs: (num_literal))
+              (num_literal)))
+          (call_expression
+            function: (name_access_chain
+              (identifier))
+            type_arguments: (type_arguments
+              (apply_type
+                (name_access_chain
+                  (identifier))))
+            arguments: (arg_list
+              (name_expression
+                (name_access_chain
+                  (identifier))))))))))

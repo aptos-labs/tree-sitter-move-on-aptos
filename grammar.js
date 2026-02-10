@@ -62,6 +62,11 @@ module.exports = grammar({
     conflicts: $ => [
         // 'exists' and 'forall' are both spec quantifier keywords and valid identifiers
         [$._leading_name_access, $.quantifier_expression],
+        // name_access_chain followed by < is ambiguous: comparison (binary_expression)
+        // vs start of type_arguments in call_expression / pack_expression.
+        // GLR forks here; prec.dynamic(2) on type_arguments paths makes them win
+        // when both parses succeed (e.g. exists<T>(addr)).
+        [$.name_expression, $.call_expression, $.pack_expression],
     ],
 
     precedences: _ => [],
@@ -699,20 +704,23 @@ module.exports = grammar({
             ),
 
         // Name expression: variable, path, or enum variant
-        name_expression: $ => seq($.name_access_chain, optional($.type_arguments)),
+        // Note: type_arguments are NOT on name_expression -- they live on
+        // call_expression, pack_expression, dot_expression, vector_expression, etc.
+        // This prevents `i < 10` from being mis-parsed as `i<10...>` (name with generic args).
+        name_expression: $ => $.name_access_chain,
 
         // Function call: foo(), module::foo<T>()
+        // The type_arguments variant uses prec.dynamic(2) to win over the comparison
+        // interpretation when both parses complete (e.g. exists<T>(addr) vs exists < T).
+        // The no-type-args variant uses prec(PREC.CALL) for call vs. expression precedence.
         call_expression: $ =>
             choice(
                 prec.dynamic(
                     2,
-                    prec(
-                        PREC.CALL,
-                        seq(
-                            field('function', $.name_access_chain),
-                            field('type_arguments', $.type_arguments),
-                            field('arguments', $.arg_list)
-                        )
+                    seq(
+                        field('function', $.name_access_chain),
+                        field('type_arguments', $.type_arguments),
+                        field('arguments', $.arg_list)
                     )
                 ),
                 prec(
@@ -737,14 +745,27 @@ module.exports = grammar({
 
         macro_identifier: _ => token(seq(/[a-zA-Z_][a-zA-Z0-9_]*/, '!')),
 
-        // Struct/enum pack: Struct { field: value }
+        // Struct/enum pack: Struct { field: value }, Struct<T> { field: value }
         pack_expression: $ =>
-            seq(
-                field('type', $.name_access_chain),
-                optional(field('type_arguments', $.type_arguments)),
-                '{',
-                commaSep($.field_initializer),
-                '}'
+            choice(
+                // With type arguments -- prec.dynamic(2) to prefer over comparison interpretation
+                prec.dynamic(
+                    2,
+                    seq(
+                        field('type', $.name_access_chain),
+                        field('type_arguments', $.type_arguments),
+                        '{',
+                        commaSep($.field_initializer),
+                        '}'
+                    )
+                ),
+                // Without type arguments
+                seq(
+                    field('type', $.name_access_chain),
+                    '{',
+                    commaSep($.field_initializer),
+                    '}'
+                )
             ),
 
         field_initializer: $ =>
