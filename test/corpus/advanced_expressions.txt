@@ -406,9 +406,46 @@ module 0x1::test {
               expr: (name_expression
                 (name_access_chain
                   (identifier)))
-              (name_access_chain
-                (identifier)
-                (identifier)))))))))
+              variants: (is_variant_list
+                (name_access_chain
+                  (identifier)
+                  (identifier))))))))))
+
+================================================================================
+Is expression with type arguments
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let result = x is Option::Some<u64>;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (is_expression
+              expr: (name_expression
+                (name_access_chain
+                  (identifier)))
+              variants: (is_variant_list
+                (name_access_chain
+                  (identifier)
+                  (identifier))
+                (type_arguments
+                  (primitive_type))))))))))
 
 ================================================================================
 For loop with range

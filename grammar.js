@@ -67,6 +67,10 @@ module.exports = grammar({
         // GLR forks here; prec.dynamic(2) on type_arguments paths makes them win
         // when both parses succeed (e.g. exists<T>(addr)).
         [$.name_expression, $.call_expression, $.pack_expression],
+        // In is_expression: name_access_chain < could be type_arguments or comparison
+        [$._is_variant],
+        // In is_expression: | could be variant separator or binary OR
+        [$.is_variant_list],
         // After dot_expression, < is ambiguous: reduce dot_expression to _expression_term
         // (then binary <) vs keep dot_expression for method_call_with_type_args (shift <).
         [$._expression_term, $.method_call_with_type_args],
@@ -822,11 +826,25 @@ module.exports = grammar({
         annotate_expression: $ =>
             seq('(', field('expr', $._expression), ':', field('type', $._type), ')'),
 
-        // Enum variant test: expr is Variant1 | Variant2
+        // Enum variant test: expr is Variant1 | Variant2, expr is Type<T>
         is_expression: $ =>
             prec.left(
                 PREC.EQ,
-                seq(field('expr', $._expression), 'is', sepBy1('|', $.name_access_chain))
+                seq(
+                    field('expr', $._expression),
+                    'is',
+                    field('variants', $.is_variant_list)
+                )
+            ),
+
+        // Variant list for 'is' expression. Each variant may have type arguments.
+        is_variant_list: $ =>
+            sepBy1('|', $._is_variant),
+
+        _is_variant: $ =>
+            choice(
+                prec.dynamic(2, seq($.name_access_chain, $.type_arguments)),
+                $.name_access_chain
             ),
 
         // vector literal: vector[1, 2, 3], vector<u8>[]
