@@ -422,6 +422,48 @@ module 0x1::test {
                   (identifier))))))))))
 
 ================================================================================
+Receiver-style method call with type arguments
+================================================================================
+
+module 0x1::test {
+    fun f(obj: Object) {
+        obj.convert<TestToken, Metadata>();
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (apply_type
+              (name_access_chain
+                (identifier)))))
+        body: (block
+          (method_call_with_type_args
+            (dot_expression
+              object: (name_expression
+                (name_access_chain
+                  (identifier)))
+              field: (identifier))
+            type_arguments: (type_arguments
+              (apply_type
+                (name_access_chain
+                  (identifier)))
+              (apply_type
+                (name_access_chain
+                  (identifier))))
+            arguments: (arg_list)))))))
+
+================================================================================
 Less-than comparison vs generic type arguments
 ================================================================================
 

@@ -67,6 +67,9 @@ module.exports = grammar({
         // GLR forks here; prec.dynamic(2) on type_arguments paths makes them win
         // when both parses succeed (e.g. exists<T>(addr)).
         [$.name_expression, $.call_expression, $.pack_expression],
+        // After dot_expression, < is ambiguous: reduce dot_expression to _expression_term
+        // (then binary <) vs keep dot_expression for method_call_with_type_args (shift <).
+        [$._expression_term, $.method_call_with_type_args],
     ],
 
     precedences: _ => [],
@@ -688,6 +691,7 @@ module.exports = grammar({
                 $.pack_expression,
                 $.name_expression,
                 $.dot_expression,
+                $.method_call_with_type_args,
                 $.index_expression,
                 $.cast_expression,
                 $.annotate_expression,
@@ -779,12 +783,20 @@ module.exports = grammar({
                     field('object', $._expression_term),
                     '.',
                     field('field', choice($.identifier, $.num_literal)),
-                    optional(
-                        seq(
-                            optional(field('type_arguments', $.type_arguments)),
-                            field('arguments', $.arg_list)
-                        )
-                    )
+                    optional(field('arguments', $.arg_list))
+                )
+            ),
+
+        // Receiver-style method call with type arguments: obj.method<T>(args)
+        // Consumes a dot_expression as its object, then extends with type_arguments + arg_list.
+        // prec.dynamic(2) makes this win over the binary `<` interpretation when both parses succeed.
+        method_call_with_type_args: $ =>
+            prec.dynamic(
+                2,
+                seq(
+                    $.dot_expression,
+                    field('type_arguments', $.type_arguments),
+                    field('arguments', $.arg_list)
                 )
             ),
 
