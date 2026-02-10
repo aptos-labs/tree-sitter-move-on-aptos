@@ -330,7 +330,7 @@ module.exports = grammar({
 
         attribute: $ =>
             seq(
-                $.identifier,
+                $.name_access_chain,
                 optional(choice(seq('=', $._attribute_value), seq('(', commaSep($.attribute), ')')))
             ),
 
