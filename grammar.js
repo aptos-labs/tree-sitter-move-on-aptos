@@ -66,7 +66,7 @@ module.exports = grammar({
         // vs start of type_arguments in call_expression / pack_expression.
         // GLR forks here; prec.dynamic(2) on type_arguments paths makes them win
         // when both parses succeed (e.g. exists<T>(addr)).
-        [$.name_expression, $.call_expression, $.pack_expression],
+        [$.name_expression, $.call_expression, $.pack_expression, $.generic_name_expression],
         // In is_expression: name_access_chain < could be type_arguments or comparison
         [$._is_variant],
         // In is_expression: | could be variant separator or binary OR
@@ -694,6 +694,7 @@ module.exports = grammar({
                 $.indirect_call_expression,
                 $.pack_expression,
                 $.name_expression,
+                $.generic_name_expression,
                 $.dot_expression,
                 $.method_call_with_type_args,
                 $.index_expression,
@@ -716,6 +717,11 @@ module.exports = grammar({
         // call_expression, pack_expression, dot_expression, vector_expression, etc.
         // This prevents `i < 10` from being mis-parsed as `i<10...>` (name with generic args).
         name_expression: $ => $.name_access_chain,
+
+        // Generic name expression for spec globals: supply<CoinType>
+        // Uses prec.dynamic(2) to prefer over comparison interpretation.
+        generic_name_expression: $ =>
+            prec.dynamic(2, seq($.name_access_chain, field('type_arguments', $.type_arguments))),
 
         // Function call: foo(), module::foo<T>()
         // The type_arguments variant uses prec.dynamic(2) to win over the comparison
@@ -984,8 +990,20 @@ module.exports = grammar({
                 $.spec_pragma,
                 $.spec_variable,
                 $.spec_let,
+                $.spec_update,
                 $._spec_function,
                 $.spec_block // nested spec blocks: spec fun_name(params) { ... }
+            ),
+
+        // Spec update: update supply<CoinType> = expr;
+        spec_update: $ =>
+            seq(
+                'update',
+                field('name', $.name_access_chain),
+                optional(field('type_arguments', $.type_arguments)),
+                '=',
+                field('value', $._expression),
+                ';'
             ),
 
         spec_invariant: $ =>

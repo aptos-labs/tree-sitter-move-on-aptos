@@ -550,3 +550,44 @@ spec aptos_framework::test {
             (spec_property
               (identifier)
               (bool_literal))))))))
+
+================================================================================
+Spec update statement with type arguments
+================================================================================
+
+module 0x1::test {
+    spec mint {
+        update supply<CoinType> = supply<CoinType> + amount;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        target: (name_access_chain
+          (identifier))
+        body: (spec_body
+          (spec_update
+            name: (name_access_chain
+              (identifier))
+            type_arguments: (type_arguments
+              (apply_type
+                (name_access_chain
+                  (identifier))))
+            value: (binary_expression
+              lhs: (generic_name_expression
+                (name_access_chain
+                  (identifier))
+                type_arguments: (type_arguments
+                  (apply_type
+                    (name_access_chain
+                      (identifier)))))
+              rhs: (name_expression
+                (name_access_chain
+                  (identifier))))))))))
