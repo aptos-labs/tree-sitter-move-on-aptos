@@ -72,7 +72,14 @@ module.exports = grammar({
         // ═══════════════════════════════════════════════════════════════════════════
 
         source_file: $ =>
-            repeat(choice($.module_declaration, $.script_declaration, $.address_block)),
+            repeat(
+                choice(
+                    $.module_declaration,
+                    $.script_declaration,
+                    $.address_block,
+                    $.spec_block
+                )
+            ),
 
         // ═══════════════════════════════════════════════════════════════════════════
         // Address blocks (legacy syntax)
@@ -908,7 +915,7 @@ module.exports = grammar({
                 seq('struct', $.identifier),
                 'module',
                 seq('schema', $.identifier, optional($.type_parameters)),
-                $.identifier // bare identifier shorthand: spec add { ... }
+                $.name_access_chain // bare identifier or module path: spec add { ... } or spec 0x1::coin { ... }
             ),
 
         spec_body: $ => seq('{', repeat(choice($.use_declaration, $._spec_block_member)), '}'),

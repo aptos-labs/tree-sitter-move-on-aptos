@@ -70,7 +70,8 @@ module 0x1::test {
               (name_access_chain
                 (identifier))))))
       (spec_block
-        target: (identifier)
+        target: (name_access_chain
+          (identifier))
         body: (spec_body
           (spec_condition
             (binary_expression
@@ -489,3 +490,31 @@ module 0x1::test {
             type: (apply_type
               (name_access_chain
                 (identifier)))))))))
+
+================================================================================
+Top-level spec block (standalone spec file)
+================================================================================
+
+spec aptos_framework::coin {
+    pragma verify = true;
+    invariant supply > 0;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (spec_block
+    target: (name_access_chain
+      (identifier)
+      (identifier))
+    body: (spec_body
+      (spec_pragma
+        (spec_property
+          (identifier)
+          (bool_literal)))
+      (spec_invariant
+        (binary_expression
+          lhs: (name_expression
+            (name_access_chain
+              (identifier)))
+          rhs: (num_literal))))))
