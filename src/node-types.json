@@ -8428,16 +8428,58 @@
           }
         ]
       },
+      "return_type": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "apply_type",
+            "named": true
+          },
+          {
+            "type": "function_type",
+            "named": true
+          },
+          {
+            "type": "primitive_type",
+            "named": true
+          },
+          {
+            "type": "ref_type",
+            "named": true
+          },
+          {
+            "type": "tuple_type",
+            "named": true
+          },
+          {
+            "type": "unit_type",
+            "named": true
+          }
+        ]
+      },
       "target": {
         "multiple": true,
         "required": false,
         "types": [
+          {
+            "type": ":",
+            "named": false
+          },
+          {
+            "type": "apply_type",
+            "named": true
+          },
           {
             "type": "fun",
             "named": false
           },
           {
             "type": "function_parameters",
+            "named": true
+          },
+          {
+            "type": "function_type",
             "named": true
           },
           {
@@ -8453,6 +8495,14 @@
             "named": true
           },
           {
+            "type": "primitive_type",
+            "named": true
+          },
+          {
+            "type": "ref_type",
+            "named": true
+          },
+          {
             "type": "schema",
             "named": false
           },
@@ -8460,6 +8510,24 @@
             "type": "struct",
             "named": false
           },
+          {
+            "type": "tuple_type",
+            "named": true
+          },
+          {
+            "type": "type_parameters",
+            "named": true
+          },
+          {
+            "type": "unit_type",
+            "named": true
+          }
+        ]
+      },
+      "type_parameters": {
+        "multiple": false,
+        "required": false,
+        "types": [
           {
             "type": "type_parameters",
             "named": true
@@ -8473,6 +8541,10 @@
       "types": [
         {
           "type": "native_spec_function",
+          "named": true
+        },
+        {
+          "type": "spec_function_shorthand",
           "named": true
         },
         {
@@ -8508,6 +8580,10 @@
         },
         {
           "type": "spec_condition",
+          "named": true
+        },
+        {
+          "type": "spec_function_shorthand",
           "named": true
         },
         {
@@ -8726,6 +8802,82 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "spec_function_shorthand",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "block",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "parameters": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "function_parameters",
+            "named": true
+          }
+        ]
+      },
+      "return_type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "apply_type",
+            "named": true
+          },
+          {
+            "type": "function_type",
+            "named": true
+          },
+          {
+            "type": "primitive_type",
+            "named": true
+          },
+          {
+            "type": "ref_type",
+            "named": true
+          },
+          {
+            "type": "tuple_type",
+            "named": true
+          },
+          {
+            "type": "unit_type",
+            "named": true
+          }
+        ]
+      },
+      "type_parameters": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "type_parameters",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {

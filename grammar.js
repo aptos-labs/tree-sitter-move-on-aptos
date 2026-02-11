@@ -71,6 +71,10 @@ module.exports = grammar({
         [$._is_variant],
         // In is_expression: | could be variant separator or binary OR
         [$.is_variant_list],
+        // spec fun name(params): type { } could be _spec_function or _spec_block_target
+        [$._spec_block_target, $._spec_function_signature],
+        // spec name ( could be name_access_chain(identifier, ...) or spec_function_signature(identifier, params)
+        [$._leading_name_access, $._spec_function_signature],
         // After dot_expression, < is ambiguous: reduce dot_expression to _expression_term
         // (then binary <) vs keep dot_expression for method_call_with_type_args (shift <).
         [$._expression_term, $.method_call_with_type_args],
@@ -972,15 +976,28 @@ module.exports = grammar({
 
         _spec_block_target: $ =>
             choice(
-                seq('fun', $.identifier, optional(field('parameters', $.function_parameters))),
+                seq(
+                    'fun',
+                    $.identifier,
+                    optional(field('type_parameters', $.type_parameters)),
+                    optional(field('parameters', $.function_parameters)),
+                    optional(seq(':', field('return_type', $._type)))
+                ),
                 seq('struct', $.identifier),
                 'module',
                 seq('schema', $.identifier, optional($.type_parameters)),
-                // bare identifier or module path with optional param bindings:
+                // bare identifier or module path with optional type params, param bindings, and return type:
                 //   spec add { ... }
                 //   spec 0x1::coin { ... }
                 //   spec initialize(aptos_framework: &signer) { ... }
-                seq($.name_access_chain, optional(field('parameters', $.function_parameters)))
+                //   spec contains(self: &ACL, addr: address): bool { ... }
+                //   spec swap<T>(a: &mut T, b: &mut T) { ... }
+                seq(
+                    $.name_access_chain,
+                    optional(field('type_parameters', $.type_parameters)),
+                    optional(field('parameters', $.function_parameters)),
+                    optional(seq(':', field('return_type', $._type)))
+                )
             ),
 
         spec_body: $ => seq('{', repeat(choice($.use_declaration, $._spec_block_member)), '}'),
@@ -1084,7 +1101,16 @@ module.exports = grammar({
             ),
 
         _spec_function: $ =>
-            choice($.native_spec_function, $.usual_spec_function, $.uninterpreted_spec_function),
+            choice(
+                $.native_spec_function,
+                $.usual_spec_function,
+                $.uninterpreted_spec_function,
+                // Shorthand: spec name(params): type { body } -- no fun/define keyword
+                $.spec_function_shorthand
+            ),
+
+        spec_function_shorthand: $ =>
+            seq($._spec_function_signature, field('body', $.block)),
 
         native_spec_function: $ =>
             seq('native', choice('fun', 'define'), $._spec_function_signature, ';'),

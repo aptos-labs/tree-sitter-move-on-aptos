@@ -552,6 +552,54 @@ spec aptos_framework::test {
               (bool_literal))))))))
 
 ================================================================================
+Spec function shorthand (no fun keyword)
+================================================================================
+
+spec aptos_framework::test {
+    spec contains(self: &ACL, addr: address): bool {
+        exists<address>(self.list, addr)
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (spec_block
+    target: (name_access_chain
+      (identifier)
+      (identifier))
+    body: (spec_body
+      (spec_block
+        (spec_function_shorthand
+          name: (identifier)
+          parameters: (function_parameters
+            (function_parameter
+              name: (identifier)
+              type: (ref_type
+                (apply_type
+                  (name_access_chain
+                    (identifier)))))
+            (function_parameter
+              name: (identifier)
+              type: (primitive_type)))
+          return_type: (primitive_type)
+          body: (block
+            (call_expression
+              function: (name_access_chain
+                (identifier))
+              type_arguments: (type_arguments
+                (primitive_type))
+              arguments: (arg_list
+                (dot_expression
+                  object: (name_expression
+                    (name_access_chain
+                      (identifier)))
+                  field: (identifier))
+                (name_expression
+                  (name_access_chain
+                    (identifier)))))))))))
+
+================================================================================
 Spec update statement with type arguments
 ================================================================================
 
