@@ -498,3 +498,28 @@ script {
           arguments: (arg_list
             (borrow_expression
               (num_literal))))))))
+
+================================================================================
+Struct with keyword field name (for)
+================================================================================
+
+module 0x1::test {
+    struct CapabilityOffer has store { for: u64 }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (struct_declaration
+        name: (identifier)
+        abilities: (ability_declarations
+          (ability))
+        fields: (struct_fields
+          (field_declaration
+            name: (identifier)
+            type: (primitive_type)))))))

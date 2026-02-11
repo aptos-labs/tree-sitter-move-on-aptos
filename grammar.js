@@ -238,7 +238,11 @@ module.exports = grammar({
 
         struct_fields: $ => seq('{', commaSep($.field_declaration), '}'),
 
-        field_declaration: $ => seq(field('name', $.identifier), ':', field('type', $._type)),
+        field_declaration: $ =>
+            seq(field('name', $._field_identifier), ':', field('type', $._type)),
+
+        // Field names may include reserved words like 'for' that are valid field identifiers
+        _field_identifier: $ => choice($.identifier, alias('for', $.identifier)),
 
         positional_fields: $ => seq('(', commaSep($._type), ')'),
 
@@ -581,7 +585,7 @@ module.exports = grammar({
             ),
 
         field_pattern: $ =>
-            seq(field('field', $.identifier), optional(seq(':', field('bind', $._match_pattern)))),
+            seq(field('field', $._field_identifier), optional(seq(':', field('bind', $._match_pattern)))),
 
         positional_pattern: $ =>
             seq(
@@ -783,7 +787,7 @@ module.exports = grammar({
             ),
 
         field_initializer: $ =>
-            seq(field('field', $.identifier), optional(seq(':', field('value', $._expression)))),
+            seq(field('field', $._field_identifier), optional(seq(':', field('value', $._expression)))),
 
         // Dot expression: obj.field, obj.method(args), obj.0
         dot_expression: $ =>
