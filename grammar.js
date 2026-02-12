@@ -692,6 +692,7 @@ module.exports = grammar({
         _unary_expression: $ =>
             choice(
                 $.not_expression,
+                $.negate_expression,
                 $.borrow_expression,
                 $.dereference_expression,
                 $.move_expression,
@@ -700,6 +701,8 @@ module.exports = grammar({
             ),
 
         not_expression: $ => prec(PREC.UNARY, seq('!', $._unary_expression)),
+
+        negate_expression: $ => prec(PREC.UNARY, seq('-', $._unary_expression)),
 
         borrow_expression: $ => prec(PREC.UNARY, seq(choice('&', '&mut'), $._unary_expression)),
 

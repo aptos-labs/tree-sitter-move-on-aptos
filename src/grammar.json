@@ -4354,6 +4354,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "negate_expression"
+        },
+        {
+          "type": "SYMBOL",
           "name": "borrow_expression"
         },
         {
@@ -4383,6 +4387,23 @@
           {
             "type": "STRING",
             "value": "!"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_unary_expression"
+          }
+        ]
+      }
+    },
+    "negate_expression": {
+      "type": "PREC",
+      "value": 13,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "-"
           },
           {
             "type": "SYMBOL",
