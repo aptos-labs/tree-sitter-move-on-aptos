@@ -78,9 +78,12 @@ module.exports = grammar({
         // After dot_expression, < is ambiguous: reduce dot_expression to _expression_term
         // (then binary <) vs keep dot_expression for method_call_with_type_args (shift <).
         [$._expression_term, $.method_call_with_type_args],
+        // 'friend package' could be visibility modifier or friend declaration with 'package' as name
+        [$.friend_declaration, $._visibility],
         // In quantifier trigger: name_access_chain { could be pack_expression or trigger start
         [$.name_expression, $.pack_expression],
         [$.generic_name_expression, $.pack_expression],
+        [$.generic_name_expression, $.call_expression],
     ],
 
     precedences: _ => [],
@@ -344,7 +347,13 @@ module.exports = grammar({
                 optional(choice(seq('=', $._attribute_value), seq('(', commaSep($.attribute), ')')))
             ),
 
-        _attribute_value: $ => choice($._literal_value, $.name_access_chain),
+        _attribute_value: $ =>
+            choice(
+                $._literal_value,
+                $.name_access_chain,
+                // Bare address module paths: 0000...0001::module (no 0x prefix)
+                seq($.num_literal, '::', $.identifier)
+            ),
 
         // ═══════════════════════════════════════════════════════════════════════════
         // Type parameters (generics)
@@ -435,7 +444,9 @@ module.exports = grammar({
                 alias('vector', $.identifier), // vector[..] literal, but also vector::length()
                 alias('exists', $.identifier), // spec quantifier, but also exists<T>(addr) builtin
                 alias('forall', $.identifier), // spec quantifier, but may appear as name
-                alias('choose', $.identifier) // spec quantifier, but may appear as name
+                alias('choose', $.identifier), // spec quantifier, but may appear as name
+                alias('package', $.identifier), // visibility modifier, but also valid as named address
+                alias('for', $.identifier) // for-loop keyword, but also valid as name in some contexts
             ),
 
         numerical_address: _ => /0x[a-fA-F0-9]+/,
@@ -572,6 +583,7 @@ module.exports = grammar({
                 $.name_expression,
                 $.struct_pattern,
                 $.positional_pattern,
+                $.tuple_pattern,
                 $.or_pattern,
                 '_',
                 $._literal_value
@@ -600,6 +612,9 @@ module.exports = grammar({
                 commaSep(choice($._match_pattern, '..')),
                 ')'
             ),
+
+        // Tuple pattern: (Pat1, Pat2) — no name_access_chain prefix
+        tuple_pattern: $ => seq('(', commaSep(choice($._match_pattern, '..')), ')'),
 
         or_pattern: $ => prec.left(seq($._match_pattern, '|', $._match_pattern)),
 
@@ -917,7 +932,9 @@ module.exports = grammar({
                 // Contextual keywords that are valid as variable names in let bindings
                 alias('exists', $.identifier),
                 alias('forall', $.identifier),
-                alias('choose', $.identifier)
+                alias('choose', $.identifier),
+                alias('package', $.identifier),
+                alias('for', $.identifier)
             ),
 
         bind_unpack: $ =>

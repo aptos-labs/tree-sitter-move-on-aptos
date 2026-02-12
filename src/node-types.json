@@ -1058,6 +1058,10 @@
           "named": true
         },
         {
+          "type": "identifier",
+          "named": true
+        },
+        {
           "type": "name_access_chain",
           "named": true
         },
@@ -3563,6 +3567,10 @@
           },
           {
             "type": "struct_pattern",
+            "named": true
+          },
+          {
+            "type": "tuple_pattern",
             "named": true
           }
         ]
@@ -6143,6 +6151,10 @@
           {
             "type": "struct_pattern",
             "named": true
+          },
+          {
+            "type": "tuple_pattern",
+            "named": true
           }
         ]
       }
@@ -6884,6 +6896,10 @@
         {
           "type": "struct_pattern",
           "named": true
+        },
+        {
+          "type": "tuple_pattern",
+          "named": true
         }
       ]
     }
@@ -7180,6 +7196,10 @@
         },
         {
           "type": "struct_pattern",
+          "named": true
+        },
+        {
+          "type": "tuple_pattern",
           "named": true
         },
         {
@@ -10017,6 +10037,57 @@
         },
         {
           "type": "type_arguments",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "tuple_pattern",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "address_literal",
+          "named": true
+        },
+        {
+          "type": "bool_literal",
+          "named": true
+        },
+        {
+          "type": "byte_string_literal",
+          "named": true
+        },
+        {
+          "type": "hex_string_literal",
+          "named": true
+        },
+        {
+          "type": "name_expression",
+          "named": true
+        },
+        {
+          "type": "num_literal",
+          "named": true
+        },
+        {
+          "type": "or_pattern",
+          "named": true
+        },
+        {
+          "type": "positional_pattern",
+          "named": true
+        },
+        {
+          "type": "struct_pattern",
+          "named": true
+        },
+        {
+          "type": "tuple_pattern",
           "named": true
         }
       ]
