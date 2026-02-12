@@ -92,12 +92,7 @@ module.exports = grammar({
 
         source_file: $ =>
             repeat(
-                choice(
-                    $.module_declaration,
-                    $.script_declaration,
-                    $.address_block,
-                    $.spec_block
-                )
+                choice($.module_declaration, $.script_declaration, $.address_block, $.spec_block)
             ),
 
         // ═══════════════════════════════════════════════════════════════════════════
@@ -592,7 +587,10 @@ module.exports = grammar({
             ),
 
         field_pattern: $ =>
-            seq(field('field', $._field_identifier), optional(seq(':', field('bind', $._match_pattern)))),
+            seq(
+                field('field', $._field_identifier),
+                optional(seq(':', field('bind', $._match_pattern)))
+            ),
 
         positional_pattern: $ =>
             seq(
@@ -785,16 +783,14 @@ module.exports = grammar({
                     )
                 ),
                 // Without type arguments
-                seq(
-                    field('type', $.name_access_chain),
-                    '{',
-                    commaSep($.field_initializer),
-                    '}'
-                )
+                seq(field('type', $.name_access_chain), '{', commaSep($.field_initializer), '}')
             ),
 
         field_initializer: $ =>
-            seq(field('field', $._field_identifier), optional(seq(':', field('value', $._expression)))),
+            seq(
+                field('field', $._field_identifier),
+                optional(seq(':', field('value', $._expression)))
+            ),
 
         // Dot expression: obj.field, obj.method(args), obj.0
         dot_expression: $ =>
@@ -847,16 +843,11 @@ module.exports = grammar({
         is_expression: $ =>
             prec.left(
                 PREC.EQ,
-                seq(
-                    field('expr', $._expression),
-                    'is',
-                    field('variants', $.is_variant_list)
-                )
+                seq(field('expr', $._expression), 'is', field('variants', $.is_variant_list))
             ),
 
         // Variant list for 'is' expression. Each variant may have type arguments.
-        is_variant_list: $ =>
-            sepBy1('|', $._is_variant),
+        is_variant_list: $ => sepBy1('|', $._is_variant),
 
         _is_variant: $ =>
             choice(
@@ -1132,8 +1123,7 @@ module.exports = grammar({
                 $.spec_function_shorthand
             ),
 
-        spec_function_shorthand: $ =>
-            seq($._spec_function_signature, field('body', $.block)),
+        spec_function_shorthand: $ => seq($._spec_function_signature, field('body', $.block)),
 
         native_spec_function: $ =>
             seq('native', choice('fun', 'define'), $._spec_function_signature, ';'),
