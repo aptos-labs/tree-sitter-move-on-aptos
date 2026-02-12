@@ -78,6 +78,9 @@ module.exports = grammar({
         // After dot_expression, < is ambiguous: reduce dot_expression to _expression_term
         // (then binary <) vs keep dot_expression for method_call_with_type_args (shift <).
         [$._expression_term, $.method_call_with_type_args],
+        // In quantifier trigger: name_access_chain { could be pack_expression or trigger start
+        [$.name_expression, $.pack_expression],
+        [$.generic_name_expression, $.pack_expression],
     ],
 
     precedences: _ => [],
@@ -267,7 +270,7 @@ module.exports = grammar({
                 optional(field('type_parameters', $.type_parameters)),
                 optional(field('abilities', $.ability_declarations)),
                 '{',
-                commaSep($.enum_variant),
+                repeat(seq($.enum_variant, optional(','))),
                 '}'
             ),
 
@@ -917,7 +920,14 @@ module.exports = grammar({
 
         _bind: $ => choice($.bind_var, $.bind_unpack, $.bind_positional_unpack),
 
-        bind_var: $ => $.identifier,
+        bind_var: $ =>
+            choice(
+                $.identifier,
+                // Contextual keywords that are valid as variable names in let bindings
+                alias('exists', $.identifier),
+                alias('forall', $.identifier),
+                alias('choose', $.identifier)
+            ),
 
         bind_unpack: $ =>
             seq(
@@ -948,6 +958,7 @@ module.exports = grammar({
                     seq(
                         choice('forall', 'exists'),
                         $.quantifier_bindings,
+                        optional(seq('{', commaSep1($._expression), '}')), // trigger/filter annotation
                         optional(seq('where', $._expression)),
                         ':',
                         $._expression
@@ -1012,6 +1023,7 @@ module.exports = grammar({
                 $.spec_variable,
                 $.spec_let,
                 $.spec_update,
+                $.spec_axiom,
                 $._spec_function,
                 $.spec_block // nested spec blocks: spec fun_name(params) { ... }
             ),
@@ -1024,6 +1036,16 @@ module.exports = grammar({
                 optional(field('type_arguments', $.type_arguments)),
                 '=',
                 field('value', $._expression),
+                ';'
+            ),
+
+        // Spec axiom: axiom<T> forall ...: expr;
+        spec_axiom: $ =>
+            seq(
+                'axiom',
+                optional(field('type_parameters', $.type_parameters)),
+                optional($.condition_properties),
+                $._expression,
                 ';'
             ),
 
@@ -1057,7 +1079,8 @@ module.exports = grammar({
 
         condition_properties: $ => seq('[', commaSep($.spec_property), ']'),
 
-        spec_property: $ => seq($.identifier, optional(seq('=', $._literal_value))),
+        spec_property: $ =>
+            seq($.identifier, optional(seq('=', choice($._literal_value, $.identifier)))),
 
         spec_include: $ => seq('include', $._expression, ';'),
 
@@ -1083,8 +1106,8 @@ module.exports = grammar({
         spec_variable: $ =>
             seq(
                 optional(choice('global', 'local')),
-                optional($.type_parameters),
                 field('name', $.identifier),
+                optional(field('type_parameters', $.type_parameters)),
                 ':',
                 field('type', $._type),
                 ';'

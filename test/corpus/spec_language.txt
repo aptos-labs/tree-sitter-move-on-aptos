@@ -468,7 +468,7 @@ Spec global variable with type parameters
 
 module 0x1::test {
     spec module {
-        global<T> total_supply: num;
+        global total_supply<T>: num;
     }
 }
 
@@ -483,10 +483,10 @@ module 0x1::test {
       (spec_block
         body: (spec_body
           (spec_variable
-            (type_parameters
+            name: (identifier)
+            type_parameters: (type_parameters
               (type_parameter
                 name: (identifier)))
-            name: (identifier)
             type: (apply_type
               (name_access_chain
                 (identifier)))))))))
@@ -639,3 +639,229 @@ module 0x1::test {
               rhs: (name_expression
                 (name_access_chain
                   (identifier))))))))))
+
+================================================================================
+Spec axiom
+================================================================================
+
+spec 0x1::test {
+    spec module {
+        axiom forall b1: vector<u8>, b2: vector<u8>:
+            (spec_hash(b1) == spec_hash(b2) ==> b1 == b2);
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (spec_block
+    target: (name_access_chain
+      (numerical_address)
+      (identifier))
+    body: (spec_body
+      (spec_block
+        body: (spec_body
+          (spec_axiom
+            (quantifier_expression
+              (quantifier_bindings
+                (quantifier_binding
+                  (identifier)
+                  (apply_type
+                    (name_access_chain
+                      (identifier))
+                    (type_arguments
+                      (primitive_type))))
+                (quantifier_binding
+                  (identifier)
+                  (apply_type
+                    (name_access_chain
+                      (identifier))
+                    (type_arguments
+                      (primitive_type)))))
+              (parenthesized_expression
+                (binary_expression
+                  lhs: (binary_expression
+                    lhs: (call_expression
+                      function: (name_access_chain
+                        (identifier))
+                      arguments: (arg_list
+                        (name_expression
+                          (name_access_chain
+                            (identifier)))))
+                    rhs: (call_expression
+                      function: (name_access_chain
+                        (identifier))
+                      arguments: (arg_list
+                        (name_expression
+                          (name_access_chain
+                            (identifier))))))
+                  rhs: (binary_expression
+                    lhs: (name_expression
+                      (name_access_chain
+                        (identifier)))
+                    rhs: (name_expression
+                      (name_access_chain
+                        (identifier)))))))))))))
+
+================================================================================
+Spec axiom with type parameters
+================================================================================
+
+spec 0x1::test {
+    spec module {
+        axiom<T> forall b1: vector<u8>: (b1 == b1);
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (spec_block
+    target: (name_access_chain
+      (numerical_address)
+      (identifier))
+    body: (spec_body
+      (spec_block
+        body: (spec_body
+          (spec_axiom
+            type_parameters: (type_parameters
+              (type_parameter
+                name: (identifier)))
+            (quantifier_expression
+              (quantifier_bindings
+                (quantifier_binding
+                  (identifier)
+                  (apply_type
+                    (name_access_chain
+                      (identifier))
+                    (type_arguments
+                      (primitive_type)))))
+              (parenthesized_expression
+                (binary_expression
+                  lhs: (name_expression
+                    (name_access_chain
+                      (identifier)))
+                  rhs: (name_expression
+                    (name_access_chain
+                      (identifier))))))))))))
+
+================================================================================
+Quantifier with trigger annotation
+================================================================================
+
+spec 0x1::test {
+    spec new_from {
+        ensures [abstract] forall k: K {contains(result, k)} : has_key(result, k);
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (spec_block
+    target: (name_access_chain
+      (numerical_address)
+      (identifier))
+    body: (spec_body
+      (spec_block
+        target: (name_access_chain
+          (identifier))
+        body: (spec_body
+          (spec_condition
+            (condition_properties
+              (spec_property
+                (identifier)))
+            (quantifier_expression
+              (quantifier_bindings
+                (quantifier_binding
+                  (identifier)
+                  (apply_type
+                    (name_access_chain
+                      (identifier)))))
+              (call_expression
+                function: (name_access_chain
+                  (identifier))
+                arguments: (arg_list
+                  (name_expression
+                    (name_access_chain
+                      (identifier)))
+                  (name_expression
+                    (name_access_chain
+                      (identifier)))))
+              (call_expression
+                function: (name_access_chain
+                  (identifier))
+                arguments: (arg_list
+                  (name_expression
+                    (name_access_chain
+                      (identifier)))
+                  (name_expression
+                    (name_access_chain
+                      (identifier))))))))))))
+
+================================================================================
+Let binding with contextual keyword name
+================================================================================
+
+module 0x1::test {
+    fun test() {
+        let exists = true;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (bool_literal)))))))
+
+================================================================================
+Enum variants without trailing commas
+================================================================================
+
+module 0x1::test {
+    enum E has copy, drop {
+        A,
+        B { x: u64 }
+        C { y: u64 }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (enum_declaration
+        name: (identifier)
+        abilities: (ability_declarations
+          (ability)
+          (ability))
+        (enum_variant
+          name: (identifier))
+        (enum_variant
+          name: (identifier)
+          fields: (struct_fields
+            (field_declaration
+              name: (identifier)
+              type: (primitive_type))))
+        (enum_variant
+          name: (identifier)
+          fields: (struct_fields
+            (field_declaration
+              name: (identifier)
+              type: (primitive_type))))))))
