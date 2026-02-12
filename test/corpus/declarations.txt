@@ -523,3 +523,234 @@ module 0x1::test {
           (field_declaration
             name: (identifier)
             type: (primitive_type)))))))
+
+================================================================================
+Multiple acquires clauses (decompiler output)
+================================================================================
+
+module 0x1::test {
+    fun withdraw(addr: address)
+        acquires Coin
+        acquires Balance
+    {
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (primitive_type)))
+        acquires: (acquires_clause
+          (name_access_chain
+            (identifier)))
+        acquires: (acquires_clause
+          (name_access_chain
+            (identifier)))
+        body: (block)))))
+
+================================================================================
+Primitive type as module name in access path
+================================================================================
+
+module 0x1::test {
+    use 0x2::i64;
+    struct Wrapper has store {
+        inner: i64::I64,
+    }
+    fun unwrap(p0: i64::I64): u64 {
+        i64::get_magnitude_if_positive(&p0)
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (use_declaration
+        (use_module
+          (module_identity
+            address: (numerical_address)
+            module: (identifier))))
+      (struct_declaration
+        name: (identifier)
+        abilities: (ability_declarations
+          (ability))
+        fields: (struct_fields
+          (field_declaration
+            name: (identifier)
+            type: (apply_type
+              (name_access_chain
+                (identifier)
+                (identifier))))))
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (apply_type
+              (name_access_chain
+                (identifier)
+                (identifier)))))
+        return_type: (primitive_type)
+        body: (block
+          (call_expression
+            function: (name_access_chain
+              (identifier)
+              (identifier))
+            arguments: (arg_list
+              (borrow_expression
+                (name_expression
+                  (name_access_chain
+                    (identifier)))))))))))
+
+================================================================================
+Match keyword as module name in access path
+================================================================================
+
+module 0x1::test {
+    fun create(): match::Match<u64> {
+        match::create_match<u64>()
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        return_type: (apply_type
+          (name_access_chain
+            (identifier)
+            (identifier))
+          (type_arguments
+            (primitive_type)))
+        body: (block
+          (call_expression
+            function: (name_access_chain
+              (identifier)
+              (identifier))
+            type_arguments: (type_arguments
+              (primitive_type))
+            arguments: (arg_list)))))))
+
+================================================================================
+Friend declaration with package keyword as name
+================================================================================
+
+module 0x1::test {
+    friend package::other_module;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (friend_declaration
+        (name_access_chain
+          (identifier)
+          (identifier))))))
+
+================================================================================
+Keyword for used as identifier in expressions
+================================================================================
+
+module 0x1::test {
+    struct Offer has store { for: address }
+    fun f(offer: Offer) {
+        let o = Offer { for: offer.for };
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (struct_declaration
+        name: (identifier)
+        abilities: (ability_declarations
+          (ability))
+        fields: (struct_fields
+          (field_declaration
+            name: (identifier)
+            type: (primitive_type))))
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (apply_type
+              (name_access_chain
+                (identifier)))))
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (pack_expression
+              type: (name_access_chain
+                (identifier))
+              (field_initializer
+                field: (identifier)
+                value: (dot_expression
+                  object: (name_expression
+                    (name_access_chain
+                      (identifier)))
+                  field: (identifier))))))))))
+
+================================================================================
+Bare hex address in attribute value
+================================================================================
+
+module 0x1::test {
+    #[expected_failure(location = 0000000000000000000000000000000000000001::coin)]
+    fun f() {}
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        (attributes
+          (attribute
+            (name_access_chain
+              (identifier))
+            (attribute
+              (name_access_chain
+                (identifier))
+              (num_literal)
+              (identifier))))
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block)))))

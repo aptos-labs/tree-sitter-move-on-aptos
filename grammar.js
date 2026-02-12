@@ -55,7 +55,18 @@ module.exports = grammar({
         $._error_sentinel,
     ],
 
-    inline: _ => [],
+    inline: $ => [
+        $._module_member,
+        $._attribute_value,
+        $._sequence_item,
+        $._spec_function,
+        $._field_identifier,
+        $._modifier,
+        $._bind,
+        $._literal_value,
+        $._spec_block_member,
+        $._match_pattern,
+    ],
 
     supertypes: $ => [],
 
@@ -84,6 +95,11 @@ module.exports = grammar({
         [$.name_expression, $.pack_expression],
         [$.generic_name_expression, $.pack_expression],
         [$.generic_name_expression, $.call_expression],
+        // Primitive type keywords (u8, address, bool, etc.) can also be module names
+        // in access paths (e.g. i64::I64 in decompiled bytecode)
+        [$.primitive_type, $._leading_name_access],
+        // 'match' can be a keyword or a module name in access paths
+        [$._leading_name_access, $.match_expression],
     ],
 
     precedences: _ => [],
@@ -298,7 +314,11 @@ module.exports = grammar({
                 optional(field('type_parameters', $.type_parameters)),
                 field('parameters', $.function_parameters),
                 optional(seq(':', field('return_type', $._type))),
-                optional(field('acquires', $.acquires_clause)),
+                // TODO: The Move language spec only allows a single acquires clause
+                // with comma-separated resources, but the bytecode decompiler emits
+                // multiple acquires clauses on separate lines. We allow repeat here
+                // to handle decompiled code.
+                repeat(field('acquires', $.acquires_clause)),
                 ';'
             ),
 
@@ -311,7 +331,11 @@ module.exports = grammar({
                 optional(field('type_parameters', $.type_parameters)),
                 field('parameters', $.function_parameters),
                 optional(seq(':', field('return_type', $._type))),
-                optional(field('acquires', $.acquires_clause)),
+                // TODO: The Move language spec only allows a single acquires clause
+                // with comma-separated resources, but the bytecode decompiler emits
+                // multiple acquires clauses on separate lines. We allow repeat here
+                // to handle decompiled code.
+                repeat(field('acquires', $.acquires_clause)),
                 field('body', $.block)
             ),
 
@@ -446,7 +470,25 @@ module.exports = grammar({
                 alias('forall', $.identifier), // spec quantifier, but may appear as name
                 alias('choose', $.identifier), // spec quantifier, but may appear as name
                 alias('package', $.identifier), // visibility modifier, but also valid as named address
-                alias('for', $.identifier) // for-loop keyword, but also valid as name in some contexts
+                alias('for', $.identifier), // for-loop keyword, but also valid as name in some contexts
+                alias('match', $.identifier), // match keyword, but also valid as module name
+                // Primitive type keywords that can appear as module names in access paths
+                // (e.g. i64::I64, u16::U16 — common in decompiled bytecode)
+                alias('u8', $.identifier),
+                alias('u16', $.identifier),
+                alias('u32', $.identifier),
+                alias('u64', $.identifier),
+                alias('u128', $.identifier),
+                alias('u256', $.identifier),
+                alias('bool', $.identifier),
+                alias('address', $.identifier),
+                alias('signer', $.identifier),
+                alias('i8', $.identifier),
+                alias('i16', $.identifier),
+                alias('i32', $.identifier),
+                alias('i64', $.identifier),
+                alias('i128', $.identifier),
+                alias('i256', $.identifier)
             ),
 
         numerical_address: _ => /0x[a-fA-F0-9]+/,
@@ -783,8 +825,6 @@ module.exports = grammar({
                     field('arguments', $.arg_list)
                 )
             ),
-
-        macro_identifier: _ => token(seq(/[a-zA-Z_][a-zA-Z0-9_]*/, '!')),
 
         // Struct/enum pack: Struct { field: value }, Struct<T> { field: value }
         pack_expression: $ =>
@@ -1168,9 +1208,6 @@ module.exports = grammar({
         // ═══════════════════════════════════════════════════════════════════════════
 
         line_comment: _ => token(seq('//', /.*/)),
-
-        // Doc comments (///)
-        doc_comment: $ => seq('///', $._doc_line_comment),
 
         // Block comments (/* */)
         block_comment: $ =>

@@ -309,3 +309,49 @@ module 0x1::test {
               body: (num_literal))
             (match_arm
               body: (num_literal))))))))
+
+================================================================================
+Tuple pattern in match
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        match (pair) {
+            (Some(x), None) => x,
+            _ => 0,
+        };
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (match_expression
+            subject: (name_expression
+              (name_access_chain
+                (identifier)))
+            (match_arm
+              pattern: (tuple_pattern
+                (positional_pattern
+                  (name_access_chain
+                    (identifier))
+                  (name_expression
+                    (name_access_chain
+                      (identifier))))
+                (name_expression
+                  (name_access_chain
+                    (identifier))))
+              body: (name_expression
+                (name_access_chain
+                  (identifier))))
+            (match_arm
+              body: (num_literal))))))))

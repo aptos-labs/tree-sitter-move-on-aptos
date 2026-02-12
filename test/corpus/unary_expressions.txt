@@ -131,3 +131,52 @@ module 0x1::test {
               (name_expression
                 (name_access_chain
                   (identifier))))))))))
+
+================================================================================
+Negate expression
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let x = -1;
+        let y = -x;
+        let z = -(a + b);
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (negate_expression
+              (num_literal)))
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (negate_expression
+              (name_expression
+                (name_access_chain
+                  (identifier)))))
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (negate_expression
+              (parenthesized_expression
+                (binary_expression
+                  lhs: (name_expression
+                    (name_access_chain
+                      (identifier)))
+                  rhs: (name_expression
+                    (name_access_chain
+                      (identifier))))))))))))
