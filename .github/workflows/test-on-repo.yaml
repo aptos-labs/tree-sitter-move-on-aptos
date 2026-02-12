@@ -69,12 +69,6 @@ jobs:
     steps:
       - name: Checkout itself
         uses: actions/checkout@v6
-      - name: Checkout `aptos-labs/move-modules`
-        uses: actions/checkout@v6
-        with:
-          repository: aptos-labs/move-modules
-          path: test/repos/aptos-labs/move-modules
-          token: ${{ secrets.MOVEMODULES }}
       - name: Checkout `aptos-labs/aptos-core`
         uses: actions/checkout@v6
         with:
@@ -125,7 +119,6 @@ jobs:
       - run: tree-sitter generate
       - run: |
           python batch-test.py --only-stats             \
-          test/repos/aptos-labs/move-modules/mainnet    \
           test/repos/aptos-labs/aptos-core/             \
           test/repos/wormhole-foundation/wormhole/aptos \
           test/repos/aptos-labs/daily-move \
