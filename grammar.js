@@ -371,11 +371,7 @@ module.exports = grammar({
         access_specifier: $ =>
             choice(
                 'pure',
-                seq(
-                    optional('!'),
-                    choice('reads', 'writes'),
-                    commaSep1($.access_specifier_arg)
-                )
+                seq(optional('!'), choice('reads', 'writes'), commaSep1($.access_specifier_arg))
             ),
 
         access_specifier_arg: $ =>
@@ -484,9 +480,18 @@ module.exports = grammar({
                         optional($._type),
                         optional(seq(choice('has', 'with'), $.ability_constraints))
                     ),
-                    seq('||', optional($._type), optional(seq(choice('has', 'with'), $.ability_constraints))),
+                    seq(
+                        '||',
+                        optional($._type),
+                        optional(seq(choice('has', 'with'), $.ability_constraints))
+                    ),
                     // Zero-param with space between pipes: | | u64
-                    seq('|', '|', optional($._type), optional(seq(choice('has', 'with'), $.ability_constraints)))
+                    seq(
+                        '|',
+                        '|',
+                        optional($._type),
+                        optional(seq(choice('has', 'with'), $.ability_constraints))
+                    )
                 )
             ),
 
