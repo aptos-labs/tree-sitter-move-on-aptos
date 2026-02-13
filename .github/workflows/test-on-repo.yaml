@@ -59,6 +59,7 @@ jobs:
         run: |
           python batch-test.py \
           test/repos/aptos-labs/aptos-core/aptos-move \
+          test/repos/aptos-labs/aptos-core/third_party/move \
           test/repos/wormhole-foundation/wormhole/aptos \
           test/repos/aptos-labs/daily-move
   

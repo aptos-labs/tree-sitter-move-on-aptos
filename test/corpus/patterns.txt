@@ -175,11 +175,12 @@ module 0x1::test {
               pattern: (name_expression
                 (name_access_chain
                   (identifier)))
-              guard: (binary_expression
-                lhs: (name_expression
-                  (name_access_chain
-                    (identifier)))
-                rhs: (num_literal))
+              guard: (parenthesized_expression
+                (binary_expression
+                  lhs: (name_expression
+                    (name_access_chain
+                      (identifier)))
+                  rhs: (num_literal)))
               body: (name_expression
                 (name_access_chain
                   (identifier))))

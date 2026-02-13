@@ -120,6 +120,7 @@ module.exports = grammar({
 
         address_block: $ =>
             seq(
+                optional($.attributes),
                 'address',
                 field('address', $._leading_name_access),
                 '{',
@@ -152,7 +153,9 @@ module.exports = grammar({
                 $.struct_declaration,
                 $.enum_declaration,
                 $.function_declaration,
-                $.spec_block
+                $.spec_block,
+                // Module-level invariant: shorthand for spec module { invariant ... }
+                $.spec_invariant
             ),
 
         // ═══════════════════════════════════════════════════════════════════════════
@@ -242,9 +245,11 @@ module.exports = grammar({
                 optional(field('type_parameters', $.type_parameters)),
                 choice(
                     // Named fields: struct Foo has copy { x: u64, y: bool }
+                    // Also handles post-abilities: struct Foo { x: u64 } has copy, drop;
                     seq(
                         optional(field('abilities', $.ability_declarations)),
-                        field('fields', $.struct_fields)
+                        field('fields', $.struct_fields),
+                        optional(seq(field('post_abilities', $.ability_declarations), ';'))
                     ),
                     // Positional fields: struct Pair(u64, u8) has copy, drop;
                     seq(
@@ -285,7 +290,9 @@ module.exports = grammar({
                 optional(field('abilities', $.ability_declarations)),
                 '{',
                 repeat(seq($.enum_variant, optional(','))),
-                '}'
+                '}',
+                // Abilities can also appear after the closing brace: } has drop, copy;
+                optional(seq(field('post_abilities', $.ability_declarations), ';'))
             ),
 
         enum_variant: $ =>
@@ -310,7 +317,7 @@ module.exports = grammar({
                 'native',
                 repeat($._modifier),
                 'fun',
-                field('name', $.identifier),
+                field('name', choice($.identifier, alias('for', $.identifier))),
                 optional(field('type_parameters', $.type_parameters)),
                 field('parameters', $.function_parameters),
                 optional(seq(':', field('return_type', $._type))),
@@ -318,7 +325,7 @@ module.exports = grammar({
                 // with comma-separated resources, but the bytecode decompiler emits
                 // multiple acquires clauses on separate lines. We allow repeat here
                 // to handle decompiled code.
-                repeat(field('acquires', $.acquires_clause)),
+                repeat(choice(field('acquires', $.acquires_clause), $.access_specifier)),
                 ';'
             ),
 
@@ -327,7 +334,7 @@ module.exports = grammar({
                 optional($.attributes),
                 repeat($._modifier),
                 'fun',
-                field('name', $.identifier),
+                field('name', choice($.identifier, alias('for', $.identifier))),
                 optional(field('type_parameters', $.type_parameters)),
                 field('parameters', $.function_parameters),
                 optional(seq(':', field('return_type', $._type))),
@@ -335,7 +342,7 @@ module.exports = grammar({
                 // with comma-separated resources, but the bytecode decompiler emits
                 // multiple acquires clauses on separate lines. We allow repeat here
                 // to handle decompiled code.
-                repeat(field('acquires', $.acquires_clause)),
+                repeat(choice(field('acquires', $.acquires_clause), $.access_specifier)),
                 field('body', $.block)
             ),
 
@@ -346,6 +353,7 @@ module.exports = grammar({
                 'public',
                 seq('public', '(', 'friend', ')'),
                 seq('public', '(', 'package', ')'),
+                seq('public', '(', 'script', ')'),
                 'friend',
                 'package'
             ),
@@ -358,6 +366,30 @@ module.exports = grammar({
         function_parameter: $ => seq(field('name', $.identifier), ':', field('type', $._type)),
 
         acquires_clause: $ => seq('acquires', commaSep1($.name_access_chain)),
+
+        // Access specifiers (Move 2.5+): reads R, writes T, pure, !reads *(0x42)
+        access_specifier: $ =>
+            choice(
+                'pure',
+                seq(
+                    optional('!'),
+                    choice('reads', 'writes'),
+                    commaSep1($.access_specifier_arg)
+                )
+            ),
+
+        access_specifier_arg: $ =>
+            choice(
+                // Wildcard: * or *(expr)
+                seq('*', optional(seq('(', choice('*', $._expression), ')'))),
+                // Named path with optional wildcards: name, 0x42::m::S, 0x42::*::*
+                seq(
+                    $._leading_name_access,
+                    repeat(seq('::', choice($.identifier, '*'))),
+                    optional($.type_arguments),
+                    optional(seq('(', choice('*', $._expression), ')'))
+                )
+            ),
 
         // ═══════════════════════════════════════════════════════════════════════════
         // Attributes
@@ -440,7 +472,8 @@ module.exports = grammar({
         apply_type: $ => prec.left(seq($.name_access_chain, optional($.type_arguments))),
 
         // Function type: |u64, bool| u64 has copy + drop
-        // Also handles empty params: || u64
+        // Also handles: |u64| u64 with store+copy
+        // Also handles empty params: || u64 or | | u64
         function_type: $ =>
             prec.right(
                 choice(
@@ -449,9 +482,11 @@ module.exports = grammar({
                         commaSep1($._type),
                         '|',
                         optional($._type),
-                        optional(seq('has', $.ability_constraints))
+                        optional(seq(choice('has', 'with'), $.ability_constraints))
                     ),
-                    seq('||', optional($._type), optional(seq('has', $.ability_constraints)))
+                    seq('||', optional($._type), optional(seq(choice('has', 'with'), $.ability_constraints))),
+                    // Zero-param with space between pipes: | | u64
+                    seq('|', '|', optional($._type), optional(seq(choice('has', 'with'), $.ability_constraints)))
                 )
             ),
 
@@ -553,9 +588,17 @@ module.exports = grammar({
         // ─── Lambda ───────────────────────────────────────────────────────────────
 
         lambda_expression: $ =>
-            prec.right(seq(field('parameters', $.lambda_parameters), field('body', $._expression))),
+            prec.right(
+                seq(
+                    field('parameters', $.lambda_parameters),
+                    field('body', $._expression),
+                    // Lambda can have a trailing spec block: |x| expr spec { ensures ... }
+                    optional(field('spec', $.spec_block))
+                )
+            ),
 
-        lambda_parameters: $ => choice(seq('|', commaSep1($.lambda_parameter), '|'), '||'),
+        lambda_parameters: $ =>
+            choice(seq('|', commaSep1($.lambda_parameter), '|'), '||', seq('|', '|')),
 
         lambda_parameter: $ =>
             seq(field('bind', $._bind), optional(seq(':', field('type', $._type)))),
@@ -575,16 +618,28 @@ module.exports = grammar({
             ),
 
         while_expression: $ =>
-            seq(
-                optional($.loop_label),
-                'while',
-                '(',
-                field('condition', $._expression),
-                ')',
-                field('body', $._expression)
+            prec.right(
+                seq(
+                    optional($.loop_label),
+                    'while',
+                    '(',
+                    field('condition', $._expression),
+                    ')',
+                    field('body', $._expression),
+                    // Optional inline spec block: while (cond) { body } spec { invariant ...; }
+                    optional(field('spec', $.spec_block))
+                )
             ),
 
-        loop_expression: $ => seq(optional($.loop_label), 'loop', field('body', $._expression)),
+        loop_expression: $ =>
+            prec.right(
+                seq(
+                    optional($.loop_label),
+                    'loop',
+                    field('body', $._expression),
+                    optional(field('spec', $.spec_block))
+                )
+            ),
 
         for_expression: $ =>
             prec(
@@ -614,7 +669,9 @@ module.exports = grammar({
         match_arm: $ =>
             seq(
                 field('pattern', $._match_pattern),
-                optional(seq('if', '(', field('guard', $._expression), ')')),
+                // Guard with or without parens: `if cond` or `if (cond)`
+                // Using _expression handles both: (cond) is a parenthesized_expression
+                optional(seq('if', field('guard', $._expression))),
                 '=>',
                 field('body', $._expression),
                 optional(',')
@@ -875,11 +932,21 @@ module.exports = grammar({
                 )
             ),
 
-        // Indirect call: (expr)(args), (self.f)(num)
+        // Indirect call: (expr)(args), f(a)(b), (self.f)(num)
         indirect_call_expression: $ =>
             prec.left(
                 PREC.CALL,
-                seq(field('function', $.parenthesized_expression), field('arguments', $.arg_list))
+                seq(
+                    field(
+                        'function',
+                        choice(
+                            $.parenthesized_expression,
+                            $.call_expression,
+                            $.indirect_call_expression
+                        )
+                    ),
+                    field('arguments', $.arg_list)
+                )
             ),
 
         // Index expression: vec[i], &T[addr]
@@ -1046,6 +1113,7 @@ module.exports = grammar({
 
         spec_block: $ =>
             seq(
+                optional($.attributes),
                 'spec',
                 choice(
                     $._spec_function,
@@ -1085,6 +1153,7 @@ module.exports = grammar({
             choice(
                 $.spec_invariant,
                 $.spec_condition,
+                $.spec_emits,
                 $.spec_include,
                 $.spec_apply,
                 $.spec_pragma,
@@ -1120,9 +1189,21 @@ module.exports = grammar({
         spec_invariant: $ =>
             seq(
                 'invariant',
+                optional(field('type_parameters', $.type_parameters)),
                 optional(choice('update', 'pack', 'unpack', 'module')),
                 optional($.condition_properties),
                 $._expression,
+                ';'
+            ),
+
+        // Spec emits: emits expr to handle; / emits expr to handle if cond;
+        spec_emits: $ =>
+            seq(
+                'emits',
+                $._expression,
+                'to',
+                $._expression,
+                optional(seq('if', $._expression)),
                 ';'
             ),
 
@@ -1178,6 +1259,7 @@ module.exports = grammar({
                 optional(field('type_parameters', $.type_parameters)),
                 ':',
                 field('type', $._type),
+                optional(seq('=', $._expression)),
                 ';'
             ),
 
