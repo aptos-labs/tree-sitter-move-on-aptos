@@ -977,7 +977,24 @@ module.exports = grammar({
                 alias('forall', $.identifier),
                 alias('choose', $.identifier),
                 alias('package', $.identifier),
-                alias('for', $.identifier)
+                alias('for', $.identifier),
+                alias('match', $.identifier),
+                // Primitive type keywords used as variable names (e.g. let u8 = 255u8;)
+                alias('u8', $.identifier),
+                alias('u16', $.identifier),
+                alias('u32', $.identifier),
+                alias('u64', $.identifier),
+                alias('u128', $.identifier),
+                alias('u256', $.identifier),
+                alias('bool', $.identifier),
+                alias('address', $.identifier),
+                alias('signer', $.identifier),
+                alias('i8', $.identifier),
+                alias('i16', $.identifier),
+                alias('i32', $.identifier),
+                alias('i64', $.identifier),
+                alias('i128', $.identifier),
+                alias('i256', $.identifier)
             ),
 
         bind_unpack: $ =>
