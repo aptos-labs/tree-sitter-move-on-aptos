@@ -1,0 +1,358 @@
+================================================================================
+Struct destructuring in let
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let Coin { value } = coin;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_unpack
+              (name_access_chain
+                (identifier))
+              (bind_field
+                field: (identifier)))
+            value: (name_expression
+              (name_access_chain
+                (identifier)))))))))
+
+================================================================================
+Struct destructuring with field rename and partial
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let Foo { x: renamed, .. } = foo;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_unpack
+              (name_access_chain
+                (identifier))
+              (bind_field
+                field: (identifier)
+                bind: (bind_var
+                  (identifier))))
+            value: (name_expression
+              (name_access_chain
+                (identifier)))))))))
+
+================================================================================
+Tuple destructuring in let
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let (a, b) = pair;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            binds: (bind_var
+              (identifier))
+            value: (name_expression
+              (name_access_chain
+                (identifier)))))))))
+
+================================================================================
+Positional pattern in match
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        match (x) {
+            Option::Some(val) => val,
+            Option::None => 0,
+        };
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (match_expression
+            subject: (name_expression
+              (name_access_chain
+                (identifier)))
+            (match_arm
+              pattern: (positional_pattern
+                (name_access_chain
+                  (identifier)
+                  (identifier))
+                (name_expression
+                  (name_access_chain
+                    (identifier))))
+              body: (name_expression
+                (name_access_chain
+                  (identifier))))
+            (match_arm
+              pattern: (name_expression
+                (name_access_chain
+                  (identifier)
+                  (identifier)))
+              body: (num_literal))))))))
+
+================================================================================
+Match with guard
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        match (x) {
+            n if (n > 0) => n,
+            _ => 0,
+        };
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (match_expression
+            subject: (name_expression
+              (name_access_chain
+                (identifier)))
+            (match_arm
+              pattern: (name_expression
+                (name_access_chain
+                  (identifier)))
+              guard: (parenthesized_expression
+                (binary_expression
+                  lhs: (name_expression
+                    (name_access_chain
+                      (identifier)))
+                  rhs: (num_literal)))
+              body: (name_expression
+                (name_access_chain
+                  (identifier))))
+            (match_arm
+              body: (num_literal))))))))
+
+================================================================================
+Match without trailing commas
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        match (x) {
+            A => {
+                1
+            }
+            B => {
+                2
+            }
+        };
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (match_expression
+            subject: (name_expression
+              (name_access_chain
+                (identifier)))
+            (match_arm
+              pattern: (name_expression
+                (name_access_chain
+                  (identifier)))
+              body: (block
+                (num_literal)))
+            (match_arm
+              pattern: (name_expression
+                (name_access_chain
+                  (identifier)))
+              body: (block
+                (num_literal)))))))))
+
+================================================================================
+Qualified enum destructuring in let
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let TestEnum::A { v1, v2 } = val;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_unpack
+              (name_access_chain
+                (identifier)
+                (identifier))
+              (bind_field
+                field: (identifier))
+              (bind_field
+                field: (identifier)))
+            value: (name_expression
+              (name_access_chain
+                (identifier)))))))))
+
+================================================================================
+Or-pattern in match
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        match (x) {
+            Color::Red | Color::Blue => 1,
+            _ => 0,
+        };
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (match_expression
+            subject: (name_expression
+              (name_access_chain
+                (identifier)))
+            (match_arm
+              pattern: (or_pattern
+                (name_expression
+                  (name_access_chain
+                    (identifier)
+                    (identifier)))
+                (name_expression
+                  (name_access_chain
+                    (identifier)
+                    (identifier))))
+              body: (num_literal))
+            (match_arm
+              body: (num_literal))))))))
+
+================================================================================
+Tuple pattern in match
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        match (pair) {
+            (Some(x), None) => x,
+            _ => 0,
+        };
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (match_expression
+            subject: (name_expression
+              (name_access_chain
+                (identifier)))
+            (match_arm
+              pattern: (tuple_pattern
+                (positional_pattern
+                  (name_access_chain
+                    (identifier))
+                  (name_expression
+                    (name_access_chain
+                      (identifier))))
+                (name_expression
+                  (name_access_chain
+                    (identifier))))
+              body: (name_expression
+                (name_access_chain
+                  (identifier))))
+            (match_arm
+              body: (num_literal))))))))

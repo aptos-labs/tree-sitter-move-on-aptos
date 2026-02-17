@@ -1,0 +1,68 @@
+================================================================================
+Line comment
+================================================================================
+
+module 0x1::test {
+    // This is a comment
+    fun f() {}
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (line_comment)
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block)))))
+
+================================================================================
+Block comment
+================================================================================
+
+module 0x1::test {
+    /* This is a block comment */
+    fun f() {}
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (block_comment)
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block)))))
+
+================================================================================
+Doc comment
+================================================================================
+
+module 0x1::test {
+    /// This is a doc comment
+    fun f() {}
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (line_comment)
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block)))))

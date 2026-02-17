@@ -1,0 +1,238 @@
+================================================================================
+Tuple type
+================================================================================
+
+module 0x1::test {
+    fun f(): (u64, bool) {
+        (1, true)
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        return_type: (tuple_type
+          (primitive_type)
+          (primitive_type))
+        body: (block
+          (expression_list
+            (num_literal)
+            (bool_literal)))))))
+
+================================================================================
+Unit type
+================================================================================
+
+module 0x1::test {
+    fun f(): () {
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        return_type: (unit_type)
+        body: (block)))))
+
+================================================================================
+Function type in struct field
+================================================================================
+
+module 0x1::test {
+    struct Funcs {
+        f: |u64| u64 has drop + copy,
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (struct_declaration
+        name: (identifier)
+        fields: (struct_fields
+          (field_declaration
+            name: (identifier)
+            type: (function_type
+              (primitive_type)
+              (primitive_type)
+              (ability_constraints
+                (ability)
+                (ability)))))))))
+
+================================================================================
+Empty function type
+================================================================================
+
+module 0x1::test {
+    fun f(callback: ||u64) {}
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (function_type
+              (primitive_type))))
+        body: (block)))))
+
+================================================================================
+Phantom type parameter with constraints
+================================================================================
+
+module 0x1::test {
+    struct Container<phantom T: store + drop> has key {
+        value: u64,
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (struct_declaration
+        name: (identifier)
+        type_parameters: (type_parameters
+          (type_parameter
+            name: (identifier)
+            constraints: (ability_constraints
+              (ability)
+              (ability))))
+        abilities: (ability_declarations
+          (ability))
+        fields: (struct_fields
+          (field_declaration
+            name: (identifier)
+            type: (primitive_type)))))))
+
+================================================================================
+Reference types
+================================================================================
+
+module 0x1::test {
+    fun f(x: &u64, y: &mut bool) {}
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (ref_type
+              (primitive_type)))
+          (function_parameter
+            name: (identifier)
+            type: (ref_type
+              (primitive_type))))
+        body: (block)))))
+
+================================================================================
+Generic apply type
+================================================================================
+
+module 0x1::test {
+    fun f(): vector<u8> {
+        vector[]
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        return_type: (apply_type
+          (name_access_chain
+            (identifier))
+          (type_arguments
+            (primitive_type)))
+        body: (block
+          (vector_expression
+            (identifier)))))))
+
+================================================================================
+Nested generics
+================================================================================
+
+module 0x1::test {
+    struct Wrapper<T> has key {
+        inner: vector<Option<T>>,
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (struct_declaration
+        name: (identifier)
+        type_parameters: (type_parameters
+          (type_parameter
+            name: (identifier)))
+        abilities: (ability_declarations
+          (ability))
+        fields: (struct_fields
+          (field_declaration
+            name: (identifier)
+            type: (apply_type
+              (name_access_chain
+                (identifier))
+              (type_arguments
+                (apply_type
+                  (name_access_chain
+                    (identifier))
+                  (type_arguments
+                    (apply_type
+                      (name_access_chain
+                        (identifier)))))))))))))

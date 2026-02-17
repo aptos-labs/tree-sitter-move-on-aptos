@@ -1,0 +1,182 @@
+================================================================================
+While loop
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        while (x > 0) {
+            x = x - 1;
+        };
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (while_expression
+            condition: (binary_expression
+              lhs: (name_expression
+                (name_access_chain
+                  (identifier)))
+              rhs: (num_literal))
+            body: (block
+              (assign_expression
+                lhs: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                rhs: (binary_expression
+                  lhs: (name_expression
+                    (name_access_chain
+                      (identifier)))
+                  rhs: (num_literal))))))))))
+
+================================================================================
+Loop expression
+================================================================================
+
+module 0x1::test {
+    fun f(): u64 {
+        loop {
+            break 42
+        }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        return_type: (primitive_type)
+        body: (block
+          (loop_expression
+            body: (block
+              (break_expression
+                (num_literal)))))))))
+
+================================================================================
+Break and continue
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        loop {
+            if (done) {
+                break
+            };
+            continue;
+        };
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (loop_expression
+            body: (block
+              (if_expression
+                condition: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                consequence: (block
+                  (break_expression)))
+              (continue_expression))))))))
+
+================================================================================
+Loop labels with break
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        'outer: loop {
+            'inner: loop {
+                break 'outer
+            };
+        };
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (loop_expression
+            (loop_label)
+            body: (block
+              (loop_expression
+                (loop_label)
+                body: (block
+                  (break_expression
+                    (label_name)))))))))))
+
+================================================================================
+Assignment and compound assignment
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        x = 1;
+        y += 2;
+        z -= 3;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (assign_expression
+            lhs: (name_expression
+              (name_access_chain
+                (identifier)))
+            rhs: (num_literal))
+          (assign_expression
+            lhs: (name_expression
+              (name_access_chain
+                (identifier)))
+            rhs: (num_literal))
+          (assign_expression
+            lhs: (name_expression
+              (name_access_chain
+                (identifier)))
+            rhs: (num_literal)))))))
