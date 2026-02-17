@@ -11,31 +11,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout itself
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       # Testing repositories
       - name: Checkout `aptos-labs/aptos-core`
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: aptos-labs/aptos-core
           path: test/repos/aptos-labs/aptos-core
       - name: Checkout `wormhole-foundation/wormhole`
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: wormhole-foundation/wormhole
           path: test/repos/wormhole-foundation/wormhole
-      - name: Checkout `pancakeswap/pancake-contracts-move`
-        uses: actions/checkout@v4
+      - name: Checkout `aptos-labs/daily-move`
+        uses: actions/checkout@v6
         with:
-          repository: pancakeswap/pancake-contracts-move
-          path: test/repos/pancakeswap/pancake-contracts-move
+          repository: aptos-labs/daily-move
+          path: test/repos/aptos-labs/daily-move
       
       # Setup environment
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '22.x'
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.10' 
       - run: sudo apt update && sudo apt install -y gcc
@@ -59,8 +59,9 @@ jobs:
         run: |
           python batch-test.py \
           test/repos/aptos-labs/aptos-core/aptos-move \
+          test/repos/aptos-labs/aptos-core/third_party/move \
           test/repos/wormhole-foundation/wormhole/aptos \
-          test/repos/pancakeswap/pancake-contracts-move
+          test/repos/aptos-labs/daily-move
   
   # Test decompiled Move modules
   parse-stats:
@@ -68,55 +69,49 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout itself
-        uses: actions/checkout@v4
-      - name: Checkout `aptos-labs/move-modules`
-        uses: actions/checkout@v4
-        with:
-          repository: aptos-labs/move-modules
-          path: test/repos/aptos-labs/move-modules
-          token: ${{ secrets.MOVEMODULES }}
+        uses: actions/checkout@v6
       - name: Checkout `aptos-labs/aptos-core`
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: aptos-labs/aptos-core
           path: test/repos/aptos-labs/aptos-core
       - name: Checkout `wormhole-foundation/wormhole`
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: wormhole-foundation/wormhole
           path: test/repos/wormhole-foundation/wormhole
-      - name: Checkout `pancakeswap/pancake-contracts-move`
-        uses: actions/checkout@v4
+      - name: Checkout `aptos-labs/daily-move`
+        uses: actions/checkout@v6
         with:
-          repository: pancakeswap/pancake-contracts-move
-          path: test/repos/pancakeswap/pancake-contracts-move
+          repository: aptos-labs/daily-move
+          path: test/repos/aptos-labs/daily-move
       - name: Checkout `aave/aptos-aave-v3`
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: aave/aptos-aave-v3
           path: test/repos/aave/aptos-aave-v3
       - name: Checkout `movefuns/move-by-example`
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: movefuns/move-by-example
           path: test/repos/movefuns/move-by-example
       - name: Checkout `aptos-labs/token-minter`
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: aptos-labs/token-minter
           path: test/repos/aptos-labs/token-minter
       - name: Checkout `aptos-labs/aptos-names-contracts`
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: aptos-labs/aptos-names-contracts
           path: test/repos/aptos-labs/aptos-names-contracts
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '22.x'
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.10' 
       - run: sudo apt update && sudo apt install -y gcc
@@ -125,10 +120,9 @@ jobs:
       - run: tree-sitter generate
       - run: |
           python batch-test.py --only-stats             \
-          test/repos/aptos-labs/move-modules/mainnet    \
           test/repos/aptos-labs/aptos-core/             \
           test/repos/wormhole-foundation/wormhole/aptos \
-          test/repos/pancakeswap/pancake-contracts-move \
+          test/repos/aptos-labs/daily-move \
           test/repos/aave/aptos-aave-v3                 \
           test/repos/movefuns/move-by-example           \
           test/repos/aptos-labs/token-minter            \

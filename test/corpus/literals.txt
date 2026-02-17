@@ -1,0 +1,147 @@
+================================================================================
+Address literals
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let a = @0x1;
+        let b = @std;
+        let c = @1;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (address_literal
+              (numerical_address)))
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (address_literal
+              (identifier)))
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (address_literal
+              (num_literal))))))))
+
+================================================================================
+Byte string and hex string literals
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let bs = b"hello world";
+        let hs = x"CAFE";
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (byte_string_literal))
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (hex_string_literal)))))))
+
+================================================================================
+Numeric literals with type suffixes
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let a = 100u64;
+        let b = 0xFFu8;
+        let c = 256u128;
+        let d = 1_000_000u256;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (num_literal))
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (num_literal))
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (num_literal))
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (num_literal)))))))
+
+================================================================================
+Signed integer types and literals
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let a: i64 = 42i64;
+        let b: i128 = 0i128;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            type: (primitive_type)
+            value: (num_literal))
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            type: (primitive_type)
+            value: (num_literal)))))))

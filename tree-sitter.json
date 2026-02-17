@@ -1,0 +1,38 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+  "grammars": [
+    {
+      "name": "move_on_aptos",
+      "camelcase": "MoveOnAptos",
+      "title": "Move on Aptos",
+      "scope": "source.move_on_aptos",
+      "file-types": [
+        "move"
+      ],
+      "injection-regex": "^move_on_aptos$",
+      "class-name": "TreeSitterMoveOnAptos"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "Move on Aptos grammar for tree-sitter",
+    "authors": [
+      {
+        "name": "Aptos Labs"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/aptos-labs/tree-sitter-move-on-aptos"
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": true,
+    "node": true,
+    "python": true,
+    "rust": true,
+    "swift": true,
+    "zig": false
+  }
+}
