@@ -1,0 +1,10 @@
+[package]
+name = "move-bounds-checker"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tree-sitter = "0.26"
+tree-sitter-move-on-aptos = { path = "../.." }
+rayon = "1"
+walkdir = "2"
