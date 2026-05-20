@@ -144,6 +144,69 @@ module 0x1::test {
         value: (num_literal)))))
 
 ================================================================================
+Constant declaration with public visibility (V2.4)
+================================================================================
+
+module 0x1::test {
+    public const MAX: u64 = 100;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (constant_declaration
+        name: (identifier)
+        type: (primitive_type)
+        value: (num_literal)))))
+
+================================================================================
+Constant declaration with package visibility (V2.4)
+================================================================================
+
+module 0x1::test {
+    package const LIMIT: u64 = 50;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (constant_declaration
+        name: (identifier)
+        type: (primitive_type)
+        value: (num_literal)))))
+
+================================================================================
+Constant declaration with public(friend) visibility (V2.4)
+================================================================================
+
+module 0x1::test {
+    public(friend) const X: u8 = 0;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (constant_declaration
+        name: (identifier)
+        type: (primitive_type)
+        value: (num_literal)))))
+
+================================================================================
 Struct with abilities and fields
 ================================================================================
 

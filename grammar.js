@@ -214,6 +214,7 @@ module.exports = grammar({
         constant_declaration: $ =>
             seq(
                 optional($.attributes),
+                optional(field('visibility', $._visibility)),
                 'const',
                 field('name', $.identifier),
                 ':',

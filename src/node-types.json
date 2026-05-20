@@ -2914,6 +2914,36 @@
             "named": true
           }
         ]
+      },
+      "visibility": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "(",
+            "named": false
+          },
+          {
+            "type": ")",
+            "named": false
+          },
+          {
+            "type": "friend",
+            "named": false
+          },
+          {
+            "type": "package",
+            "named": false
+          },
+          {
+            "type": "public",
+            "named": false
+          },
+          {
+            "type": "script",
+            "named": false
+          }
+        ]
       }
     },
     "children": {
