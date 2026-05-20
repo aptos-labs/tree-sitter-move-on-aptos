@@ -588,6 +588,34 @@ module 0x1::test {
             type: (primitive_type)))))))
 
 ================================================================================
+Negated acquires clause (V2.4)
+================================================================================
+
+module 0x1::test {
+    fun pure_check(addr: address) !acquires Coin {
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (primitive_type)))
+        acquires: (acquires_clause
+          (name_access_chain
+            (identifier)))
+        body: (block)))))
+
+================================================================================
 Multiple acquires clauses (decompiler output)
 ================================================================================
 

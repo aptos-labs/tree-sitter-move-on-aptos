@@ -372,7 +372,10 @@ module.exports = grammar({
 
         function_parameter: $ => seq(field('name', $.identifier), ':', field('type', $._type)),
 
-        acquires_clause: $ => seq('acquires', commaSep1($.name_access_chain)),
+        // V2.4+ allows `!acquires` for negated acquires specifiers (mirrors the
+        // compiler's parse_function_decl loop, where `!` may front any of
+        // acquires/reads/writes).
+        acquires_clause: $ => seq(optional('!'), 'acquires', commaSep1($.name_access_chain)),
 
         // Access specifiers (Move 2.5+): reads R, writes T, pure, !reads *(0x42)
         access_specifier: $ =>
