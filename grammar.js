@@ -740,8 +740,8 @@ module.exports = grammar({
                 $.positional_pattern,
                 $.tuple_pattern,
                 $.or_pattern,
-                $.range_pattern,      // 1..10, 1..=10, ..5, ..=5, lo..
-                $.negative_literal,   // -1i8, -100
+                $.range_pattern, // 1..10, 1..=10, ..5, ..=5, lo..
+                $.negative_literal, // -1i8, -100
                 '_',
                 $._literal_value
             ),
@@ -910,10 +910,7 @@ module.exports = grammar({
             prec.dynamic(
                 3,
                 seq(
-                    field(
-                        'kind',
-                        choice('requires_of', 'aborts_of', 'ensures_of', 'result_of')
-                    ),
+                    field('kind', choice('requires_of', 'aborts_of', 'ensures_of', 'result_of')),
                     field('function', $.type_arguments),
                     field('arguments', $.arg_list)
                 )
@@ -1120,9 +1117,9 @@ module.exports = grammar({
                 $.bind_var,
                 $.bind_unpack,
                 $.bind_positional_unpack,
-                $._literal_value,    // literal pattern: let 5 = ...;
-                $.negative_literal,  // negative literal: let -1i8 = ...;
-                $.range_pattern      // range pattern: let 0..10 = ...;
+                $._literal_value, // literal pattern: let 5 = ...;
+                $.negative_literal, // negative literal: let -1i8 = ...;
+                $.range_pattern // range pattern: let 0..10 = ...;
             ),
 
         bind_var: $ =>
@@ -1257,12 +1254,12 @@ module.exports = grammar({
                 $.spec_update,
                 $.spec_axiom,
                 $._spec_function,
-                $.spec_block,       // nested spec blocks: spec fun_name(params) { ... }
-                $.spec_reads,       // reads Type1, Type2; (all versions)
-                $.spec_lemma,       // lemma name(params) { ... } [proof { ... }] (V2.4)
+                $.spec_block, // nested spec blocks: spec fun_name(params) { ... }
+                $.spec_reads, // reads Type1, Type2; (all versions)
+                $.spec_lemma, // lemma name(params) { ... } [proof { ... }] (V2.4)
                 $.spec_modifies_of, // modifies_of<param>(...) expr; (V2.4)
-                $.spec_reads_of,    // reads_of<param> Type; (V2.4)
-                $.proof_block       // proof { ... } (V2.4)
+                $.spec_reads_of, // reads_of<param> Type; (V2.4)
+                $.proof_block // proof { ... } (V2.4)
             ),
 
         // Spec update: update supply<CoinType> = expr;
@@ -1303,8 +1300,7 @@ module.exports = grammar({
                 optional(field('proof', $.proof_block))
             ),
 
-        lemma_spec_body: $ =>
-            seq('{', repeat($.lemma_spec_member), '}'),
+        lemma_spec_body: $ => seq('{', repeat($.lemma_spec_member), '}'),
 
         // Lemma bodies only allow requires, ensures, and pragma.
         lemma_spec_member: $ =>
@@ -1320,8 +1316,7 @@ module.exports = grammar({
 
         // ─── Proof blocks (V2.4) ──────────────────────────────────────────────────
         // Appears as: trailing after spec_body, after spec_lemma, or as a spec member.
-        proof_block: $ =>
-            seq('proof', '{', repeat($.proof_statement), '}'),
+        proof_block: $ => seq('proof', '{', repeat($.proof_statement), '}'),
 
         proof_statement: $ =>
             choice(
@@ -1330,25 +1325,29 @@ module.exports = grammar({
                 // let name = expr;
                 seq('let', field('name', $.identifier), '=', field('value', $._expression), ';'),
                 // if (cond) body [else body] — prec.right resolves dangling-else
-                prec.right(seq(
-                    'if',
-                    '(',
-                    field('condition', $._expression),
-                    ')',
-                    field('then', $.proof_body),
-                    optional(seq('else', field('else', $.proof_body)))
-                )),
+                prec.right(
+                    seq(
+                        'if',
+                        '(',
+                        field('condition', $._expression),
+                        ')',
+                        field('then', $.proof_body),
+                        optional(seq('else', field('else', $.proof_body)))
+                    )
+                ),
                 // assert expr;
                 seq('assert', $._expression, ';'),
                 // assume [props] expr;
                 seq('assume', optional($.condition_properties), $._expression, ';'),
                 // [forall bindings [triggers]] apply Name<T>(args);
                 seq(
-                    optional(seq(
-                        'forall',
-                        $.quantifier_bindings,
-                        optional(seq('{', commaSep1($._expression), '}'))
-                    )),
+                    optional(
+                        seq(
+                            'forall',
+                            $.quantifier_bindings,
+                            optional(seq('{', commaSep1($._expression), '}'))
+                        )
+                    ),
                     'apply',
                     $.name_access_chain,
                     optional($.type_arguments),
@@ -1367,11 +1366,7 @@ module.exports = grammar({
             ),
 
         // Proof if/else branch: either a block or a single statement.
-        proof_body: $ =>
-            choice(
-                seq('{', repeat($.proof_statement), '}'),
-                $.proof_statement
-            ),
+        proof_body: $ => choice(seq('{', repeat($.proof_statement), '}'), $.proof_statement),
 
         // ─── modifies_of / reads_of (V2.4) ───────────────────────────────────────
         // modifies_of<param>*;
@@ -1396,16 +1391,12 @@ module.exports = grammar({
                 '<',
                 field('param', $.identifier),
                 '>',
-                choice(
-                    seq('*', ';'),
-                    seq(commaSep1($._type), ';')
-                )
+                choice(seq('*', ';'), seq(commaSep1($._type), ';'))
             ),
 
         // ─── Literal patterns and range patterns (V2.4) ───────────────────────────
         // Negative numeric literal for use in match arms and let-binding patterns.
-        negative_literal: $ =>
-            prec(PREC.UNARY, seq('-', $.num_literal)),
+        negative_literal: $ => prec(PREC.UNARY, seq('-', $.num_literal)),
 
         // Range pattern: lo..hi  lo..=hi  ..hi  ..=hi  lo..
         // Valid in match arm patterns and let-binding patterns.
@@ -1419,10 +1410,7 @@ module.exports = grammar({
                         optional(choice($._literal_value, $.negative_literal))
                     ),
                     // ..hi  or  ..=hi  (open-start range)
-                    seq(
-                        choice('..', '..='),
-                        choice($._literal_value, $.negative_literal)
-                    )
+                    seq(choice('..', '..='), choice($._literal_value, $.negative_literal))
                 )
             ),
 
