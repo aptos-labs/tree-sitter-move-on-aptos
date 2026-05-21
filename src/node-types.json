@@ -59,6 +59,10 @@
           "named": true
         },
         {
+          "type": "behavior_predicate",
+          "named": true
+        },
+        {
           "type": "binary_expression",
           "named": true
         },
@@ -250,6 +254,10 @@
         },
         {
           "type": "assign_expression",
+          "named": true
+        },
+        {
+          "type": "behavior_predicate",
           "named": true
         },
         {
@@ -516,6 +524,10 @@
             "named": true
           },
           {
+            "type": "behavior_predicate",
+            "named": true
+          },
+          {
             "type": "binary_expression",
             "named": true
           },
@@ -745,6 +757,10 @@
           "named": true
         },
         {
+          "type": "behavior_predicate",
+          "named": true
+        },
+        {
           "type": "binary_expression",
           "named": true
         },
@@ -913,6 +929,10 @@
           },
           {
             "type": "annotate_expression",
+            "named": true
+          },
+          {
+            "type": "behavior_predicate",
             "named": true
           },
           {
@@ -1101,6 +1121,10 @@
           },
           {
             "type": "assign_expression",
+            "named": true
+          },
+          {
+            "type": "behavior_predicate",
             "named": true
           },
           {
@@ -1318,6 +1342,54 @@
     }
   },
   {
+    "type": "behavior_predicate",
+    "named": true,
+    "fields": {
+      "arguments": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "arg_list",
+            "named": true
+          }
+        ]
+      },
+      "function": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "type_arguments",
+            "named": true
+          }
+        ]
+      },
+      "kind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "aborts_of",
+            "named": false
+          },
+          {
+            "type": "ensures_of",
+            "named": false
+          },
+          {
+            "type": "requires_of",
+            "named": false
+          },
+          {
+            "type": "result_of",
+            "named": false
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "binary_expression",
     "named": true,
     "fields": {
@@ -1339,6 +1411,10 @@
           },
           {
             "type": "assign_expression",
+            "named": true
+          },
+          {
+            "type": "behavior_predicate",
             "named": true
           },
           {
@@ -1603,6 +1679,10 @@
           },
           {
             "type": "assign_expression",
+            "named": true
+          },
+          {
+            "type": "behavior_predicate",
             "named": true
           },
           {
@@ -1945,6 +2025,10 @@
           "named": true
         },
         {
+          "type": "behavior_predicate",
+          "named": true
+        },
+        {
           "type": "binary_expression",
           "named": true
         },
@@ -2135,6 +2219,10 @@
           "named": true
         },
         {
+          "type": "behavior_predicate",
+          "named": true
+        },
+        {
           "type": "block",
           "named": true
         },
@@ -2275,6 +2363,10 @@
         },
         {
           "type": "assign_expression",
+          "named": true
+        },
+        {
+          "type": "behavior_predicate",
           "named": true
         },
         {
@@ -2494,6 +2586,10 @@
           },
           {
             "type": "assign_expression",
+            "named": true
+          },
+          {
+            "type": "behavior_predicate",
             "named": true
           },
           {
@@ -2762,6 +2858,10 @@
             "named": true
           },
           {
+            "type": "behavior_predicate",
+            "named": true
+          },
+          {
             "type": "binary_expression",
             "named": true
           },
@@ -2989,6 +3089,10 @@
           "named": true
         },
         {
+          "type": "behavior_predicate",
+          "named": true
+        },
+        {
           "type": "block",
           "named": true
         },
@@ -3121,6 +3225,10 @@
         },
         {
           "type": "annotate_expression",
+          "named": true
+        },
+        {
+          "type": "behavior_predicate",
           "named": true
         },
         {
@@ -3280,6 +3388,10 @@
           },
           {
             "type": "annotate_expression",
+            "named": true
+          },
+          {
+            "type": "behavior_predicate",
             "named": true
           },
           {
@@ -3498,6 +3610,10 @@
         },
         {
           "type": "assign_expression",
+          "named": true
+        },
+        {
+          "type": "behavior_predicate",
           "named": true
         },
         {
@@ -3733,6 +3849,10 @@
           },
           {
             "type": "assign_expression",
+            "named": true
+          },
+          {
+            "type": "behavior_predicate",
             "named": true
           },
           {
@@ -3987,6 +4107,10 @@
           },
           {
             "type": "assign_expression",
+            "named": true
+          },
+          {
+            "type": "behavior_predicate",
             "named": true
           },
           {
@@ -4443,6 +4567,10 @@
             "named": true
           },
           {
+            "type": "behavior_predicate",
+            "named": true
+          },
+          {
             "type": "binary_expression",
             "named": true
           },
@@ -4617,6 +4745,10 @@
             "named": true
           },
           {
+            "type": "behavior_predicate",
+            "named": true
+          },
+          {
             "type": "binary_expression",
             "named": true
           },
@@ -4788,6 +4920,10 @@
           },
           {
             "type": "assign_expression",
+            "named": true
+          },
+          {
+            "type": "behavior_predicate",
             "named": true
           },
           {
@@ -4971,6 +5107,10 @@
             "named": true
           },
           {
+            "type": "behavior_predicate",
+            "named": true
+          },
+          {
             "type": "binary_expression",
             "named": true
           },
@@ -5137,6 +5277,10 @@
             "named": true
           },
           {
+            "type": "behavior_predicate",
+            "named": true
+          },
+          {
             "type": "block",
             "named": true
           },
@@ -5288,6 +5432,10 @@
           },
           {
             "type": "assign_expression",
+            "named": true
+          },
+          {
+            "type": "behavior_predicate",
             "named": true
           },
           {
@@ -5497,6 +5645,10 @@
           },
           {
             "type": "assign_expression",
+            "named": true
+          },
+          {
+            "type": "behavior_predicate",
             "named": true
           },
           {
@@ -5812,6 +5964,10 @@
           "named": true
         },
         {
+          "type": "behavior_predicate",
+          "named": true
+        },
+        {
           "type": "binary_expression",
           "named": true
         },
@@ -6087,6 +6243,10 @@
             "named": true
           },
           {
+            "type": "behavior_predicate",
+            "named": true
+          },
+          {
             "type": "binary_expression",
             "named": true
           },
@@ -6264,6 +6424,10 @@
           },
           {
             "type": "assign_expression",
+            "named": true
+          },
+          {
+            "type": "behavior_predicate",
             "named": true
           },
           {
@@ -6493,6 +6657,10 @@
             "named": true
           },
           {
+            "type": "behavior_predicate",
+            "named": true
+          },
+          {
             "type": "binary_expression",
             "named": true
           },
@@ -6664,6 +6832,10 @@
           },
           {
             "type": "assign_expression",
+            "named": true
+          },
+          {
+            "type": "behavior_predicate",
             "named": true
           },
           {
@@ -6902,6 +7074,10 @@
           },
           {
             "type": "assign_expression",
+            "named": true
+          },
+          {
+            "type": "behavior_predicate",
             "named": true
           },
           {
@@ -7236,6 +7412,10 @@
           "named": true
         },
         {
+          "type": "behavior_predicate",
+          "named": true
+        },
+        {
           "type": "block",
           "named": true
         },
@@ -7471,6 +7651,10 @@
           "named": true
         },
         {
+          "type": "behavior_predicate",
+          "named": true
+        },
+        {
           "type": "block",
           "named": true
         },
@@ -7618,6 +7802,10 @@
         },
         {
           "type": "annotate_expression",
+          "named": true
+        },
+        {
+          "type": "behavior_predicate",
           "named": true
         },
         {
@@ -7856,6 +8044,10 @@
         },
         {
           "type": "assign_expression",
+          "named": true
+        },
+        {
+          "type": "behavior_predicate",
           "named": true
         },
         {
@@ -8175,6 +8367,10 @@
             "named": true
           },
           {
+            "type": "behavior_predicate",
+            "named": true
+          },
+          {
             "type": "binary_expression",
             "named": true
           },
@@ -8379,6 +8575,10 @@
             "named": true
           },
           {
+            "type": "behavior_predicate",
+            "named": true
+          },
+          {
             "type": "binary_expression",
             "named": true
           },
@@ -8555,6 +8755,10 @@
         },
         {
           "type": "assign_expression",
+          "named": true
+        },
+        {
+          "type": "behavior_predicate",
           "named": true
         },
         {
@@ -8758,6 +8962,10 @@
         },
         {
           "type": "assign_expression",
+          "named": true
+        },
+        {
+          "type": "behavior_predicate",
           "named": true
         },
         {
@@ -8979,6 +9187,10 @@
           "named": true
         },
         {
+          "type": "behavior_predicate",
+          "named": true
+        },
+        {
           "type": "binary_expression",
           "named": true
         },
@@ -9166,6 +9378,10 @@
             "named": true
           },
           {
+            "type": "behavior_predicate",
+            "named": true
+          },
+          {
             "type": "binary_expression",
             "named": true
           },
@@ -9337,6 +9553,10 @@
           },
           {
             "type": "assign_expression",
+            "named": true
+          },
+          {
+            "type": "behavior_predicate",
             "named": true
           },
           {
@@ -9590,6 +9810,10 @@
           "named": true
         },
         {
+          "type": "behavior_predicate",
+          "named": true
+        },
+        {
           "type": "binary_expression",
           "named": true
         },
@@ -9828,6 +10052,10 @@
           "named": true
         },
         {
+          "type": "behavior_predicate",
+          "named": true
+        },
+        {
           "type": "binary_expression",
           "named": true
         },
@@ -10034,6 +10262,10 @@
         },
         {
           "type": "assign_expression",
+          "named": true
+        },
+        {
+          "type": "behavior_predicate",
           "named": true
         },
         {
@@ -10487,6 +10719,10 @@
           "named": true
         },
         {
+          "type": "behavior_predicate",
+          "named": true
+        },
+        {
           "type": "binary_expression",
           "named": true
         },
@@ -10667,6 +10903,10 @@
         },
         {
           "type": "assign_expression",
+          "named": true
+        },
+        {
+          "type": "behavior_predicate",
           "named": true
         },
         {
@@ -10925,6 +11165,10 @@
           "named": true
         },
         {
+          "type": "behavior_predicate",
+          "named": true
+        },
+        {
           "type": "binary_expression",
           "named": true
         },
@@ -11112,6 +11356,10 @@
         },
         {
           "type": "assign_expression",
+          "named": true
+        },
+        {
+          "type": "behavior_predicate",
           "named": true
         },
         {
@@ -11364,6 +11612,10 @@
             "named": true
           },
           {
+            "type": "behavior_predicate",
+            "named": true
+          },
+          {
             "type": "binary_expression",
             "named": true
           },
@@ -11562,6 +11814,10 @@
         },
         {
           "type": "assign_expression",
+          "named": true
+        },
+        {
+          "type": "behavior_predicate",
           "named": true
         },
         {
@@ -11895,6 +12151,10 @@
             "named": true
           },
           {
+            "type": "behavior_predicate",
+            "named": true
+          },
+          {
             "type": "binary_expression",
             "named": true
           },
@@ -12123,6 +12383,10 @@
         },
         {
           "type": "assign_expression",
+          "named": true
+        },
+        {
+          "type": "behavior_predicate",
           "named": true
         },
         {
@@ -12869,6 +13133,10 @@
           "named": true
         },
         {
+          "type": "behavior_predicate",
+          "named": true
+        },
+        {
           "type": "binary_expression",
           "named": true
         },
@@ -13056,6 +13324,10 @@
             "named": true
           },
           {
+            "type": "behavior_predicate",
+            "named": true
+          },
+          {
             "type": "binary_expression",
             "named": true
           },
@@ -13227,6 +13499,10 @@
           },
           {
             "type": "assign_expression",
+            "named": true
+          },
+          {
+            "type": "behavior_predicate",
             "named": true
           },
           {
@@ -13602,6 +13878,10 @@
     "named": false
   },
   {
+    "type": "aborts_of",
+    "named": false
+  },
+  {
     "type": "aborts_with",
     "named": false
   },
@@ -13687,6 +13967,10 @@
   },
   {
     "type": "ensures",
+    "named": false
+  },
+  {
+    "type": "ensures_of",
     "named": false
   },
   {
@@ -13908,6 +14192,14 @@
   },
   {
     "type": "requires",
+    "named": false
+  },
+  {
+    "type": "requires_of",
+    "named": false
+  },
+  {
+    "type": "result_of",
     "named": false
   },
   {

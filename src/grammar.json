@@ -5140,6 +5140,10 @@
       "members": [
         {
           "type": "SYMBOL",
+          "name": "behavior_predicate"
+        },
+        {
+          "type": "SYMBOL",
           "name": "call_expression"
         },
         {
@@ -5223,6 +5227,56 @@
           "name": "spec_block"
         }
       ]
+    },
+    "behavior_predicate": {
+      "type": "PREC_DYNAMIC",
+      "value": 3,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "FIELD",
+            "name": "kind",
+            "content": {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "requires_of"
+                },
+                {
+                  "type": "STRING",
+                  "value": "aborts_of"
+                },
+                {
+                  "type": "STRING",
+                  "value": "ensures_of"
+                },
+                {
+                  "type": "STRING",
+                  "value": "result_of"
+                }
+              ]
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "function",
+            "content": {
+              "type": "SYMBOL",
+              "name": "type_arguments"
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "arguments",
+            "content": {
+              "type": "SYMBOL",
+              "name": "arg_list"
+            }
+          }
+        ]
+      }
     },
     "name_expression": {
       "type": "SYMBOL",

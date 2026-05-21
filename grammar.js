@@ -832,6 +832,7 @@ module.exports = grammar({
 
         _expression_term: $ =>
             choice(
+                $.behavior_predicate,
                 $.call_expression,
                 $.macro_call_expression,
                 $.indirect_call_expression,
@@ -853,6 +854,28 @@ module.exports = grammar({
                 $.break_expression,
                 $.continue_expression,
                 $.spec_block
+            ),
+
+        // V2.4 behavioral predicates: `requires_of<F>(args)`, `aborts_of<F>(args)`,
+        // `ensures_of<F>(args)`, `result_of<F>(args)`. The compiler scopes these to
+        // spec contexts via `is_bare_behavior` (legacy-move-compiler syntax.rs:2607).
+        // Tree-sitter can't condition on context, so we surface them as a primary
+        // expression form everywhere. The keyword + mandatory `<` lookahead means
+        // they only match the intended shape; bare identifiers `requires_of` etc.
+        // still parse as ordinary name expressions. prec.dynamic(3) outranks
+        // generic_name_expression (2) so nested generics like `aborts_of<baz<u64>>(x)`
+        // resolve as a behavior predicate instead of `aborts_of < baz<u64> > (x)`.
+        behavior_predicate: $ =>
+            prec.dynamic(
+                3,
+                seq(
+                    field(
+                        'kind',
+                        choice('requires_of', 'aborts_of', 'ensures_of', 'result_of')
+                    ),
+                    field('function', $.type_arguments),
+                    field('arguments', $.arg_list)
+                )
             ),
 
         // Name expression: variable, path, or enum variant
