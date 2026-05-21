@@ -1193,3 +1193,128 @@ module 0x1::test {
                 (name_expression
                   (name_access_chain
                     (identifier)))))))))))
+
+================================================================================
+State-labeled expression: single label (V2.4)
+================================================================================
+
+module 0x1::test {
+    spec foo {
+        ensures s1 |~ result == 0;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        target: (name_access_chain
+          (identifier))
+        body: (spec_body
+          (spec_condition
+            (state_labeled_expression
+              pre: (identifier)
+              body: (binary_expression
+                lhs: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                rhs: (num_literal)))))))))
+
+================================================================================
+State-labeled expression: pre-only range (V2.4)
+================================================================================
+
+module 0x1::test {
+    spec foo {
+        ensures s1.. |~ result > 0;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        target: (name_access_chain
+          (identifier))
+        body: (spec_body
+          (spec_condition
+            (state_labeled_expression
+              pre: (identifier)
+              body: (binary_expression
+                lhs: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                rhs: (num_literal)))))))))
+
+================================================================================
+State-labeled expression: full range (V2.4)
+================================================================================
+
+module 0x1::test {
+    spec foo {
+        ensures s1..s2 |~ result == 0;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        target: (name_access_chain
+          (identifier))
+        body: (spec_body
+          (spec_condition
+            (state_labeled_expression
+              pre: (identifier)
+              post: (identifier)
+              body: (binary_expression
+                lhs: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                rhs: (num_literal)))))))))
+
+================================================================================
+State-labeled expression: post-only range (V2.4)
+================================================================================
+
+module 0x1::test {
+    spec foo {
+        ensures ..s1 |~ result == 0;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        target: (name_access_chain
+          (identifier))
+        body: (spec_body
+          (spec_condition
+            (state_labeled_expression
+              post: (identifier)
+              body: (binary_expression
+                lhs: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                rhs: (num_literal)))))))))

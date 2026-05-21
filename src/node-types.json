@@ -203,6 +203,10 @@
           "named": true
         },
         {
+          "type": "state_labeled_expression",
+          "named": true
+        },
+        {
           "type": "unit_expression",
           "named": true
         },
@@ -406,6 +410,10 @@
         },
         {
           "type": "spec_block",
+          "named": true
+        },
+        {
+          "type": "state_labeled_expression",
           "named": true
         },
         {
@@ -668,6 +676,10 @@
             "named": true
           },
           {
+            "type": "state_labeled_expression",
+            "named": true
+          },
+          {
             "type": "unit_expression",
             "named": true
           },
@@ -898,6 +910,10 @@
         },
         {
           "type": "spec_block",
+          "named": true
+        },
+        {
+          "type": "state_labeled_expression",
           "named": true
         },
         {
@@ -1268,6 +1284,10 @@
             "named": true
           },
           {
+            "type": "state_labeled_expression",
+            "named": true
+          },
+          {
             "type": "unit_expression",
             "named": true
           },
@@ -1558,6 +1578,10 @@
             "named": true
           },
           {
+            "type": "state_labeled_expression",
+            "named": true
+          },
+          {
             "type": "unit_expression",
             "named": true
           },
@@ -1823,6 +1847,10 @@
           },
           {
             "type": "spec_block",
+            "named": true
+          },
+          {
+            "type": "state_labeled_expression",
             "named": true
           },
           {
@@ -2173,6 +2201,10 @@
           "named": true
         },
         {
+          "type": "state_labeled_expression",
+          "named": true
+        },
+        {
           "type": "unit_expression",
           "named": true
         },
@@ -2514,6 +2546,10 @@
           "named": true
         },
         {
+          "type": "state_labeled_expression",
+          "named": true
+        },
+        {
           "type": "unit_expression",
           "named": true
         },
@@ -2730,6 +2766,10 @@
           },
           {
             "type": "spec_block",
+            "named": true
+          },
+          {
+            "type": "state_labeled_expression",
             "named": true
           },
           {
@@ -2999,6 +3039,10 @@
           },
           {
             "type": "spec_block",
+            "named": true
+          },
+          {
+            "type": "state_labeled_expression",
             "named": true
           },
           {
@@ -3757,6 +3801,10 @@
           "named": true
         },
         {
+          "type": "state_labeled_expression",
+          "named": true
+        },
+        {
           "type": "unit_expression",
           "named": true
         },
@@ -3993,6 +4041,10 @@
           },
           {
             "type": "spec_block",
+            "named": true
+          },
+          {
+            "type": "state_labeled_expression",
             "named": true
           },
           {
@@ -4251,6 +4303,10 @@
           },
           {
             "type": "spec_block",
+            "named": true
+          },
+          {
+            "type": "state_labeled_expression",
             "named": true
           },
           {
@@ -4711,6 +4767,10 @@
             "named": true
           },
           {
+            "type": "state_labeled_expression",
+            "named": true
+          },
+          {
             "type": "unit_expression",
             "named": true
           },
@@ -4889,6 +4949,10 @@
             "named": true
           },
           {
+            "type": "state_labeled_expression",
+            "named": true
+          },
+          {
             "type": "unit_expression",
             "named": true
           },
@@ -5064,6 +5128,10 @@
           },
           {
             "type": "spec_block",
+            "named": true
+          },
+          {
+            "type": "state_labeled_expression",
             "named": true
           },
           {
@@ -5248,6 +5316,10 @@
           },
           {
             "type": "spec_block",
+            "named": true
+          },
+          {
+            "type": "state_labeled_expression",
             "named": true
           },
           {
@@ -5579,6 +5651,10 @@
             "named": true
           },
           {
+            "type": "state_labeled_expression",
+            "named": true
+          },
+          {
             "type": "unit_expression",
             "named": true
           },
@@ -5789,6 +5865,10 @@
           },
           {
             "type": "spec_block",
+            "named": true
+          },
+          {
+            "type": "state_labeled_expression",
             "named": true
           },
           {
@@ -6116,6 +6196,10 @@
           "named": true
         },
         {
+          "type": "state_labeled_expression",
+          "named": true
+        },
+        {
           "type": "unit_expression",
           "named": true
         },
@@ -6387,6 +6471,10 @@
             "named": true
           },
           {
+            "type": "state_labeled_expression",
+            "named": true
+          },
+          {
             "type": "unit_expression",
             "named": true
           },
@@ -6568,6 +6656,10 @@
           },
           {
             "type": "spec_block",
+            "named": true
+          },
+          {
+            "type": "state_labeled_expression",
             "named": true
           },
           {
@@ -6801,6 +6893,10 @@
             "named": true
           },
           {
+            "type": "state_labeled_expression",
+            "named": true
+          },
+          {
             "type": "unit_expression",
             "named": true
           },
@@ -6976,6 +7072,10 @@
           },
           {
             "type": "spec_block",
+            "named": true
+          },
+          {
+            "type": "state_labeled_expression",
             "named": true
           },
           {
@@ -7218,6 +7318,10 @@
           },
           {
             "type": "spec_block",
+            "named": true
+          },
+          {
+            "type": "state_labeled_expression",
             "named": true
           },
           {
@@ -8191,6 +8295,10 @@
           "named": true
         },
         {
+          "type": "state_labeled_expression",
+          "named": true
+        },
+        {
           "type": "unit_expression",
           "named": true
         },
@@ -8511,6 +8619,10 @@
             "named": true
           },
           {
+            "type": "state_labeled_expression",
+            "named": true
+          },
+          {
             "type": "unit_expression",
             "named": true
           },
@@ -8719,6 +8831,10 @@
             "named": true
           },
           {
+            "type": "state_labeled_expression",
+            "named": true
+          },
+          {
             "type": "unit_expression",
             "named": true
           },
@@ -8915,6 +9031,10 @@
         },
         {
           "type": "spec_block",
+          "named": true
+        },
+        {
+          "type": "state_labeled_expression",
           "named": true
         },
         {
@@ -9122,6 +9242,10 @@
         },
         {
           "type": "spec_block",
+          "named": true
+        },
+        {
+          "type": "state_labeled_expression",
           "named": true
         },
         {
@@ -9339,6 +9463,10 @@
           "named": true
         },
         {
+          "type": "state_labeled_expression",
+          "named": true
+        },
+        {
           "type": "unit_expression",
           "named": true
         },
@@ -9522,6 +9650,10 @@
             "named": true
           },
           {
+            "type": "state_labeled_expression",
+            "named": true
+          },
+          {
             "type": "unit_expression",
             "named": true
           },
@@ -9697,6 +9829,10 @@
           },
           {
             "type": "spec_block",
+            "named": true
+          },
+          {
+            "type": "state_labeled_expression",
             "named": true
           },
           {
@@ -9954,6 +10090,10 @@
           "named": true
         },
         {
+          "type": "state_labeled_expression",
+          "named": true
+        },
+        {
           "type": "unit_expression",
           "named": true
         },
@@ -10200,6 +10340,10 @@
           "named": true
         },
         {
+          "type": "state_labeled_expression",
+          "named": true
+        },
+        {
           "type": "unit_expression",
           "named": true
         },
@@ -10410,6 +10554,10 @@
         },
         {
           "type": "spec_block",
+          "named": true
+        },
+        {
+          "type": "state_labeled_expression",
           "named": true
         },
         {
@@ -10867,6 +11015,10 @@
           "named": true
         },
         {
+          "type": "state_labeled_expression",
+          "named": true
+        },
+        {
           "type": "unit_expression",
           "named": true
         },
@@ -11047,6 +11199,10 @@
         },
         {
           "type": "spec_block",
+          "named": true
+        },
+        {
+          "type": "state_labeled_expression",
           "named": true
         },
         {
@@ -11309,6 +11465,10 @@
           "named": true
         },
         {
+          "type": "state_labeled_expression",
+          "named": true
+        },
+        {
           "type": "unit_expression",
           "named": true
         },
@@ -11504,6 +11664,10 @@
         },
         {
           "type": "spec_block",
+          "named": true
+        },
+        {
+          "type": "state_labeled_expression",
           "named": true
         },
         {
@@ -11756,6 +11920,10 @@
             "named": true
           },
           {
+            "type": "state_labeled_expression",
+            "named": true
+          },
+          {
             "type": "unit_expression",
             "named": true
           },
@@ -11958,6 +12126,10 @@
         },
         {
           "type": "spec_block",
+          "named": true
+        },
+        {
+          "type": "state_labeled_expression",
           "named": true
         },
         {
@@ -12295,6 +12467,10 @@
             "named": true
           },
           {
+            "type": "state_labeled_expression",
+            "named": true
+          },
+          {
             "type": "unit_expression",
             "named": true
           },
@@ -12530,6 +12706,10 @@
           "named": true
         },
         {
+          "type": "state_labeled_expression",
+          "named": true
+        },
+        {
           "type": "unit_expression",
           "named": true
         },
@@ -12542,6 +12722,224 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "state_labeled_expression",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "abort_expression",
+            "named": true
+          },
+          {
+            "type": "address_literal",
+            "named": true
+          },
+          {
+            "type": "annotate_expression",
+            "named": true
+          },
+          {
+            "type": "assign_expression",
+            "named": true
+          },
+          {
+            "type": "behavior_predicate",
+            "named": true
+          },
+          {
+            "type": "binary_expression",
+            "named": true
+          },
+          {
+            "type": "block",
+            "named": true
+          },
+          {
+            "type": "bool_literal",
+            "named": true
+          },
+          {
+            "type": "borrow_expression",
+            "named": true
+          },
+          {
+            "type": "break_expression",
+            "named": true
+          },
+          {
+            "type": "byte_string_literal",
+            "named": true
+          },
+          {
+            "type": "call_expression",
+            "named": true
+          },
+          {
+            "type": "cast_expression",
+            "named": true
+          },
+          {
+            "type": "continue_expression",
+            "named": true
+          },
+          {
+            "type": "copy_expression",
+            "named": true
+          },
+          {
+            "type": "dereference_expression",
+            "named": true
+          },
+          {
+            "type": "dot_expression",
+            "named": true
+          },
+          {
+            "type": "expression_list",
+            "named": true
+          },
+          {
+            "type": "for_expression",
+            "named": true
+          },
+          {
+            "type": "generic_name_expression",
+            "named": true
+          },
+          {
+            "type": "hex_string_literal",
+            "named": true
+          },
+          {
+            "type": "if_expression",
+            "named": true
+          },
+          {
+            "type": "index_expression",
+            "named": true
+          },
+          {
+            "type": "indirect_call_expression",
+            "named": true
+          },
+          {
+            "type": "is_expression",
+            "named": true
+          },
+          {
+            "type": "lambda_expression",
+            "named": true
+          },
+          {
+            "type": "loop_expression",
+            "named": true
+          },
+          {
+            "type": "macro_call_expression",
+            "named": true
+          },
+          {
+            "type": "match_expression",
+            "named": true
+          },
+          {
+            "type": "method_call_with_type_args",
+            "named": true
+          },
+          {
+            "type": "move_expression",
+            "named": true
+          },
+          {
+            "type": "name_expression",
+            "named": true
+          },
+          {
+            "type": "negate_expression",
+            "named": true
+          },
+          {
+            "type": "not_expression",
+            "named": true
+          },
+          {
+            "type": "num_literal",
+            "named": true
+          },
+          {
+            "type": "pack_expression",
+            "named": true
+          },
+          {
+            "type": "parenthesized_expression",
+            "named": true
+          },
+          {
+            "type": "quantifier_expression",
+            "named": true
+          },
+          {
+            "type": "return_expression",
+            "named": true
+          },
+          {
+            "type": "spec_block",
+            "named": true
+          },
+          {
+            "type": "state_labeled_expression",
+            "named": true
+          },
+          {
+            "type": "unit_expression",
+            "named": true
+          },
+          {
+            "type": "vector_expression",
+            "named": true
+          },
+          {
+            "type": "while_expression",
+            "named": true
+          }
+        ]
+      },
+      "label": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "..",
+            "named": false
+          }
+        ]
+      },
+      "post": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "pre": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -13281,6 +13679,10 @@
           "named": true
         },
         {
+          "type": "state_labeled_expression",
+          "named": true
+        },
+        {
           "type": "type_arguments",
           "named": true
         },
@@ -13468,6 +13870,10 @@
             "named": true
           },
           {
+            "type": "state_labeled_expression",
+            "named": true
+          },
+          {
             "type": "unit_expression",
             "named": true
           },
@@ -13643,6 +14049,10 @@
           },
           {
             "type": "spec_block",
+            "named": true
+          },
+          {
+            "type": "state_labeled_expression",
             "named": true
           },
           {
@@ -14308,6 +14718,10 @@
   },
   {
     "type": "||",
+    "named": false
+  },
+  {
+    "type": "|~",
     "named": false
   },
   {

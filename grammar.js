@@ -19,6 +19,8 @@ const commaSep1 = rule => seq(sepBy1(',', rule), optional(','));
 // Based on the Move compiler's BinOp precedence.
 
 const PREC = {
+    // V2.4 spec-only: state-label `|~` binds weaker than every other operator.
+    STATE_LABEL: 0,
     ASSIGN: 1,
     // spec-only: ==> and <==>
     IFF: 2,
@@ -106,6 +108,10 @@ module.exports = grammar({
         [$.spec_lemma],
         // proof if/else body: { } could reduce to proof_body or proof_statement
         [$.proof_statement, $.proof_body],
+        // V2.4 state label: `ident ..` could begin a state_labeled_expression
+        // (pre-only range) or a normal `_leading_name_access` followed by a
+        // range/binary `..`. Resolved at the `|~` lookahead.
+        [$._leading_name_access, $.state_labeled_expression],
     ],
 
     precedences: _ => [],
@@ -597,7 +603,42 @@ module.exports = grammar({
                 $.assign_expression,
                 $._unary_expression,
                 $.binary_expression,
-                $.quantifier_expression
+                $.quantifier_expression,
+                $.state_labeled_expression
+            ),
+
+        // V2.4 state-labeled expression — appears in spec-context expressions
+        // (`ensures`, `requires`, `aborts_if`, etc.) and proof statements.
+        // Compiler: legacy-move-compiler syntax.rs:2693 `parse_state_label`,
+        // 2735 `parse_post_only_state_label`. `|~` is a single token at
+        // PREC.STATE_LABEL (weaker than every other operator).
+        //
+        // Four shapes share one rule:
+        //   ident |~ expr           — single state label
+        //   ident.. |~ expr         — pre-only range
+        //   ident..ident |~ expr    — full range (pre..post)
+        //   ..ident |~ expr         — post-only range
+        //
+        // Tree-sitter has no spec-mode context, so this is reachable wherever
+        // `_expression` is reachable — slightly looser than the compiler. The
+        // `|~` literal is what disambiguates it from `name_expression`,
+        // `range_expression`, and `binary_expression`.
+        state_labeled_expression: $ =>
+            prec.right(
+                PREC.STATE_LABEL,
+                seq(
+                    field(
+                        'label',
+                        choice(
+                            seq(field('pre', $.identifier), '..', field('post', $.identifier)),
+                            seq(field('pre', $.identifier), '..'),
+                            seq('..', field('post', $.identifier)),
+                            field('pre', $.identifier)
+                        )
+                    ),
+                    '|~',
+                    field('body', $._expression)
+                )
             ),
 
         // ─── Lambda ───────────────────────────────────────────────────────────────
