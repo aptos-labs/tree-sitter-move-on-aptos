@@ -845,3 +845,56 @@ module 0x1::test {
         name: (identifier)
         parameters: (function_parameters)
         body: (block)))))
+
+================================================================================
+Public struct (V2.4 — semantic gate only)
+================================================================================
+
+module 0x1::test {
+    public struct PubStruct has drop {
+        v: u64,
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (struct_declaration
+        name: (identifier)
+        abilities: (ability_declarations
+          (ability))
+        fields: (struct_fields
+          (field_declaration
+            name: (identifier)
+            type: (primitive_type)))))))
+
+================================================================================
+Package enum (V2.4 — semantic gate only)
+================================================================================
+
+module 0x1::test {
+    package enum Mode {
+        On,
+        Off,
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (enum_declaration
+        name: (identifier)
+        (enum_variant
+          name: (identifier))
+        (enum_variant
+          name: (identifier))))))
