@@ -19,6 +19,8 @@ const commaSep1 = rule => seq(sepBy1(',', rule), optional(','));
 // Based on the Move compiler's BinOp precedence.
 
 const PREC = {
+    // V2.4 spec-only: state-label `|~` binds weaker than every other operator.
+    STATE_LABEL: 0,
     ASSIGN: 1,
     // spec-only: ==> and <==>
     IFF: 2,
@@ -100,6 +102,16 @@ module.exports = grammar({
         [$.primitive_type, $._leading_name_access],
         // 'match' can be a keyword or a module name in access paths
         [$._leading_name_access, $.match_expression],
+        // trailing 'proof' after spec_body: shift into proof_block vs reduce spec_block
+        [$.spec_block],
+        // trailing 'proof' after lemma_spec_body: shift into proof_block vs reduce spec_lemma
+        [$.spec_lemma],
+        // proof if/else body: { } could reduce to proof_body or proof_statement
+        [$.proof_statement, $.proof_body],
+        // V2.4 state label: `ident ..` could begin a state_labeled_expression
+        // (pre-only range) or a normal `_leading_name_access` followed by a
+        // range/binary `..`. Resolved at the `|~` lookahead.
+        [$._leading_name_access, $.state_labeled_expression],
     ],
 
     precedences: _ => [],
@@ -208,6 +220,7 @@ module.exports = grammar({
         constant_declaration: $ =>
             seq(
                 optional($.attributes),
+                optional(field('visibility', $._visibility)),
                 'const',
                 field('name', $.identifier),
                 ':',
@@ -365,7 +378,10 @@ module.exports = grammar({
 
         function_parameter: $ => seq(field('name', $.identifier), ':', field('type', $._type)),
 
-        acquires_clause: $ => seq('acquires', commaSep1($.name_access_chain)),
+        // V2.4+ allows `!acquires` for negated acquires specifiers (mirrors the
+        // compiler's parse_function_decl loop, where `!` may front any of
+        // acquires/reads/writes).
+        acquires_clause: $ => seq(optional('!'), 'acquires', commaSep1($.name_access_chain)),
 
         // Access specifiers (Move 2.5+): reads R, writes T, pure, !reads *(0x42)
         access_specifier: $ =>
@@ -587,7 +603,42 @@ module.exports = grammar({
                 $.assign_expression,
                 $._unary_expression,
                 $.binary_expression,
-                $.quantifier_expression
+                $.quantifier_expression,
+                $.state_labeled_expression
+            ),
+
+        // V2.4 state-labeled expression — appears in spec-context expressions
+        // (`ensures`, `requires`, `aborts_if`, etc.) and proof statements.
+        // Compiler: legacy-move-compiler syntax.rs:2693 `parse_state_label`,
+        // 2735 `parse_post_only_state_label`. `|~` is a single token at
+        // PREC.STATE_LABEL (weaker than every other operator).
+        //
+        // Four shapes share one rule:
+        //   ident |~ expr           — single state label
+        //   ident.. |~ expr         — pre-only range
+        //   ident..ident |~ expr    — full range (pre..post)
+        //   ..ident |~ expr         — post-only range
+        //
+        // Tree-sitter has no spec-mode context, so this is reachable wherever
+        // `_expression` is reachable — slightly looser than the compiler. The
+        // `|~` literal is what disambiguates it from `name_expression`,
+        // `range_expression`, and `binary_expression`.
+        state_labeled_expression: $ =>
+            prec.right(
+                PREC.STATE_LABEL,
+                seq(
+                    field(
+                        'label',
+                        choice(
+                            seq(field('pre', $.identifier), '..', field('post', $.identifier)),
+                            seq(field('pre', $.identifier), '..'),
+                            seq('..', field('post', $.identifier)),
+                            field('pre', $.identifier)
+                        )
+                    ),
+                    '|~',
+                    field('body', $._expression)
+                )
             ),
 
         // ─── Lambda ───────────────────────────────────────────────────────────────
@@ -689,6 +740,8 @@ module.exports = grammar({
                 $.positional_pattern,
                 $.tuple_pattern,
                 $.or_pattern,
+                $.range_pattern, // 1..10, 1..=10, ..5, ..=5, lo..
+                $.negative_literal, // -1i8, -100
                 '_',
                 $._literal_value
             ),
@@ -820,6 +873,7 @@ module.exports = grammar({
 
         _expression_term: $ =>
             choice(
+                $.behavior_predicate,
                 $.call_expression,
                 $.macro_call_expression,
                 $.indirect_call_expression,
@@ -841,6 +895,25 @@ module.exports = grammar({
                 $.break_expression,
                 $.continue_expression,
                 $.spec_block
+            ),
+
+        // V2.4 behavioral predicates: `requires_of<F>(args)`, `aborts_of<F>(args)`,
+        // `ensures_of<F>(args)`, `result_of<F>(args)`. The compiler scopes these to
+        // spec contexts via `is_bare_behavior` (legacy-move-compiler syntax.rs:2607).
+        // Tree-sitter can't condition on context, so we surface them as a primary
+        // expression form everywhere. The keyword + mandatory `<` lookahead means
+        // they only match the intended shape; bare identifiers `requires_of` etc.
+        // still parse as ordinary name expressions. prec.dynamic(3) outranks
+        // generic_name_expression (2) so nested generics like `aborts_of<baz<u64>>(x)`
+        // resolve as a behavior predicate instead of `aborts_of < baz<u64> > (x)`.
+        behavior_predicate: $ =>
+            prec.dynamic(
+                3,
+                seq(
+                    field('kind', choice('requires_of', 'aborts_of', 'ensures_of', 'result_of')),
+                    field('function', $.type_arguments),
+                    field('arguments', $.arg_list)
+                )
             ),
 
         // Name expression: variable, path, or enum variant
@@ -1039,7 +1112,15 @@ module.exports = grammar({
 
         _bind_list: $ => choice($._bind, seq('(', commaSep($._bind), ')')),
 
-        _bind: $ => choice($.bind_var, $.bind_unpack, $.bind_positional_unpack),
+        _bind: $ =>
+            choice(
+                $.bind_var,
+                $.bind_unpack,
+                $.bind_positional_unpack,
+                $._literal_value, // literal pattern: let 5 = ...;
+                $.negative_literal, // negative literal: let -1i8 = ...;
+                $.range_pattern // range pattern: let 0..10 = ...;
+            ),
 
         bind_var: $ =>
             choice(
@@ -1122,7 +1203,13 @@ module.exports = grammar({
                 'spec',
                 choice(
                     $._spec_function,
-                    seq(optional(field('target', $._spec_block_target)), field('body', $.spec_body))
+                    // spec lemma <name>(...) { ... } [proof { ... }]
+                    $.spec_lemma,
+                    seq(
+                        optional(field('target', $._spec_block_target)),
+                        field('body', $.spec_body),
+                        optional(field('proof', $.proof_block))
+                    )
                 )
             ),
 
@@ -1167,7 +1254,12 @@ module.exports = grammar({
                 $.spec_update,
                 $.spec_axiom,
                 $._spec_function,
-                $.spec_block // nested spec blocks: spec fun_name(params) { ... }
+                $.spec_block, // nested spec blocks: spec fun_name(params) { ... }
+                $.spec_reads, // reads Type1, Type2; (all versions)
+                $.spec_lemma, // lemma name(params) { ... } [proof { ... }] (V2.4)
+                $.spec_modifies_of, // modifies_of<param>(...) expr; (V2.4)
+                $.spec_reads_of, // reads_of<param> Type; (V2.4)
+                $.proof_block // proof { ... } (V2.4)
             ),
 
         // Spec update: update supply<CoinType> = expr;
@@ -1189,6 +1281,137 @@ module.exports = grammar({
                 optional($.condition_properties),
                 $._expression,
                 ';'
+            ),
+
+        // ─── Spec reads (all versions) ────────────────────────────────────────────
+        // reads takes types (not expressions), unlike modifies which takes expressions.
+        spec_reads: $ => seq('reads', commaSep1($._type), ';'),
+
+        // ─── Lemma declarations (V2.4) ────────────────────────────────────────────
+        // lemma name<T>(params) { requires/ensures/pragma; } [proof { ... }]
+        // Appears as a spec block member OR after 'spec' at module level.
+        spec_lemma: $ =>
+            seq(
+                'lemma',
+                field('name', $.identifier),
+                optional(field('type_parameters', $.type_parameters)),
+                field('parameters', $.function_parameters),
+                field('spec', $.lemma_spec_body),
+                optional(field('proof', $.proof_block))
+            ),
+
+        lemma_spec_body: $ => seq('{', repeat($.lemma_spec_member), '}'),
+
+        // Lemma bodies only allow requires, ensures, and pragma.
+        lemma_spec_member: $ =>
+            choice(
+                seq(
+                    choice('requires', 'ensures'),
+                    optional($.condition_properties),
+                    commaSep1($._expression),
+                    ';'
+                ),
+                $.spec_pragma
+            ),
+
+        // ─── Proof blocks (V2.4) ──────────────────────────────────────────────────
+        // Appears as: trailing after spec_body, after spec_lemma, or as a spec member.
+        proof_block: $ => seq('proof', '{', repeat($.proof_statement), '}'),
+
+        proof_statement: $ =>
+            choice(
+                // Nested block: { stmt* }
+                seq('{', repeat($.proof_statement), '}'),
+                // let name = expr;
+                seq('let', field('name', $.identifier), '=', field('value', $._expression), ';'),
+                // if (cond) body [else body] — prec.right resolves dangling-else
+                prec.right(
+                    seq(
+                        'if',
+                        '(',
+                        field('condition', $._expression),
+                        ')',
+                        field('then', $.proof_body),
+                        optional(seq('else', field('else', $.proof_body)))
+                    )
+                ),
+                // assert expr;
+                seq('assert', $._expression, ';'),
+                // assume [props] expr;
+                seq('assume', optional($.condition_properties), $._expression, ';'),
+                // [forall bindings [triggers]] apply Name<T>(args);
+                seq(
+                    optional(
+                        seq(
+                            'forall',
+                            $.quantifier_bindings,
+                            optional(seq('{', commaSep1($._expression), '}'))
+                        )
+                    ),
+                    'apply',
+                    $.name_access_chain,
+                    optional($.type_arguments),
+                    $.arg_list,
+                    ';'
+                ),
+                // calc(exp relop exp relop ...);
+                seq(
+                    'calc',
+                    '(',
+                    $._expression,
+                    repeat(seq(choice('==', '!=', '<', '>', '<=', '>='), $._expression)),
+                    ')',
+                    ';'
+                )
+            ),
+
+        // Proof if/else branch: either a block or a single statement.
+        proof_body: $ => choice(seq('{', repeat($.proof_statement), '}'), $.proof_statement),
+
+        // ─── modifies_of / reads_of (V2.4) ───────────────────────────────────────
+        // modifies_of<param>*;
+        // modifies_of<param>(x: T, y: U) target_expr1, target_expr2;
+        spec_modifies_of: $ =>
+            seq(
+                'modifies_of',
+                '<',
+                field('param', $.identifier),
+                '>',
+                choice(
+                    seq('*', ';'),
+                    seq(field('parameters', $.function_parameters), commaSep1($._expression), ';')
+                )
+            ),
+
+        // reads_of<param>*;
+        // reads_of<param> ResourceType1, ResourceType2;
+        spec_reads_of: $ =>
+            seq(
+                'reads_of',
+                '<',
+                field('param', $.identifier),
+                '>',
+                choice(seq('*', ';'), seq(commaSep1($._type), ';'))
+            ),
+
+        // ─── Literal patterns and range patterns (V2.4) ───────────────────────────
+        // Negative numeric literal for use in match arms and let-binding patterns.
+        negative_literal: $ => prec(PREC.UNARY, seq('-', $.num_literal)),
+
+        // Range pattern: lo..hi  lo..=hi  ..hi  ..=hi  lo..
+        // Valid in match arm patterns and let-binding patterns.
+        range_pattern: $ =>
+            prec.right(
+                choice(
+                    // lo..  or  lo..hi  or  lo..=hi
+                    seq(
+                        choice($._literal_value, $.negative_literal),
+                        choice('..', '..='),
+                        optional(choice($._literal_value, $.negative_literal))
+                    ),
+                    // ..hi  or  ..=hi  (open-start range)
+                    seq(choice('..', '..='), choice($._literal_value, $.negative_literal))
+                )
             ),
 
         spec_invariant: $ =>

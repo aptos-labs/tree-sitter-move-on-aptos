@@ -865,3 +865,456 @@ module 0x1::test {
             (field_declaration
               name: (identifier)
               type: (primitive_type))))))))
+
+================================================================================
+Spec reads member (takes types)
+================================================================================
+
+module 0x1::test {
+    spec my_fun {
+        reads MyResource;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        target: (name_access_chain
+          (identifier))
+        body: (spec_body
+          (spec_reads
+            (apply_type
+              (name_access_chain
+                (identifier)))))))))
+
+================================================================================
+Lemma declaration inside spec block
+================================================================================
+
+module 0x1::test {
+    spec module {
+        lemma nonzero(x: u64) {
+            requires x > 0;
+            ensures x > 0;
+        }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        body: (spec_body
+          (spec_lemma
+            name: (identifier)
+            parameters: (function_parameters
+              (function_parameter
+                name: (identifier)
+                type: (primitive_type)))
+            spec: (lemma_spec_body
+              (lemma_spec_member
+                (binary_expression
+                  lhs: (name_expression (name_access_chain (identifier)))
+                  rhs: (num_literal)))
+              (lemma_spec_member
+                (binary_expression
+                  lhs: (name_expression (name_access_chain (identifier)))
+                  rhs: (num_literal))))))))))
+
+================================================================================
+Module-level spec lemma with proof block
+================================================================================
+
+module 0x1::test {
+    spec lemma additive(a: u64) {
+        requires a > 0;
+    } proof {
+        assert a > 0;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        (spec_lemma
+          name: (identifier)
+          parameters: (function_parameters
+            (function_parameter
+              name: (identifier)
+              type: (primitive_type)))
+          spec: (lemma_spec_body
+            (lemma_spec_member
+              (binary_expression
+                lhs: (name_expression (name_access_chain (identifier)))
+                rhs: (num_literal))))
+          proof: (proof_block
+            (proof_statement
+              (binary_expression
+                lhs: (name_expression (name_access_chain (identifier)))
+                rhs: (num_literal)))))))))
+
+================================================================================
+Proof block trailing spec body
+================================================================================
+
+module 0x1::test {
+    spec some_fn {
+        ensures result > 0;
+    } proof {
+        assert result > 0;
+        let x = 5;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        target: (name_access_chain (identifier))
+        body: (spec_body
+          (spec_condition
+            (binary_expression
+              lhs: (name_expression (name_access_chain (identifier)))
+              rhs: (num_literal))))
+        proof: (proof_block
+          (proof_statement
+            (binary_expression
+              lhs: (name_expression (name_access_chain (identifier)))
+              rhs: (num_literal)))
+          (proof_statement
+            name: (identifier)
+            value: (num_literal)))))))
+
+================================================================================
+modifies_of wildcard
+================================================================================
+
+module 0x1::test {
+    spec module {
+        modifies_of<self>*;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        body: (spec_body
+          (spec_modifies_of
+            param: (identifier)))))))
+
+================================================================================
+reads_of wildcard
+================================================================================
+
+module 0x1::test {
+    spec module {
+        reads_of<f>*;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        body: (spec_body
+          (spec_reads_of
+            param: (identifier)))))))
+
+================================================================================
+Behavioral predicate: ensures_of as outermost (V2.4)
+================================================================================
+
+module 0x1::test {
+    spec foo {
+        ensures ensures_of<bar>(x, result);
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        target: (name_access_chain
+          (identifier))
+        body: (spec_body
+          (spec_condition
+            (behavior_predicate
+              function: (type_arguments
+                (apply_type
+                  (name_access_chain
+                    (identifier))))
+              arguments: (arg_list
+                (name_expression
+                  (name_access_chain
+                    (identifier)))
+                (name_expression
+                  (name_access_chain
+                    (identifier)))))))))))
+
+================================================================================
+Behavioral predicate: aborts_of with nested type args (V2.4)
+================================================================================
+
+module 0x1::test {
+    spec foo {
+        aborts_if aborts_of<baz<u64>>(x);
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        target: (name_access_chain
+          (identifier))
+        body: (spec_body
+          (spec_condition
+            (behavior_predicate
+              function: (type_arguments
+                (apply_type
+                  (name_access_chain
+                    (identifier))
+                  (type_arguments
+                    (primitive_type))))
+              arguments: (arg_list
+                (name_expression
+                  (name_access_chain
+                    (identifier)))))))))))
+
+================================================================================
+Behavioral predicate: result_of nested inside binary expression (V2.4)
+================================================================================
+
+module 0x1::test {
+    spec foo {
+        ensures result == result_of<bar>(x);
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        target: (name_access_chain
+          (identifier))
+        body: (spec_body
+          (spec_condition
+            (binary_expression
+              lhs: (name_expression
+                (name_access_chain
+                  (identifier)))
+              rhs: (behavior_predicate
+                function: (type_arguments
+                  (apply_type
+                    (name_access_chain
+                      (identifier))))
+                arguments: (arg_list
+                  (name_expression
+                    (name_access_chain
+                      (identifier))))))))))))
+
+================================================================================
+Behavioral predicate: requires_of (V2.4)
+================================================================================
+
+module 0x1::test {
+    spec foo {
+        requires requires_of<f>(arg);
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        target: (name_access_chain
+          (identifier))
+        body: (spec_body
+          (spec_condition
+            (behavior_predicate
+              function: (type_arguments
+                (apply_type
+                  (name_access_chain
+                    (identifier))))
+              arguments: (arg_list
+                (name_expression
+                  (name_access_chain
+                    (identifier)))))))))))
+
+================================================================================
+State-labeled expression: single label (V2.4)
+================================================================================
+
+module 0x1::test {
+    spec foo {
+        ensures s1 |~ result == 0;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        target: (name_access_chain
+          (identifier))
+        body: (spec_body
+          (spec_condition
+            (state_labeled_expression
+              pre: (identifier)
+              body: (binary_expression
+                lhs: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                rhs: (num_literal)))))))))
+
+================================================================================
+State-labeled expression: pre-only range (V2.4)
+================================================================================
+
+module 0x1::test {
+    spec foo {
+        ensures s1.. |~ result > 0;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        target: (name_access_chain
+          (identifier))
+        body: (spec_body
+          (spec_condition
+            (state_labeled_expression
+              pre: (identifier)
+              body: (binary_expression
+                lhs: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                rhs: (num_literal)))))))))
+
+================================================================================
+State-labeled expression: full range (V2.4)
+================================================================================
+
+module 0x1::test {
+    spec foo {
+        ensures s1..s2 |~ result == 0;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        target: (name_access_chain
+          (identifier))
+        body: (spec_body
+          (spec_condition
+            (state_labeled_expression
+              pre: (identifier)
+              post: (identifier)
+              body: (binary_expression
+                lhs: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                rhs: (num_literal)))))))))
+
+================================================================================
+State-labeled expression: post-only range (V2.4)
+================================================================================
+
+module 0x1::test {
+    spec foo {
+        ensures ..s1 |~ result == 0;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (spec_block
+        target: (name_access_chain
+          (identifier))
+        body: (spec_body
+          (spec_condition
+            (state_labeled_expression
+              post: (identifier)
+              body: (binary_expression
+                lhs: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                rhs: (num_literal)))))))))

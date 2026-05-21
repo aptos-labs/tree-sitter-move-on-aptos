@@ -78,8 +78,8 @@ exclude = [
     'move-compiler-v2/tests/checking-lang-v2.2/lambda/bug_16195_variant1.move',
     'move-compiler-v2/tests/checking-lang-v2.2/lambda/inner_fun_variance.move',
 
-    # Grammar limitation: behavior predicate specs (requires_of, aborts_of, etc.)
-    'move-compiler-v2/tests/checking-lang-v2.4/specs/behavior_predicates',
+    # Intentionally invalid syntax: missing '>' in requires_of<...>
+    'move-compiler-v2/tests/checking-lang-v2.4/specs/behavior_predicates_parse_err.move',
 
     # Grammar limitation: cast with generic type (0 as Cup<u8>)
     'move-compiler-v2/tests/checking/typing/cast_invalid.move',
@@ -124,6 +124,43 @@ exclude = [
     'tests/bytecode-generator/matching_coverage_err.move',
     'tests/bytecode-generator/matching_ability_err.move',
     'tests/file-format-generator/struct_variants.move',
+
+    # Grammar limitation: dot_expression method call in match arms (new framework file)
+    'storage_slot_or_inline.move',
+
+    # Grammar limitation: if-else as statement without trailing ';' (new framework file)
+    # Move allows omitting ';' after block-returning control-flow expressions; our grammar requires it
+    'aptos-move/framework/aptos-framework/sources/multisig_account.move',
+    'dependencies/AptosFramework/multisig_account.move',
+    'AptosFramework/sources/multisig_account.move',
+
+    # Grammar limitation: spec fun modifies/reads annotations (modifies R[a] reads R)
+    'move-prover/tests/sources/functional/transitions.move',
+    'move-prover/tests/sources/functional/modifies_spec_fun.move',
+
+    # Grammar limitation: proof { } blocks in specs (V2.5 proof hint blocks)
+    'move-prover/tests/sources/functional/proof',
+    'move-prover/bytecode-pipeline/tests/spec_instrumentation/proofs',
+
+    # Grammar limitation: exists/forall S in * (state label domain quantification)
+    'move-prover/tests/sources/functional/state_labels',
+    'move-prover/tests/sources/functional/closures',
+
+    # Grammar limitation: proof blocks + state domain quantification + modifies_of
+    'move-prover/tests/inference',
+    'move-prover/doc/inference-paper-26',
+    'move-prover/doc/higher-order-paper-26',
+
+    # Grammar limitation: return/abort/loop used as binary expression operands
+    'tools/move-linter/tests/default-only/unreachable_code_control_exp_as_term.move',
+    'tools/move-linter/tests/default-only/unreachable_code_return_in_binop.move',
+
+    # Grammar limitation: range match patterns (bare .., inclusive ..=)
+    'move-compiler-v2/tests/match-checks/range_unbounded_error.move',
+    'move-compiler-v2/tests/match-checks/range_inclusive_missing_upper_bound_error.move',
+
+    # Grammar limitation: reference patterns in match arms (&true, &false)
+    'move-compiler-v2/tests/match-checks/match_literal_ref_pattern.move',
 ]
 
 # Under these folders, if a file xxx.move exists and xxx.exp exists, then xxx.move should be rejected

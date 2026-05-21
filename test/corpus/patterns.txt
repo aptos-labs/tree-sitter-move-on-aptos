@@ -356,3 +356,119 @@ module 0x1::test {
                   (identifier))))
             (match_arm
               body: (num_literal))))))))
+
+================================================================================
+Exclusive range pattern in match arm
+================================================================================
+
+module 0x1::test {
+    fun f(x: u8): u8 {
+        match (x) {
+            0..10 => 0,
+            _ => 1,
+        }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (primitive_type)))
+        return_type: (primitive_type)
+        body: (block
+          (match_expression
+            subject: (name_expression (name_access_chain (identifier)))
+            (match_arm
+              pattern: (range_pattern
+                (num_literal)
+                (num_literal))
+              body: (num_literal))
+            (match_arm
+              body: (num_literal))))))))
+
+================================================================================
+Inclusive range pattern in match arm
+================================================================================
+
+module 0x1::test {
+    fun f(x: u8): u8 {
+        match (x) {
+            10..=20 => 1,
+            _ => 2,
+        }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (primitive_type)))
+        return_type: (primitive_type)
+        body: (block
+          (match_expression
+            subject: (name_expression (name_access_chain (identifier)))
+            (match_arm
+              pattern: (range_pattern
+                (num_literal)
+                (num_literal))
+              body: (num_literal))
+            (match_arm
+              body: (num_literal))))))))
+
+================================================================================
+Negative literal pattern in match arm
+================================================================================
+
+module 0x1::test {
+    fun f(x: i8): u8 {
+        match (x) {
+            -1i8 => 0,
+            _ => 1,
+        }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (primitive_type)))
+        return_type: (primitive_type)
+        body: (block
+          (match_expression
+            subject: (name_expression (name_access_chain (identifier)))
+            (match_arm
+              pattern: (negative_literal
+                (num_literal))
+              body: (num_literal))
+            (match_arm
+              body: (num_literal))))))))

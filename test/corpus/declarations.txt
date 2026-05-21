@@ -144,6 +144,69 @@ module 0x1::test {
         value: (num_literal)))))
 
 ================================================================================
+Constant declaration with public visibility (V2.4)
+================================================================================
+
+module 0x1::test {
+    public const MAX: u64 = 100;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (constant_declaration
+        name: (identifier)
+        type: (primitive_type)
+        value: (num_literal)))))
+
+================================================================================
+Constant declaration with package visibility (V2.4)
+================================================================================
+
+module 0x1::test {
+    package const LIMIT: u64 = 50;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (constant_declaration
+        name: (identifier)
+        type: (primitive_type)
+        value: (num_literal)))))
+
+================================================================================
+Constant declaration with public(friend) visibility (V2.4)
+================================================================================
+
+module 0x1::test {
+    public(friend) const X: u8 = 0;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (constant_declaration
+        name: (identifier)
+        type: (primitive_type)
+        value: (num_literal)))))
+
+================================================================================
 Struct with abilities and fields
 ================================================================================
 
@@ -525,6 +588,34 @@ module 0x1::test {
             type: (primitive_type)))))))
 
 ================================================================================
+Negated acquires clause (V2.4)
+================================================================================
+
+module 0x1::test {
+    fun pure_check(addr: address) !acquires Coin {
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (primitive_type)))
+        acquires: (acquires_clause
+          (name_access_chain
+            (identifier)))
+        body: (block)))))
+
+================================================================================
 Multiple acquires clauses (decompiler output)
 ================================================================================
 
@@ -754,3 +845,56 @@ module 0x1::test {
         name: (identifier)
         parameters: (function_parameters)
         body: (block)))))
+
+================================================================================
+Public struct (V2.4 — semantic gate only)
+================================================================================
+
+module 0x1::test {
+    public struct PubStruct has drop {
+        v: u64,
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (struct_declaration
+        name: (identifier)
+        abilities: (ability_declarations
+          (ability))
+        fields: (struct_fields
+          (field_declaration
+            name: (identifier)
+            type: (primitive_type)))))))
+
+================================================================================
+Package enum (V2.4 — semantic gate only)
+================================================================================
+
+module 0x1::test {
+    package enum Mode {
+        On,
+        Off,
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (enum_declaration
+        name: (identifier)
+        (enum_variant
+          name: (identifier))
+        (enum_variant
+          name: (identifier))))))

@@ -514,3 +514,147 @@ module 0x1::test {
               (name_expression
                 (name_access_chain
                   (identifier))))))))))
+
+================================================================================
+Match on integer literal patterns (V2.4 — semantic gate only)
+================================================================================
+
+module 0x1::test {
+    fun classify(n: u64): bool {
+        match (n) {
+            0 => false,
+            _ => true,
+        }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (primitive_type)))
+        return_type: (primitive_type)
+        body: (block
+          (match_expression
+            subject: (name_expression
+              (name_access_chain
+                (identifier)))
+            (match_arm
+              pattern: (num_literal)
+              body: (bool_literal))
+            (match_arm
+              body: (bool_literal))))))))
+
+================================================================================
+assert! macro with format args (V2.4 — semantic gate only)
+================================================================================
+
+module 0x1::test {
+    fun g(x: u64) {
+        assert!(x > 0, b"value must be positive", x);
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (primitive_type)))
+        body: (block
+          (macro_call_expression
+            macro: (macro_identifier)
+            arguments: (arg_list
+              (binary_expression
+                lhs: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                rhs: (num_literal))
+              (byte_string_literal)
+              (name_expression
+                (name_access_chain
+                  (identifier))))))))))
+
+================================================================================
+assert_eq! and assert_ne! macros (V2.4 — semantic gate only)
+================================================================================
+
+module 0x1::test {
+    fun g(x: u64) {
+        assert_eq!(x, 1);
+        assert_ne!(x, 0, b"x must not be zero");
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (primitive_type)))
+        body: (block
+          (macro_call_expression
+            macro: (macro_identifier)
+            arguments: (arg_list
+              (name_expression
+                (name_access_chain
+                  (identifier)))
+              (num_literal)))
+          (macro_call_expression
+            macro: (macro_identifier)
+            arguments: (arg_list
+              (name_expression
+                (name_access_chain
+                  (identifier)))
+              (num_literal)
+              (byte_string_literal))))))))
+
+================================================================================
+abort with byte string message (V2.4 — semantic gate only)
+================================================================================
+
+module 0x1::test {
+    fun g() {
+        abort b"oops";
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (abort_expression
+            (byte_string_literal)))))))
