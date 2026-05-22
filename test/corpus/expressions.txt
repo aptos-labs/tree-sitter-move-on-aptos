@@ -514,3 +514,58 @@ module 0x1::test {
               (name_expression
                 (name_access_chain
                   (identifier))))))))))
+
+================================================================================
+Unit expression
+================================================================================
+
+module 0x1::test {
+    fun f(): () {
+        ()
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        return_type: (unit_type)
+        body: (block
+          (unit_expression))))))
+
+================================================================================
+Loop with inline spec block
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        loop {} spec { invariant true; }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (loop_expression
+            body: (block)
+            spec: (spec_block
+              body: (spec_body
+                (spec_invariant
+                  (bool_literal))))))))))
+
