@@ -54,6 +54,11 @@ jobs:
       - name: Check formats
         run: npm run format:check
 
+      # Grammar coverage: every named node type and field must appear in at
+      # least one corpus test (100% threshold enforced).
+      - name: Check corpus coverage
+        run: python coverage.py --min-node-pct 100 --min-field-pct 100
+
       # Run tests
       - name: Test the parser on repositories
         run: |
