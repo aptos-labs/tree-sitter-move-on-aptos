@@ -1,6 +1,6 @@
 module github.com/aptos-labs/tree-sitter-move-on-aptos
 
-go 1.23
+go 1.26.11
 
 require github.com/tree-sitter/go-tree-sitter v0.25.0
 

@@ -3,7 +3,10 @@ from platform import system
 
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build import build
-from wheel.bdist_wheel import bdist_wheel
+try:
+    from setuptools.command.bdist_wheel import bdist_wheel
+except ImportError:
+    from wheel.bdist_wheel import bdist_wheel
 
 
 class Build(build):

@@ -8,7 +8,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/tree-sitter/swift-tree-sitter",
-                 from: "0.8.0"),
+                 from: "0.25.0"),
     ],
     targets: [
         .target(name: "TreeSitterMoveOnAptos",
