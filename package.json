@@ -16,7 +16,7 @@
   "author": "ArArgon <liaozping@gmail.com>",
   "license": "Apache-2.0",
   "dependencies": {
-    "node-addon-api": "^8.4.0",
+    "node-addon-api": "^8.9.2",
     "node-gyp-build": "^4.8.4"
   },
   "peerDependencies": {
@@ -28,10 +28,10 @@
     }
   },
   "devDependencies": {
-    "eslint": "^9.31.0",
-    "eslint-config-prettier": "^10.1.5",
-    "eslint-plugin-prettier": "^5.5.1",
-    "globals": "^16.3.0",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.7",
+    "globals": "^17.14.0",
     "prebuildify": "^6.0.1",
     "tree-sitter-cli": "^0.27.2"
   },
