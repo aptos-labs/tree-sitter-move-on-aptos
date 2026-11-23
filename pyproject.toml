@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=84.1.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -9,13 +9,13 @@ version = "0.0.1"
 keywords = ["incremental", "parsing", "tree-sitter", "move-on-aptos"]
 classifiers = [
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: Apache Software License",
   "Topic :: Software Development :: Compilers",
   "Topic :: Text Processing :: Linguistic",
   "Typing :: Typed"
 ]
 requires-python = ">=3.10"
-license = {file = "LICENSE"}
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 readme = "README.md"
 
 [project.urls]
