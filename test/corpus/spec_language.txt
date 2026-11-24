@@ -865,3 +865,115 @@ module 0x1::test {
             (field_declaration
               name: (identifier)
               type: (primitive_type))))))))
+
+================================================================================
+While with inline spec block
+================================================================================
+
+module 0x1::test {
+    fun f(n: u64) {
+        let i = 0;
+        while (i < n) {
+            i = i + 1;
+        } spec {
+            invariant i <= n;
+        };
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (primitive_type)))
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (num_literal))
+          (while_expression
+            condition: (binary_expression
+              lhs: (name_expression
+                (name_access_chain
+                  (identifier)))
+              rhs: (name_expression
+                (name_access_chain
+                  (identifier))))
+            body: (block
+              (assign_expression
+                lhs: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                rhs: (binary_expression
+                  lhs: (name_expression
+                    (name_access_chain
+                      (identifier)))
+                  rhs: (num_literal))))
+            spec: (spec_block
+              body: (spec_body
+                (spec_invariant
+                  (binary_expression
+                    lhs: (name_expression
+                      (name_access_chain
+                        (identifier)))
+                    rhs: (name_expression
+                      (name_access_chain
+                        (identifier)))))))))))))
+
+================================================================================
+Lambda with inline spec block
+================================================================================
+
+module 0x1::test {
+    fun f() {
+        let add = |x: u64| x + 1 spec { ensures result == x + 1; };
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters)
+        body: (block
+          (let_expression
+            binds: (bind_var
+              (identifier))
+            value: (lambda_expression
+              parameters: (lambda_parameters
+                (lambda_parameter
+                  bind: (bind_var
+                    (identifier))
+                  type: (primitive_type)))
+              body: (binary_expression
+                lhs: (name_expression
+                  (name_access_chain
+                    (identifier)))
+                rhs: (num_literal))
+              spec: (spec_block
+                body: (spec_body
+                  (spec_condition
+                    (binary_expression
+                      lhs: (name_expression
+                        (name_access_chain
+                          (identifier)))
+                      rhs: (binary_expression
+                        lhs: (name_expression
+                          (name_access_chain
+                            (identifier)))
+                        rhs: (num_literal)))))))))))))

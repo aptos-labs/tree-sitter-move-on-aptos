@@ -754,3 +754,277 @@ module 0x1::test {
         name: (identifier)
         parameters: (function_parameters)
         body: (block)))))
+
+================================================================================
+Inline function modifier
+================================================================================
+
+module 0x1::test {
+    inline fun double(x: u64): u64 {
+        x * 2
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (function_declaration
+        (inline_modifier)
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (primitive_type)))
+        return_type: (primitive_type)
+        body: (block
+          (binary_expression
+            lhs: (name_expression
+              (name_access_chain
+                (identifier)))
+            rhs: (num_literal)))))))
+
+================================================================================
+Access specifiers: reads, writes, pure
+================================================================================
+
+module 0x1::test {
+    struct R has key { v: u64 }
+    fun reader(addr: address): u64 reads R {
+        0
+    }
+    fun writer(addr: address) writes R {
+    }
+    fun pure_fn(x: u64): u64 pure {
+        x
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (struct_declaration
+        name: (identifier)
+        abilities: (ability_declarations
+          (ability))
+        fields: (struct_fields
+          (field_declaration
+            name: (identifier)
+            type: (primitive_type))))
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (primitive_type)))
+        return_type: (primitive_type)
+        (access_specifier
+          (access_specifier_arg
+            (identifier)))
+        body: (block
+          (num_literal)))
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (primitive_type)))
+        (access_specifier
+          (access_specifier_arg
+            (identifier)))
+        body: (block))
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (primitive_type)))
+        return_type: (primitive_type)
+        (access_specifier)
+        body: (block
+          (name_expression
+            (name_access_chain
+              (identifier))))))))
+
+================================================================================
+Positional struct unpack binding
+================================================================================
+
+module 0x1::test {
+    struct Pair(u64, u64) has copy, drop;
+    fun sum(p: Pair): u64 {
+        let Pair(x, y) = p;
+        x + y
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (struct_declaration
+        name: (identifier)
+        fields: (positional_fields
+          (primitive_type)
+          (primitive_type))
+        abilities: (ability_declarations
+          (ability)
+          (ability)))
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (apply_type
+              (name_access_chain
+                (identifier)))))
+        return_type: (primitive_type)
+        body: (block
+          (let_expression
+            binds: (bind_positional_unpack
+              (name_access_chain
+                (identifier))
+              (bind_var
+                (identifier))
+              (bind_var
+                (identifier)))
+            value: (name_expression
+              (name_access_chain
+                (identifier))))
+          (binary_expression
+            lhs: (name_expression
+              (name_access_chain
+                (identifier)))
+            rhs: (name_expression
+              (name_access_chain
+                (identifier)))))))))
+
+================================================================================
+Struct and enum with post-body abilities
+================================================================================
+
+module 0x1::test {
+    struct Foo { x: u64 } has copy, drop;
+    enum Bar { V1, V2 } has copy, drop;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (struct_declaration
+        name: (identifier)
+        fields: (struct_fields
+          (field_declaration
+            name: (identifier)
+            type: (primitive_type)))
+        post_abilities: (ability_declarations
+          (ability)
+          (ability)))
+      (enum_declaration
+        name: (identifier)
+        (enum_variant
+          name: (identifier))
+        (enum_variant
+          name: (identifier))
+        post_abilities: (ability_declarations
+          (ability)
+          (ability))))))
+
+================================================================================
+Spec emits clause
+================================================================================
+
+module 0x1::test {
+    struct Ev has drop, store { v: u64 }
+    fun emit_ev(handle: &0x1::event::EventHandle<Ev>, v: u64) {
+        0x1::event::emit_event(handle, Ev { v });
+    }
+    spec emit_ev {
+        emits Ev { v: v } to handle;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (module_declaration
+    name: (module_identity
+      address: (numerical_address)
+      module: (identifier))
+    body: (module_body
+      (struct_declaration
+        name: (identifier)
+        abilities: (ability_declarations
+          (ability)
+          (ability))
+        fields: (struct_fields
+          (field_declaration
+            name: (identifier)
+            type: (primitive_type))))
+      (function_declaration
+        name: (identifier)
+        parameters: (function_parameters
+          (function_parameter
+            name: (identifier)
+            type: (ref_type
+              (apply_type
+                (name_access_chain
+                  (numerical_address)
+                  (identifier)
+                  (identifier))
+                (type_arguments
+                  (apply_type
+                    (name_access_chain
+                      (identifier)))))))
+          (function_parameter
+            name: (identifier)
+            type: (primitive_type)))
+        body: (block
+          (call_expression
+            function: (name_access_chain
+              (numerical_address)
+              (identifier)
+              (identifier))
+            arguments: (arg_list
+              (name_expression
+                (name_access_chain
+                  (identifier)))
+              (pack_expression
+                type: (name_access_chain
+                  (identifier))
+                (field_initializer
+                  field: (identifier)))))))
+      (spec_block
+        target: (name_access_chain
+          (identifier))
+        body: (spec_body
+          (spec_emits
+            (pack_expression
+              type: (name_access_chain
+                (identifier))
+              (field_initializer
+                field: (identifier)
+                value: (name_expression
+                  (name_access_chain
+                    (identifier)))))
+            (name_expression
+              (name_access_chain
+                (identifier)))))))))
